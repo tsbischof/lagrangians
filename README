@@ -1,0 +1,1 @@
+Lagrangians is a package for producing images visualizing the time required for a certain system to exhibit certain behavior. The output is a matrix of times, and the program is run through input files.
