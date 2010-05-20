@@ -11,16 +11,10 @@ void integrate_harmonic_oscillator(vector<double> *r, double dt) {
 	verlet(force_harmonic_oscillator, r, dt);
 }
 
-void do_harmonic_oscillator(string config_filename) {
-	po::options_description options;
-	string comment;
-	options.add_options()
-			("time,t", "")
+void do_harmonic_oscillator(string config_filename, po::options_description *options) {
+	options->add_options()
 			("x", "")
 			("v", "")
-			("plot", "")
-			("rule", "")
-			("comment", po::value<string>(&comment)->default_value(""))
 			;
 
 	vector<string> valid_rules;
@@ -34,9 +28,9 @@ void do_harmonic_oscillator(string config_filename) {
 	vector<double> y_limits(3,0.0);
 	vector<double> t_limits(3,0.0);
 
-	string x, y, rule;
+	string x, y, rule, comment;
 
-	if ( parse_config(config_filename, &options, &variable_order,
+	if ( parse_config(config_filename, options, &variable_order,
 			&valid_rules, &rule, &x_limits, &y_limits, &t_limits, &x, &y,
 			&comment) ) {
 		Grapher mygrapher;

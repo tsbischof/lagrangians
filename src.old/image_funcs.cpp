@@ -34,7 +34,7 @@ void image_to_ppm(vector<vector<double> > my_image,
 	int i, j;
 	double max_pixel = 0;
 	for (i = 0; i < height; i++) {
-		cout << "Checking row " << i << " of " << height-1 << "." << endl;
+//		cout << "Checking row " << i << " of " << height-1 << "." << endl;
 		for (j = 0; j < width; j++) {
 			if (max_pixel < my_image[i][j]) {
 				max_pixel = my_image[i][j];
@@ -44,7 +44,7 @@ void image_to_ppm(vector<vector<double> > my_image,
 	cout << "Found maximum pixel value of " << max_pixel << endl;
 
 	for (i = 0; i < height; i++) {
-		cout << "Writing row " << i << " of " << height-1 << "." << endl;
+//		cout << "Writing row " << i << " of " << height-1 << "." << endl;
 		for (j = 0; j < width; j++) {
 			output << choose_RGB(my_image[i][j], max_pixel) << " ";
 		}
@@ -66,8 +66,9 @@ void image_to_raw(vector<vector<double> > my_image,
 
 	int i,j;
 	for (i = 0; i < height; i++) {
-		cout << "Writing row " << i << " of " << height-1 << "." << endl;
+//		cout << "Writing row " << i << " of " << height-1 << "." << endl;
 		for (j = 0; j < width; j++) {
+//			cout << "(" << i << "," << j << "): " << my_image[i][j] << endl;
 			output << my_image[i][j] << " ";
 		}
 		output << endl;

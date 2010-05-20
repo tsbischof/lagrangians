@@ -30,42 +30,25 @@ void Grapher::do_image(void) {
 	long int k = 0;
 #pragma omp parallel for
 	for ( i = 0; i < height; i++) {
-//		cout << "Row " << i << " of " << height-1 << endl;
 		for ( j = 0; j < width; j++) {
 			k++;
 			if ( k % 1000 == 0 ) {
-						cout << "On pixel " << k << " of " << height*width << "." << endl;
+				cout << "On pixel " << k << " of " 
+					 << height*width << "." << endl;
 			}
 			Grapher::image[i][j] = Grapher::do_pixel(i,j);
-/*		cout << "(" << i << "," << j << "): "
-				<< Grapher::image[i][j] << endl; */
 		}
 	}
 
 	cout << "Building image complete." << endl;
 }
 
-void Grapher::write_config(char *filename) {
-	/* Collects the configuration information (parameters, filename, etc).
-	 * and writes them to cout.
-	 */
-	multimap<string, vector<double> >::iterator it;
-	ofstream output;
-	output.open(filename);
-
-	for ( it = parms.begin(); it != parms.end(); it++ ) {
-		output << (*it).first << ": [" << (*it).second[0] << ", " <<
-				(*it).second[1] << ", " << (*it).second[2] << "]" << endl;
-	}
-	output.close();
-}
-
 int Grapher::pixels(string name) {
+	/* Tells how many pixels are required to span the limits with appropriate
+	 * increments. 
+	 */
 	vector<double> lims;
 	lims = parms.find(name)->second;
-/*	cout << "For " << name << ": [" << lims[0] << ", " << lims[1] << ", "
-			<< lims[2] << "] gives " << ceil((lims[1]-lims[0])/lims[2])
-			<< " pixels." << endl; */
 	return((int)ceil((lims[2]-lims[0])/lims[1]) + 1);
 }
 
@@ -73,13 +56,13 @@ double Grapher::do_pixel(int parm1_index, int parm2_index) {
 	/* Get the appropriate starting vector based on the pixel index, run
 	 * the integrator until the rule is satisfied, and report the time.
 	 */
-	vector<double> t_limits = parms.find("t")->second;
+	vector<double> t_limits = Grapher::parms.find("t")->second;
 	double t = t_limits[0];
 	double t_limit = t_limits[2];
 	double dt = t_limits[1];
 
 	// Allocate vectors for the computation, in the order prescribed.
-	int vec_length = parm_order.size();
+	int vec_length = Grapher::parm_order.size();
 	vector<double> r(vec_length,0), r0(vec_length,0);
 
 	int i;
@@ -87,10 +70,10 @@ double Grapher::do_pixel(int parm1_index, int parm2_index) {
 	double val;
 
 	for (i = 0; i < vec_length; i++) {
-		if ( parm_order[i] == parm1 ) {
+		if ( parm_order[i] == Grapher::parm1 ) {
 			limits = parms.find(parm_order[i])->second;
 			val = limits[0] + limits[1] * parm1_index;
-		} else if ( parm_order[i] == parm2 ) {
+		} else if ( parm_order[i] == Grapher::parm2 ) {
 			limits = parms.find(parm_order[i])->second;
 			val = limits[0] + limits[1] * parm2_index;
 		} else {
@@ -98,17 +81,15 @@ double Grapher::do_pixel(int parm1_index, int parm2_index) {
 		}
 		r[i] = val;
 		r0[i] = val;
-/*		cout << "Setting parameter " << parm_order[i] <<
-				" to " << val << ", for point (" <<
-				parm1_index << "," << parm2_index << ")." << endl; */
 	}
 
 	while (t <= t_limit) {
 		Grapher::integrate(&r, dt);
 		if ( Grapher::rule(&r, &r0) ) {
 			return(t);
+		} else {
+			t += dt;
 		}
-		t += dt;
 	}
 
 	return(t);

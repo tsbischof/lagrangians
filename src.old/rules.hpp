@@ -3,8 +3,10 @@
 
 #include <vector>
 
-int sign(double x);
-bool first_turnaround(vector<double> *r, vector<double> *r0);
-bool first_flip(vector<double> *r, vector<double> *r0);
+using namespace std;
 
-#endif /* RULES_HPP_ */
+int sign(double x);
+bool first_turnaround(vector<double> *, vector<double> *);
+bool first_flip(vector<double> *, vector<double> *);
+
+#endif

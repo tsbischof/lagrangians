@@ -9,10 +9,6 @@
 #include "grapher.hpp"
 #include "parse_utils.hpp"
 #include "installed.hpp"
-#include "harmonic_oscillator.hpp"
-#include "double_well.hpp"
-#include "double_pendulum.hpp"
-#include "rules.hpp"
 
 using namespace std;
 namespace po = boost::program_options;

@@ -1,26 +1,19 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <map>
 #include <vector>
 
 #include <boost/program_options.hpp>
 namespace po = boost::program_options;
 
-/* To install a new integrator, add its include here, and modify
- * integrators in main().
- */
 #include "installed.hpp"
-#include "double_pendulum.hpp"
-#include "double_well.hpp"
-#include "harmonic_oscillator.hpp"
 
 using namespace std;
 
 int main(int argc, char *argv[]) {
-	// To do: write the raw image every so often, as a backup. Allow restart from the dumped file.
+	// To do: write a raw image every so often, as a backup. Allow restart from the dumped file.
 	// To do: extend time limit by identifying whether the pixel is at the maximum value and running the appropriate starting conditions.
-	// To do: read configuration from an input file.
+	// To do: have usage print a list of installed features
 
 	if (argc != 2) {
 		cout << "Usage: lagrangians input_file" << endl;
@@ -28,12 +21,16 @@ int main(int argc, char *argv[]) {
 	}
 
 	string config_filename = argv[1];
-//	string config_filename = "harm.inp";
+//	string config_filename = "harmonic.inp";
 	cout << "Reading input from " << config_filename << "." << endl;
 	ifstream config_file(config_filename.c_str());
 
-	if ( !config_file ) {
-		cout << "Input file " << argv[1] << " could not be read." << endl;
+	if ( config_file ) {
+		cout << "Input file " << config_filename <<
+				" found. Parsing options." << endl;
+	} else {
+		cout << "Input file " << config_filename <<
+				" could not be read." << endl;
 		return(1);
 	}
 
@@ -46,11 +43,14 @@ int main(int argc, char *argv[]) {
 	store(po::parse_config_file(config_file, general, true), options);
 	config_file.close();
 
-	void (*dispatcher)(string);
+	void (*dispatcher)(string, po::options_description *);
 	bool success;
 	dispatcher = get_dispatcher(options["integrator"].as<string>(), &success);
+
 	if ( success ) {
-		dispatcher(config_filename);
+		cout << "Integrator " << options["integrator"].as<string>()
+				<< " is installed." << endl;
+		dispatcher(config_filename, &general);
 	} else {
 		cout << "Integrator " << options["integrator"].as<string>()
 						<< " is not installed." << endl;

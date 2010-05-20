@@ -17,7 +17,6 @@ class Grapher {
 	string comment;
 public:
 	void do_image(void);
-	void write_config(char*);
 	void set_integrator(void (*f)(vector<double> *, double)) {integrate = f;}
 	void set_rule(bool (*r)(vector<double> *, vector<double> *)) {rule = r;}
 	void set_x(string parm) {parm1 = parm;}

@@ -1,16 +1,18 @@
 #include <vector>
 #include <map>
 #include <iostream>
-#include <boost/ref.hpp>
+#include <boost/program_options.hpp>
+namespace po = boost::program_options;
 
 #include "harmonic_oscillator.hpp"
 #include "double_well.hpp"
 #include "double_pendulum.hpp"
+
 #include "rules.hpp"
 
 using namespace std;
 
-void (*get_dispatcher(string integrator, bool *result))(string) {
+void (*get_dispatcher(string integrator, bool *result))(string, po::options_description *) {
 	if ( integrator == "harmonic_oscillator" ) {
 		*result = true;
 		return(do_harmonic_oscillator);

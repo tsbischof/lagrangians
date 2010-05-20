@@ -37,14 +37,12 @@ void integrate_double_pendulum(vector<double> *r, double dt) {
 	runge_kutta_4(derivs_double_pendulum, r, dt);
 }
 
-void do_double_pendulum(string config_filename) {
-	po::options_description options;
-	options.add_options()
+void do_double_pendulum(string config_filename, po::options_description *options) {
+	options->add_options()
 			("phi1", "")
 			("omega1", "")
 			("phi2", "")
 			("omega2", "")
-
 			;
 
 	vector<string> valid_rules;
@@ -62,7 +60,7 @@ void do_double_pendulum(string config_filename) {
 
 	string x, y, rule, comment;
 
-	if ( parse_config(config_filename, &options, &variable_order,
+	if ( parse_config(config_filename, options, &variable_order,
 			&valid_rules, &rule, &x_limits, &y_limits, &t_limits, &x, &y,
 			&comment) ) {
 		Grapher mygrapher;

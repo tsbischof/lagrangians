@@ -1,6 +1,7 @@
 #include <vector>
 #include <math.h>
 #include <iostream>
+
 using namespace std;
 
 void verlet(double (*force)(vector<double> *),  vector<double> *r, double dt) {

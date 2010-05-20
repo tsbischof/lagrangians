@@ -3,11 +3,14 @@
 
 #include <vector>
 #include <string>
+#include <boost/program_options.hpp>
+namespace po = boost::program_options;
 
 using namespace std;
 
 void derivs_double_pendulum(vector<double> *r, vector<double> *drdt);
 void integrate_double_pendulum(vector<double> *r, double dt);
-void do_double_pendulum(string config_filename);
+void do_double_pendulum(string config_filename,
+		po::options_description *options);
 
 #endif /* DOUBLE_PENDULUM_HPP_ */
