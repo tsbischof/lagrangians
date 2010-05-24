@@ -13,7 +13,7 @@ all: $(TARGETS)
 	mv ${TARGETS} ..
 
 lagrangians: $(OBJS)
-	$(LD) $(DEBUG) $(CXX_FLAGS) $(LD_FLAGS) $(INCLUDE) $(LIBS) -o $@ $(OBJS) 
+	$(LD) $(DEBUG) $(CXX_FLAGS) $(LD_FLAGS) $(INCLUDES) $(LIBS) -o $@ $(OBJS) 
 	
 $%.o: %.cpp
 	$(CXX) $(DEBUG) $(CXX_FLAGS) $(LIBS) -o $@ $<
