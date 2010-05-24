@@ -5,8 +5,8 @@
 #include <math.h>
 #include <iostream>
 
-void verlet(double (*force)(vector<double> *), vector<double> *, double dt);
-double runge_kutta_4(void (*derivs)(vector<double> *, vector<double> *),
-		vector<double> *r, double dt);
+void verlet(double (*force)(double *), double *, double dt);
+double runge_kutta_4(void (*derivs)(double *, double *),
+		double *r, double dt, int vec_length);
 
 #endif /* INTEGRATORS_HPP_ */

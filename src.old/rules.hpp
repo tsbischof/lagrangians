@@ -6,7 +6,7 @@
 using namespace std;
 
 int sign(double x);
-bool first_turnaround(vector<double> *, vector<double> *);
-bool first_flip(vector<double> *, vector<double> *);
+bool first_turnaround(double *, double *);
+bool first_flip(double *, double *);
 
 #endif

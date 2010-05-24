@@ -8,8 +8,8 @@
 using namespace std;
 
 class Grapher {
-	void (*integrate)(vector<double> *, double); // void *integrate(double r[], double dt)
-	bool (*rule)(vector<double> *, vector<double> *); // void *rule(double r[], double r0[]);
+	void (*integrate)(double *, double); // void *integrate(double r[], double dt)
+	bool (*rule)(double *, double *); // void *rule(double r[], double r0[]);
 	string parm1;
 	string parm2;
 	multimap<string, vector<double> > parms; // array with entries {name, limits}
@@ -19,8 +19,8 @@ class Grapher {
 public:
 	vector<vector<double> > image;
 	void do_image(void);
-	void set_integrator(void (*f)(vector<double> *, double)) {integrate = f;}
-	void set_rule(bool (*r)(vector<double> *, vector<double> *)) {rule = r;}
+	void set_integrator(void (*f)(double *, double)) {integrate = f;}
+	void set_rule(bool (*r)(double *, double *)) {rule = r;}
 	void set_x(string parm) {parm1 = parm;}
 	void set_y(string parm) {parm2 = parm;}
 	void set_parms(multimap<string, vector<double> > parameters) {parms = parameters;}

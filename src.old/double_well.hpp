@@ -8,8 +8,8 @@ namespace po = boost::program_options;
 
 using namespace std;
 
-double force_double_well(vector<double> *r);
-void integrate_double_well(vector<double> *r, double dt);
+double force_double_well(double *r);
+void integrate_double_well(double *r, double dt);
 void do_double_well(string config_filename,
 		po::options_description *options);
 

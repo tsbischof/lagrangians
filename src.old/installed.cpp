@@ -28,7 +28,7 @@ void (*get_dispatcher(string integrator, bool *result))(string, po::options_desc
 	}
 }
 
-void (*get_integrator(string integrator, bool *result))(vector<double> *, double) {
+void (*get_integrator(string integrator, bool *result))(double *, double) {
 	if ( integrator == "harmonic_oscillator" ) {
 		return(integrate_harmonic_oscillator);
 	} else if ( integrator == "double_well" ) {
@@ -41,7 +41,7 @@ void (*get_integrator(string integrator, bool *result))(vector<double> *, double
 	}
 }
 
-bool (*get_rule(string rule, bool *result))(vector<double> *, vector<double> *) {
+bool (*get_rule(string rule, bool *result))(double *, double *) {
 	if ( rule == "first_turnaround" ) {
 		return(first_turnaround);
 	} else if ( rule == "first_flip" ) {

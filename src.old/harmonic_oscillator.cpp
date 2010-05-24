@@ -3,11 +3,11 @@
 
 using namespace std;
 
-double force_harmonic_oscillator(vector<double> *r) {
-	return((*r)[0] * -1);
+double force_harmonic_oscillator(double *r) {
+	return(r[0] * -1);
 }
 
-void integrate_harmonic_oscillator(vector<double> *r, double dt) {
+void integrate_harmonic_oscillator(double *r, double dt) {
 	verlet(force_harmonic_oscillator, r, dt);
 }
 

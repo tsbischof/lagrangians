@@ -8,8 +8,8 @@ namespace po = boost::program_options;
 
 using namespace std;
 
-void derivs_double_pendulum(vector<double> *r, vector<double> *drdt);
-void integrate_double_pendulum(vector<double> *r, double dt);
+void derivs_double_pendulum(double *r, double *drdt);
+void integrate_double_pendulum(double *r, double dt);
 void do_double_pendulum(string config_filename,
 		po::options_description *options);
 

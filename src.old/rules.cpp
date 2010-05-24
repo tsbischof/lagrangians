@@ -12,18 +12,10 @@ int sign(double x) {
 	}
 }
 
-bool first_turnaround(vector<double> *r, vector<double> *r0) {
-	if ( (*r)[1] == 0 or sign((*r)[1]) == sign((*r0)[1])*-1) {
-		return(true);
-	} else {
-		return(false);
-	}
+bool first_turnaround(double *r, double *r0) {
+	return( r[1] == 0 or sign(r[1]) == sign(r0[1])*-1); 
 }
 
-bool first_flip(vector<double> *r, vector<double> *r0) {
-	if ( (*r)[1] < PI*-2 or (*r)[1] > PI*2 ) {
-		return(true);
-	} else {
-		return(false);
-	}
+bool first_flip(double *r, double *r0) {
+	return ( (r[1] < PI*-2) or (r[1] > PI*2) ); 
 }

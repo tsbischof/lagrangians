@@ -163,11 +163,11 @@ void setup_config(Grapher *mygrapher, string config_filename,
 
 	// Change these to the function calls.
 	bool result;
-	void (*integratorptr)(vector<double> *, double);
+	void (*integratorptr)(double *, double);
 	integratorptr = get_integrator(integrator, &result);
 	mygrapher->set_integrator( integratorptr );
 
-	bool (*ruleptr)(vector<double> *, vector<double> *);
+	bool (*ruleptr)(double *, double *);
 	ruleptr = get_rule(rule, &result);
 	mygrapher->set_rule( ruleptr );
 

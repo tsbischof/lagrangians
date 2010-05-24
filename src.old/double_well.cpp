@@ -3,11 +3,11 @@
 
 using namespace std;
 
-double force_double_well(vector<double> *r) {
-	return(pow((*r)[0],3) * -0.06 + (*r)[0] * 0.2);
+double force_double_well(double *r) {
+	return(pow(r[0],3) * -0.06 + r[0] * 0.2);
 }
 
-void integrate_double_well(vector<double> *r, double dt) {
+void integrate_double_well(double *r, double dt) {
 	verlet(force_double_well, r, dt);
 }
 

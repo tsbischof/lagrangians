@@ -38,10 +38,10 @@ void Grapher::do_image(void) {
 	int vec_length = Grapher::parm_order.size();
 
 	double t;
-//	vector<double> r(vec_length, 0), r0(vec_length, 0);
-	vector<double> r, r0;
+	double r[vec_length], r0[vec_length];
+	double *rptr, *r0ptr;
 
-#pragma omp parallel for private(r, r0, t)
+#pragma omp parallel for private(r, r0, rptr, r0ptr, t)
 	for ( i = 0; i < height; i++) {
 		for ( j = 0; j < width; j++) {
 			if ( ++k % 1000 == 0 ) {
@@ -52,9 +52,6 @@ void Grapher::do_image(void) {
 			t = t_limits[0];
 			vector<double> limits;
 			double val;
-
-			r.resize(vec_length);
-			r0.resize(vec_length);
 
 			for (int l = 0; l < vec_length; l++) {
 				if ( parm_order[l] == Grapher::parm1 ) {
@@ -70,9 +67,12 @@ void Grapher::do_image(void) {
 				r0[l] = val;
 			}
 
+			rptr = r;
+			r0ptr = r0;
+
 			while (t <= t_limit) {
-				Grapher::integrate(&r, dt);
-				if ( Grapher::rule(&r, &r0) ) {
+				Grapher::integrate(rptr, dt);
+				if ( Grapher::rule(rptr, r0ptr) ) {
 					break;
 				} else {
 					t += dt;
