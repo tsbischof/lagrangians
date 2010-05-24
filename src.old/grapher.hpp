@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <sstream>
+#include <omp.h>
 
 using namespace std;
 
@@ -16,13 +17,13 @@ class Grapher {
 	string name;
 	string comment;
 public:
+	vector<vector<double> > image;
 	void do_image(void);
 	void set_integrator(void (*f)(vector<double> *, double)) {integrate = f;}
 	void set_rule(bool (*r)(vector<double> *, vector<double> *)) {rule = r;}
 	void set_x(string parm) {parm1 = parm;}
 	void set_y(string parm) {parm2 = parm;}
 	void set_parms(multimap<string, vector<double> > parameters) {parms = parameters;}
-	vector<vector<double> > image;
 	void set_parm_order(vector<string> order) {parm_order = order;}
 	void set_name(string myname) {name = myname;}
 	void set_comment(string mycomment) {comment = mycomment;}
@@ -30,7 +31,6 @@ public:
 	void to_ppm(void);
 private:
 	int pixels(string);
-	double do_pixel(int parm1_index, int parm2_index);
 };
 
 #endif
