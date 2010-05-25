@@ -25,7 +25,7 @@ void Grapher::do_image(void) {
 	Grapher::image.resize(height);
 
 	int i,j;
-	for ( i = 0; i < height; ++i) {
+	for ( i = 0; i < height; i++) {
 		Grapher::image[i].resize(width);
 	}
 

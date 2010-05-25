@@ -2,7 +2,6 @@
 #define GRAPHER_HPP_
 
 #include <vector>
-#include <sstream>
 #include <omp.h>
 
 using namespace std;
