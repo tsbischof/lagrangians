@@ -40,8 +40,8 @@ int do_double_pendulum(char *config_filename) {
 	char *variable_order[4] = {"phi1", "omega1", "phi2", "omega2"};
 
 	Grapher grapher;
-	if ( parse_config(&grapher, config_filename,
-			          &variable_order, &valid_rules) ) {
+	if ( ! setup_config(&grapher, config_filename,
+			          &variable_order[0], &valid_rules) ) {
 		do_image(&grapher);
 		to_raw(&grapher);
 		to_ppm(&grapher);

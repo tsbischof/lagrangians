@@ -1,7 +1,7 @@
 CC := cc
 CCFLAGS := -Wall -fopenmp
 LD := cc
-LIBS := 
+LIBS := -lm 
 OBJS := double_pendulum.o double_well.o grapher.o harmonic_oscillator.o \
 		image_funcs.o installed.o integrators.o main.o parse_utils.o rules.o
 

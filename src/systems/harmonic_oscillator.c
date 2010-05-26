@@ -1,7 +1,5 @@
-#include "includes.hpp"
-#include "harmonic_oscillator.hpp"
-
-using namespace std;
+#include "includes.h"
+#include "harmonic_oscillator.h"
 
 double force_harmonic_oscillator(double *r) {
 	return(r[0] * -1);
@@ -16,8 +14,8 @@ int do_harmonic_oscillator(char *config_filename) {
     char *variable_order[2] = {"x", "v"};
 
     Grapher grapher;
-    if ( parse_config(&grapher, config_filename,
-                      &variable_order, &valid_rules) ) {
+    if ( setup_config(&grapher, config_filename,
+                      &variable_order[0], &valid_rules) ) {
         do_image(&grapher);
         to_raw(&grapher);
         to_ppm(&grapher);

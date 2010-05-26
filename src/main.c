@@ -15,10 +15,9 @@ int main(int argc, char *argv[]) {
 
 	char *config_filename = argv[1];
 	printf("Reading input from %s.\n", config_filename);
-	FILE config_file;
-	config_file = fopen(config_filename, "r");
+	FILE *config_file;
 
-	if ( config_file ) {
+	if ( (config_file = fopen(config_filename, "r")) != NULL ) {
 		printf("Input file %s found. Parsing options.\n", config_filename);
 	} else {
 		printf("Input file %s could not be read.\n", config_filename);
@@ -26,11 +25,11 @@ int main(int argc, char *argv[]) {
 	}
 
 	char *integrator;
-	fscanf(config_file, "integrator=%s\n", integrator);
+	fscanf(config_file, "integrator = %s\n", integrator);
 	integrator = remove_whitespace(integrator);
 	close(config_file);
 
-	void (*dispatcher)(char *);
+	int (*dispatcher)(char *);
 
 	if ( ! get_dispatcher(integrator, dispatcher) ) {
 		printf("Integrator %s is installed.\n", integrator);
