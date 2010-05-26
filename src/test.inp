@@ -1,0 +1,9 @@
+title=Double well test
+comment=Blargh
+integrator=double_well
+rule=first_turnaround
+
+t=0,0.1,10
+x=-5,0.1,5
+v=-5,0.1,5
+plot=x,v
