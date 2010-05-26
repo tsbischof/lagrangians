@@ -42,7 +42,5 @@ void do_double_well(string config_filename, po::options_description *options) {
 		mygrapher.do_image();
 		mygrapher.to_raw();
 		mygrapher.to_ppm();
-		delete &mygrapher;
-		cout << "HERE" << endl;
 	}
 }
