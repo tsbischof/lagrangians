@@ -1,17 +1,16 @@
 #include "includes.h"
 #include "double_pendulum.h"
 
-#define m1 1
-#define m2 1
-#define l1 1
-#define l2 1
-#define g 9.8
-#define PI 3.14159265
+double m1 = 1;
+double m2 = 1;
+double l1 = 1;
+double l2 = 1;
+double g = 9.8;
 
-#define PHI1 0
-#define OMEGA1 1
-#define PHI2 2
-#define OMEGA2 3
+int PHI1 = 0;
+int OMEGA1 = 1;
+int PHI2 = 2;
+int OMEGA2 = 3;
 
 void derivs_double_pendulum(double *r, double *drdt) {
     double delta = r[PHI2] - r[PHI1];
@@ -35,13 +34,13 @@ void integrate_double_pendulum(double *r, double dt) {
 	runge_kutta_4(derivs_double_pendulum, r, dt, 4);
 }
 
-int do_double_pendulum(char *config_filename) {
+int do_double_pendulum(dictionary *options) {
 	char *valid_rules = {"first_flip"};
 	char *variable_order[4] = {"phi1", "omega1", "phi2", "omega2"};
 
 	Grapher grapher;
-	if ( ! setup_config(&grapher, config_filename,
-			          &variable_order[0], &valid_rules) ) {
+	if ( ! setup_config(&grapher, options,
+		 &variable_order[0], 4, &valid_rules) ) {
 		do_image(&grapher);
 		to_raw(&grapher);
 		to_ppm(&grapher);

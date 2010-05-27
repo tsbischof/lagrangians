@@ -1,6 +1,6 @@
 #include "rules.h"
 
-#define PI 3.14159265
+const double PI = 3.14159265;
 
 int sign(double x) {
 	if ( x >= 0 ) {

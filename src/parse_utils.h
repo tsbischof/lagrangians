@@ -3,16 +3,14 @@
 
 #include <stdio.h>
 #include "grapher.h"
+#include "iniparser/iniparser.h"
 
 int contains(char *list[], char *element);
-void parse_plot(char  *line, char *x, char *y);
-char* remove_whitespace(char *s);
-char* clean(char *s);
-void to_lower(char *s);
+int parse_plot(char  *line, char **x, char **y);
+int parse_limits(char *line, double *limits);
 int index_of(char *list[], char *element);
-int parse_limits(FILE *config_file, double *limits, char *name);
-int setup_config(Grapher *grapher, char *config_filename,
-		char *variable_order[], char *valid_rules[]);
+int setup_config(Grapher *grapher, dictionary *options,
+		char *variable_order[], int n_vars, char *valid_rules[]);
 char* name_from_config(char *config_filename);
 
 #endif

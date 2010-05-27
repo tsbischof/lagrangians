@@ -4,20 +4,43 @@
 #include <omp.h>
 #include "grapher.h"
 
+void print_limits(char *name, double *limits) {
+	printf("%s: [%f, %f, %f]\n", name, limits[0], limits[1], limits[2]);
+}
+
 void do_image(Grapher *grapher) {
 	/* Create the image. Allocate the pixel array and populate it using the
 	 * integrator and rule.
 	 */
+	printf("---------------------------------------------\nBuilding image.\n");
+    printf("Working with %s and %s.\n", grapher->parm1, grapher->parm2);
+    print_limits("t", grapher->t_limits);
+    print_limits(grapher->parm1, grapher->parm1_limits);
+    print_limits(grapher->parm2, grapher->parm2_limits);
+    printf("Dimensions: %d x %d.\n", grapher->width, grapher->height);
+
     grapher->height = pixels(grapher->parm1_limits);
     grapher->width = pixels(grapher->parm2_limits);
 
-	printf("Building image.\n");
-	printf("Working with %s and %s.\n", grapher->parm1, grapher->parm2);
-	printf("Dimensions: %d x %d.\n", grapher->width, grapher->height);
+    if ( grapher->height <= 0 || grapher->width <= 0 ) {
+        printf("Either the height or width is invalid: %d x %d.\n",
+                grapher->height, grapher->width);
+        exit(1);
+    }
+
+	printf("Starting each run with r = (");
+	int a = 0;
+	while ( a < grapher->r0_length ) {
+		printf("%f", grapher->r0[a++]);
+		if ( a != grapher->r0_length ) {
+			printf(",");
+		}
+	}
+	printf("\n");
 
 	int i,j;
 	double image[grapher->height][grapher->width];
-	grapher->image = &(image[0][0]);
+	grapher->image = &image[0];
 
 	long int k = 0;
 	long int total_pixels = grapher->height*grapher->width;

@@ -1,10 +1,10 @@
-#ifndef INSTALLED_HPP_
-#define INSTALLED_HPP_
+#ifndef INSTALLED_H_
+#define INSTALLED_H_
 
-int get_dispatcher(char *integrator, 
-                   int (*dispatcher)(char *));
-int get_integrator(char *integrator, 
-                   void (*integrator_func)(double *, double));
-int get_rule(char *rule, int (*rule_func)(double *, double *));
+#include "iniparser/iniparser.h"
 
-#endif /* INSTALLED_HPP_ */
+int (*get_dispatcher(char *integrator))(dictionary *);
+void (*get_integrator(char *integrator))(double *, double);
+int (*get_rule(char *rule))(double *, double *);
+
+#endif

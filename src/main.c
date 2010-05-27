@@ -2,6 +2,7 @@
 
 #include "parse_utils.h"
 #include "installed.h"
+#include "iniparser/iniparser.h"
 
 int main(int argc, char *argv[]) {
 	// To do: write a raw image every so often, as a backup. Allow restart from the dumped file.
@@ -16,26 +17,40 @@ int main(int argc, char *argv[]) {
 	char *config_filename = argv[1];
 	printf("Reading input from %s.\n", config_filename);
 	FILE *config_file;
-
-	if ( (config_file = fopen(config_filename, "r")) != NULL ) {
+	
+	config_file = fopen(config_filename, "r");
+	if ( config_file ) {
 		printf("Input file %s found. Parsing options.\n", config_filename);
+		fclose(config_file);
 	} else {
 		printf("Input file %s could not be read.\n", config_filename);
+		fclose(config_file);
+		return(1);
+	}
+
+	dictionary *options;
+	options = iniparser_load(config_filename);
+	if ( options == NULL ) {
+		printf("Could not parse file: %s\n", config_filename);
 		return(1);
 	}
 
 	char *integrator;
-	fscanf(config_file, "integrator = %s\n", integrator);
-	integrator = remove_whitespace(integrator);
-	close(config_file);
-
-	int (*dispatcher)(char *);
-
-	if ( ! get_dispatcher(integrator, dispatcher) ) {
-		printf("Integrator %s is installed.\n", integrator);
-		return(dispatcher(config_filename));
-	} else {
-		printf("Integrator %s is not installed.\n", integrator);
+	integrator = iniparser_getstring(options, ":integrator", "");
+	if ( integrator == "" ) {
+		printf("No 'integrator = ... ' line found.\n");
 		return(1);
 	}
+
+	int (*dispatcher)(dictionary *);
+	dispatcher = get_dispatcher(integrator);
+	if ( dispatcher != NULL ) {
+		printf("Integrator %s is available.\n", integrator);
+		dispatcher(options);
+	} else {
+		printf("Integrator %s is not available.\n", integrator);
+		return(1);
+	}
+	
+	return(0);
 }
