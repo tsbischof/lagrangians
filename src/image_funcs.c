@@ -5,12 +5,13 @@
 #include "image_funcs.h"
 #define RGB_SCALE 255 // maximum channel value
 
-void image_to_ppm(Grapher *grapher, char *filename, char *desc) {
+void image_to_ppm(Grapher *grapher, char *filename) {
+	printf("--------------------------\n");
 	printf("Writing image to ppm file: %s.\n", filename);
 
 	FILE *output;
 	output = fopen(filename, "w");
-	fprintf(output, "P3\n%s\n", desc);
+	fprintf(output, "P3\n%s\n", grapher->comment);
 	fprintf(output, "%d %d\n", grapher->width, grapher->height);
 	fprintf(output, "%d\n", RGB_SCALE);
 
@@ -40,12 +41,13 @@ void image_to_ppm(Grapher *grapher, char *filename, char *desc) {
 	printf("Finished writing ppm file %s.\n", filename);
 }
 
-void image_to_raw(Grapher *grapher, char *filename, char *desc) {
+void image_to_raw(Grapher *grapher, char *filename) {
+	printf("---------------------------------\n");
 	printf("Writing image to ppm file: %s.\n", filename);
 
 	FILE *output;
 	output = fopen(filename, "w");
-	fprintf(output, "P3\n%s\n", desc);
+	fprintf(output, "P3\n%s\n", grapher->comment);
 	fprintf(output, "%d %d\n", grapher->width, grapher->height);
 	fprintf(output, "%d\n", RGB_SCALE);
 

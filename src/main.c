@@ -42,6 +42,8 @@ int main(int argc, char *argv[]) {
 		return(1);
 	}
 
+	dictionary_set(options, ":filename", config_filename);
+
 	int (*dispatcher)(dictionary *);
 	dispatcher = get_dispatcher(integrator);
 	if ( dispatcher != NULL ) {

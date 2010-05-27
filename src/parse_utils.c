@@ -25,9 +25,11 @@ int contains(char *list[], char *element) {
 int parse_plot(char *plot, char **x, char **y) {
 	char *token;
 	token = strtok(plot, delims);
-	*x = token;
+	*x = malloc(sizeof(token));
+	strcpy(*x, token);
 	token = strtok(NULL, delims);
-	*y = token;
+	*y = malloc(sizeof(token));
+	strcpy(*y, token);
 	if ( y == NULL ) {
 		return(1);
 	} else {
@@ -67,8 +69,7 @@ int index_of(char *list[], char *element) {
 int setup_config(Grapher *grapher, dictionary *options,
 		char *variable_order[], int n_vars, char *valid_rules[]) {
 
-	printf("Setting up the grapher.\n");
-
+	printf("--------------------------------------\nSetting up the grapher.\n");
 	char *integrator;
 	integrator = iniparser_getstring(options, ":integrator", "");
 	grapher->integrate = get_integrator(integrator);
@@ -92,24 +93,25 @@ int setup_config(Grapher *grapher, dictionary *options,
 	}
 
 	// Determine if x and y are valid variables.
-	char *plot, *x, *y;
+	char *plot;
 	plot = iniparser_getstring(options, ":plot", "");
-	parse_plot(plot, &x, &y);
+	parse_plot(plot, &grapher->parm1, &grapher->parm2);
 
-	if ( contains(variable_order, x) && contains(variable_order, y) ) {
-		grapher->parm1 = x;
-		grapher->parm1_index = index_of(variable_order, x);
-		grapher->parm2 = y;
-		grapher->parm2_index = index_of(variable_order, y);
+	if ( contains(variable_order, grapher->parm1) 
+		&& contains(variable_order, grapher->parm2) ) {
+		grapher->parm1_index = index_of(variable_order, grapher->parm1);
+		grapher->parm2_index = index_of(variable_order, grapher->parm2);
 	} else {
-		printf("Invalid plot %s with variables %s and %s.\n", plot, x, y);
+		printf("Invalid plot %s with variables %s and %s.\n", plot, 
+						grapher->parm1, grapher->parm2);
 	}
 
 	if ( grapher->parm1_index >= 0 || grapher->parm2_index >= 0 ) {
-		printf("Found valid plot (%s, %s).\n", x, y);
+		printf("Found valid plot (%s, %s).\n", grapher->parm1, grapher->parm2);
 
-		if ( ! strcmp(x, y) ) {
-			printf("Warning: axes are plotting the same variable %s.\n", x);
+		if ( ! strcmp(grapher->parm1, grapher->parm2) ) {
+			printf("Warning: axes are plotting the same variable %s.\n", 
+							grapher->parm1);
 		}
 	} else {
 		printf("Fatal: Plot parameter %s is invalid.\n", plot);
@@ -118,37 +120,47 @@ int setup_config(Grapher *grapher, dictionary *options,
 
 	// Install the rest of the variables, if present.
 	// To do: actually do this.
-	double r0[n_vars];
+	grapher->r0 = (double*)malloc(sizeof(double)*n_vars);
 	int i;
 	for (i = 0; i < n_vars; i++) {
-		r0[i] = 0;
+		grapher->r0[i] = 0;
 	}
-	grapher->r0 = r0;
 	grapher->r0_length = n_vars;
 
 	// Do the limits for x, y, t.
-	double t_limits[3], x_limits[3], y_limits[3];
 	char *t_lims, *x_lims, *y_lims;
-	char x_key[100], y_key[100];
-	sprintf(x_key, ":%s", x);
-	sprintf(y_key, ":%s", y);
+	char x_key[32], y_key[32];
+	sprintf(x_key, ":%s", grapher->parm1);
+	sprintf(y_key, ":%s", grapher->parm2);
 	t_lims = iniparser_getstring(options, ":t", "");
 	x_lims = iniparser_getstring(options, x_key, "");
 	y_lims = iniparser_getstring(options, y_key, "");
 
-	if ( (! parse_limits(x_lims, &x_limits[0])) &&
-		 (! parse_limits(y_lims, &y_limits[0])) &&
-		 (! parse_limits(t_lims, &t_limits[0])) ) {
-		printf("Found valid limits for %s, %s, t.\n", x, y);
-		grapher->parm1_limits = x_limits;
-		grapher->parm2_limits = y_limits;
-		grapher->t_limits = t_limits;
+	if ( (! parse_limits(x_lims, &grapher->parm1_limits[0])) &&
+		 (! parse_limits(y_lims, &grapher->parm2_limits[0])) &&
+		 (! parse_limits(t_lims, &grapher->t_limits[0])) ) {
+		printf("Found valid limits for %s, %s, t.\n", 
+				grapher->parm1, grapher->parm2);
 	} else {
-		printf("Found invalid limits for either %s, %s, or t.", x, y);
+		printf("Found invalid limits for either %s, %s, or t.", 
+			 grapher->parm1, grapher->parm2);
 	}
 
 	// Find the comment, if any.
-	grapher->comment = iniparser_getstring(options, ":comment", "");
+	char *comment;
+	comment = iniparser_getstring(options, ":comment", "");
+	grapher->comment = malloc(sizeof(comment));
+	strcpy(grapher->comment, comment);
+	printf("Found comment '%s'.\n", grapher->comment);
+
+	// Get the filename base from the input file.
+	char *config_filename = iniparser_getstring(options, ":filename", "");
+	char *name;
+	name = strtok(config_filename, ".");
+	grapher->name = malloc(sizeof(name));
+	strcpy(grapher->name, name);
+	printf("Filename '%s' will be used as the base for output.\n", 
+						grapher->name);
 	
 	// The options have been parsed, free the space.
 	iniparser_freedict(options);

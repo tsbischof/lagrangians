@@ -10,15 +10,15 @@ typedef struct Grapher {
 
 	char *parm1;
 	int parm1_index;
-	double *parm1_limits;
+	double parm1_limits[3];
 	int width;
 
 	char *parm2;
 	int parm2_index;
-	double *parm2_limits;
+	double parm2_limits[3];
 	int height;
 
-	double *t_limits;
+	double t_limits[3];
 
 	double *r0; /* holds the default values for the starting vector.
 				  * Some will be overridden for parm1 and parm2.
