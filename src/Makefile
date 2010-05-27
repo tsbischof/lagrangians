@@ -1,5 +1,5 @@
 CC := cc
-CCFLAGS := -Wall -fopenmp -g
+CCFLAGS := -Wall -fopenmp 
 LD := cc
 LIBS := -lm 
 LIBDIRS := 

@@ -67,11 +67,10 @@ void do_image(Grapher *grapher) {
 	
 	printf("--------------------------------\nStarting the image run.\n");
 
-#pragma omp threadprivate(r, r0, t)
-#pragma omp parallel for 
+#pragma omp parallel for private(r, r0, t)
 	for ( i = 0; i < grapher->height; i++) {
 		for ( j = 0; j < grapher->width; j++) {
-			if ( ++k % 1000 == 0 ) {
+			if ( ++k % 10000 == 0 ) {
 				printf("On pixel %ld of %ld.\n", k, total_pixels);;
 			}
 
@@ -111,14 +110,14 @@ int pixels(double *limits) {
 }
 
 void to_raw(Grapher *grapher) {
-	char *name;
+	char *name = malloc(sizeof(grapher->name)+4);
 	sprintf(name, "%s.raw", grapher->name);
 	image_to_raw(grapher, name);
 }
 
 
 void to_ppm(Grapher *grapher) {
-	char *name;
+	char *name = malloc(sizeof(grapher->name)+4);
 	sprintf(name, "%s.ppm", grapher->name);
 	image_to_ppm(grapher, name);
 }
