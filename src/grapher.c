@@ -68,8 +68,8 @@ void do_image(Grapher *grapher) {
 	int done;
 	
 	printf("--------------------------------\nStarting the image run.\n");
-//	omp_lock_t rule_lock;
-//	omp_init_lock(&rule_lock);
+	omp_lock_t rule_lock;
+	omp_init_lock(&rule_lock);
 
 #pragma omp parallel for private(t, done) firstprivate(r, r0) schedule(dynamic, 1000)
 	for ( i = 0; i < grapher->height; i++) {
@@ -97,14 +97,14 @@ void do_image(Grapher *grapher) {
 			done = 0;
 
 			while (t <= max_t && ! done) {
-//				omp_set_lock(&rule_lock);
+				omp_set_lock(&rule_lock);
 				grapher->integrate(&r[0], dt);
 				if ( grapher->rule(&r[0], &r0[0]) ) {
 					done = 1;
 				} else {
 					t += dt;
 				}
-//				omp_unset_lock(&rule_lock);
+				omp_unset_lock(&rule_lock);
 			}
 
 			grapher->image[i][j] = t;
