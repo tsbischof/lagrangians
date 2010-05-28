@@ -7,7 +7,7 @@
 #include "double_pendulum.h"
 #include "rules.h"
 
-int (*get_dispatcher(char *integrator))(dictionary *) {
+void (*get_dispatcher(char *integrator))(dictionary *) {
 	if ( ! strcmp(integrator, "harmonic_oscillator") ) {
 		return(&do_harmonic_oscillator);
 	} else if ( ! strcmp(integrator, "double_well") ) {

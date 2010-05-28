@@ -4,6 +4,6 @@
 #include "includes.h"
 
 void integrate_double_well(double *r, double dt);
-int do_double_well(dictionary *options);
+void do_double_well(dictionary *options);
 
 #endif 

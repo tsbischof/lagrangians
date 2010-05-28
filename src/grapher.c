@@ -3,6 +3,7 @@
 #include <math.h>
 #include <omp.h>
 #include "grapher.h"
+#include "image_funcs.h"
 
 void print_limits(char *name, double *limits) {
 	printf("%s: [%f, %f, %f]\n", name, limits[0], limits[1], limits[2]);
@@ -64,13 +65,16 @@ void do_image(Grapher *grapher) {
 	double t;
 	double r[grapher->r0_length];
 	double r0[grapher->r0_length];
+	int done;
 	
 	printf("--------------------------------\nStarting the image run.\n");
+//	omp_lock_t rule_lock;
+//	omp_init_lock(&rule_lock);
 
-#pragma omp parallel for private(r, r0, t)
+#pragma omp parallel for private(t, done) firstprivate(r, r0) schedule(dynamic, 1000)
 	for ( i = 0; i < grapher->height; i++) {
 		for ( j = 0; j < grapher->width; j++) {
-			if ( ++k % 10000 == 0 ) {
+			if ( ++k % 100000 == 0 ) {
 				printf("On pixel %ld of %ld.\n", k, total_pixels);;
 			}
 
@@ -78,21 +82,29 @@ void do_image(Grapher *grapher) {
 			int m;
 			for (m = 0; m < grapher->r0_length; m++) {
 				if ( m == grapher->parm1_index ) {
-					r[m] = grapher->parm1_limits[0] 
+					r0[m] = grapher->parm1_limits[0] 
 						+ grapher->parm1_limits[1]*i;
+					r[m] = r0[m];
 				} else if ( m == grapher->parm2_index ) { 
-					r[m] = grapher->parm2_limits[0] 
+					r0[m] = grapher->parm2_limits[0] 
 						+ grapher->parm2_limits[1]*j;
+					r[m] = r0[m];
+				} else {
+					r[m] = 0;
 				}
 			}
 
-			while (t <= max_t) {
+			done = 0;
+
+			while (t <= max_t && ! done) {
+//				omp_set_lock(&rule_lock);
 				grapher->integrate(&r[0], dt);
 				if ( grapher->rule(&r[0], &r0[0]) ) {
-					break;
+					done = 1;
 				} else {
 					t += dt;
 				}
+//				omp_unset_lock(&rule_lock);
 			}
 
 			grapher->image[i][j] = t;

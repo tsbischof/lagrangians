@@ -15,5 +15,5 @@ int first_turnaround(double *r, double *r0) {
 }
 
 int first_flip(double *r, double *r0) {
-	return ( (r[1] < PI*-2) || (r[1] > PI*2) );
+	return ( (r[2] > 2*PI) || (r[2] < -2*PI) );
 }

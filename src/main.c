@@ -37,14 +37,14 @@ int main(int argc, char *argv[]) {
 
 	char *integrator;
 	integrator = iniparser_getstring(options, ":integrator", "");
-	if ( integrator == "" ) {
+	if ( ! strcmp(integrator, "") ) {
 		printf("No 'integrator = ... ' line found.\n");
 		return(1);
 	}
 
 	dictionary_set(options, ":filename", config_filename);
 
-	int (*dispatcher)(dictionary *);
+	void (*dispatcher)(dictionary *);
 	dispatcher = get_dispatcher(integrator);
 	if ( dispatcher != NULL ) {
 		printf("Integrator %s is available.\n", integrator);

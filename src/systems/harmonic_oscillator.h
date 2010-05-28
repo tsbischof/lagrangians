@@ -5,6 +5,6 @@
 
 double force_harmonic_oscillator(double *r);
 void integrate_harmonic_oscillator(double *r, double dt);
-int do_harmonic_oscillator(dictionary *options);
+void do_harmonic_oscillator(dictionary *options);
 
 #endif 

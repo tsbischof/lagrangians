@@ -9,18 +9,14 @@ void integrate_harmonic_oscillator(double *r, double dt) {
 	verlet(force_harmonic_oscillator, r, dt);
 }
 
-int do_harmonic_oscillator(dictionary *options) {
+void do_harmonic_oscillator(dictionary *options) {
     char *valid_rules = {"first_turnaround"};
     char *variable_order[2] = {"x", "v"};
 
     Grapher grapher;
-    if ( setup_config(&grapher, options, 
-		&variable_order[0], 2, &valid_rules) ) {
-        do_image(&grapher);
-        to_raw(&grapher);
-        to_ppm(&grapher);
-        return(0);
-    } else {
-        return(1);
-    }
+    setup_config(&grapher, options, &variable_order[0], 2, &valid_rules);
+    do_image(&grapher);
+    to_raw(&grapher);
+    to_ppm(&grapher);
+	exit(0);
 }

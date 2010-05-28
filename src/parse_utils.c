@@ -169,7 +169,7 @@ int setup_config(Grapher *grapher, dictionary *options,
 }
 
 char* name_from_config(char *config_filename) {
-	char *name;
+	char *name = malloc(sizeof(char)*100);
 	if ( sscanf(config_filename, "%s.inp", name) ) {
 		return(name);
 	} else {

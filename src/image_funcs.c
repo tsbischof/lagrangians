@@ -15,7 +15,7 @@ void image_to_ppm(Grapher *grapher, char *filename) {
 	fprintf(output, "%d %d\n", grapher->width, grapher->height);
 	fprintf(output, "%d\n", RGB_SCALE);
 
-	printf("Getting maximum pixel value.");
+	printf("Getting maximum pixel value.\n");
 
 	int i, j;
 	double max_pixel = 0;
@@ -43,7 +43,7 @@ void image_to_ppm(Grapher *grapher, char *filename) {
 
 void image_to_raw(Grapher *grapher, char *filename) {
 	printf("---------------------------------\n");
-	printf("Writing image to ppm file: %s.\n", filename);
+	printf("Writing image to raw file: %s.\n", filename);
 
 	FILE *output;
 	output = fopen(filename, "w");

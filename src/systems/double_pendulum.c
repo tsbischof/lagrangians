@@ -34,18 +34,14 @@ void integrate_double_pendulum(double *r, double dt) {
 	runge_kutta_4(derivs_double_pendulum, r, dt, 4);
 }
 
-int do_double_pendulum(dictionary *options) {
+void do_double_pendulum(dictionary *options) {
 	char *valid_rules = {"first_flip"};
 	char *variable_order[4] = {"phi1", "omega1", "phi2", "omega2"};
 
 	Grapher grapher;
-	if ( ! setup_config(&grapher, options,
-		 &variable_order[0], 4, &valid_rules) ) {
-		do_image(&grapher);
-		to_raw(&grapher);
-		to_ppm(&grapher);
-		return(0);
-	} else {
-		return(1);
-	}
+	setup_config(&grapher, options, &variable_order[0], 4, &valid_rules);
+	do_image(&grapher);
+	to_raw(&grapher);
+	to_ppm(&grapher);
+	exit(0);
 }
