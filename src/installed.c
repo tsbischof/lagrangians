@@ -40,3 +40,13 @@ int (*get_rule(char *rule))(double *, double *) {
 		return(NULL);
 	}
 }
+
+int (*get_validator(char *validator))(double *) {
+	if ( ! strcmp(validator, "energy_double_pendulum")) {
+		return(energy_double_pendulum);
+	} else if ( ! strcmp(validator, "all") ) {
+		return(validate_all);
+	} else {
+		return(NULL);
+	}
+}

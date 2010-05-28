@@ -34,6 +34,27 @@ void integrate_double_pendulum(double *r, double dt) {
 	runge_kutta_4(derivs_double_pendulum, r, dt, 4);
 }
 
+double T(double *r) {
+	return(1.0/2*m1*pow(r[OMEGA1], 2) + 1.0/2*m2*pow(r[OMEGA2], 2));
+}
+
+double U(double *r) {
+	return(m1*g*l1*(1-cos(r[PHI1]))+m2*g*l2*(2-cos(r[PHI1])-cos(r[PHI2])));
+}
+
+int energy_double_pendulum(double *r) {
+	extern double PI;
+	double r_min[4];
+	r_min[PHI1] = 0;
+	r_min[PHI2] = PI;
+	r_min[OMEGA1] = 0;
+	r_min[OMEGA2] = 0;
+
+//	printf("%f + %f > %f\n", U(r), T(r), U(&r_min[0]));
+
+	return( U(r) + T(r) > U(&r_min[0]) );
+} 
+
 void do_double_pendulum(dictionary *options) {
 	char *valid_rules = {"first_flip"};
 	char *variable_order[4] = {"phi1", "omega1", "phi2", "omega2"};

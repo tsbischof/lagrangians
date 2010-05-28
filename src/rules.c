@@ -1,6 +1,6 @@
 #include "rules.h"
 
-const double PI = 3.14159265;
+double PI = 3.14159265;
 
 int sign(double x) {
 	if ( x >= 0 ) {
@@ -16,4 +16,8 @@ int first_turnaround(double *r, double *r0) {
 
 int first_flip(double *r, double *r0) {
 	return ( (r[2] > 2*PI) || (r[2] < -2*PI) );
+}
+
+int validate_all(double *r) {
+	return(1);
 }

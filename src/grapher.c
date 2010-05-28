@@ -96,18 +96,22 @@ void do_image(Grapher *grapher) {
 
 			done = 0;
 
-			while (t <= max_t && ! done) {
-				omp_set_lock(&rule_lock);
-				grapher->integrate(&r[0], dt);
-				if ( grapher->rule(&r[0], &r0[0]) ) {
-					done = 1;
-				} else {
-					t += dt;
+			if ( grapher->validate(&r[0]) ) {
+				while (t <= max_t && ! done) {
+					omp_set_lock(&rule_lock);
+					grapher->integrate(&r[0], dt);
+					if ( grapher->rule(&r[0], &r0[0]) ) {
+						done = 1;
+					} else {
+						t += dt;
+					}
+					omp_unset_lock(&rule_lock);
 				}
-				omp_unset_lock(&rule_lock);
-			}
 
-			grapher->image[i][j] = t;
+				grapher->image[i][j] = t;
+			} else { 
+				grapher->image[i][j] = grapher->t_limits[2];
+			}
 		}
 	}
 

@@ -6,6 +6,7 @@ typedef struct Grapher {
 	char *comment;
 	void (*integrate)(double *, double);
 	int (*rule)(double *, double *);
+	int (*validate)(double *);
 	double **image;
 
 	char *parm1;

@@ -92,6 +92,11 @@ int setup_config(Grapher *grapher, dictionary *options,
 		return(1);
 	}
 
+	char *validator;
+	validator = iniparser_getstring(options, ":validator", "all");
+	printf("Found validator '%s'.\n", validator);
+	grapher->validate = get_validator(validator);
+
 	// Determine if x and y are valid variables.
 	char *plot;
 	plot = iniparser_getstring(options, ":plot", "");
