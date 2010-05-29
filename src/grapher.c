@@ -64,14 +64,14 @@ void do_image(Grapher *grapher) {
 
 	double t;
 	double r[grapher->r0_length];
-	double r0[grapher->r0_length];
+	double r0[grapher->r0_length]; 
 	int done;
 	
 	printf("--------------------------------\nStarting the image run.\n");
-	omp_lock_t rule_lock;
-	omp_init_lock(&rule_lock);
+	omp_lock_t rule_lock, validate_lock;
+	omp_init_lock(&rule_lock); omp_init_lock(&validate_lock);
 
-#pragma omp parallel for private(t, done) firstprivate(r, r0) schedule(dynamic, 1000)
+#pragma omp parallel for private(t, done) firstprivate(r, r0) schedule(dynamic, 100000)
 	for ( i = 0; i < grapher->height; i++) {
 		for ( j = 0; j < grapher->width; j++) {
 			if ( ++k % 100000 == 0 ) {
@@ -96,7 +96,9 @@ void do_image(Grapher *grapher) {
 
 			done = 0;
 
+			omp_set_lock(&validate_lock);
 			if ( grapher->validate(&r[0]) ) {
+				omp_unset_lock(&validate_lock);
 				while (t <= max_t && ! done) {
 					omp_set_lock(&rule_lock);
 					grapher->integrate(&r[0], dt);
@@ -110,6 +112,7 @@ void do_image(Grapher *grapher) {
 
 				grapher->image[i][j] = t;
 			} else { 
+				omp_unset_lock(&validate_lock);
 				grapher->image[i][j] = grapher->t_limits[2];
 			}
 		}
