@@ -4,7 +4,7 @@ integrator=double_pendulum
 rule=first_flip
 validator=energy_double_pendulum
 
-t=0,0.01,100
+t=0,0.01,1000
 phi1=-3.14159,0.000628318,3.14159
 phi2=-3.14159,0.000628318,3.14159
 plot=phi1,phi2
