@@ -44,15 +44,18 @@ int main(int argc, char *argv[]) {
 
 	dictionary_set(options, ":filename", config_filename);
 
-	void (*dispatcher)(dictionary *);
+	void (*dispatcher)(dictionary *, Grapher *);
 	dispatcher = get_dispatcher(integrator);
+	Grapher grapher;
 	if ( dispatcher != NULL ) {
 		printf("Integrator %s is available.\n", integrator);
-		dispatcher(options);
+		dispatcher(options, &grapher);
+		do_image(&grapher);
+		to_raw(&grapher);
+		to_ppm(&grapher);
+		return(0);
 	} else {
 		printf("Integrator %s is not available.\n", integrator);
 		return(1);
 	}
-	
-	return(0);
 }

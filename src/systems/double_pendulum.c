@@ -50,19 +50,11 @@ int energy_double_pendulum(double *r) {
 	r_min[OMEGA1] = 0;
 	r_min[OMEGA2] = 0;
 
-//	printf("%f + %f > %f\n", U(r), T(r), U(&r_min[0]));
-
 	return( U(r) + T(r) > U(&r_min[0]) );
 } 
 
-void do_double_pendulum(dictionary *options) {
+void do_double_pendulum(dictionary *options, Grapher *grapher) {
 	char *valid_rules = {"first_flip"};
 	char *variable_order[4] = {"phi1", "omega1", "phi2", "omega2"};
-
-	Grapher grapher;
-	setup_config(&grapher, options, &variable_order[0], 4, &valid_rules);
-	do_image(&grapher);
-	to_raw(&grapher);
-	to_ppm(&grapher);
-	exit(0);
+	setup_config(grapher, options, &variable_order[0], 4, &valid_rules);
 }

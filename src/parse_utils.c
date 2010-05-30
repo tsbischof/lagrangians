@@ -68,8 +68,8 @@ int index_of(char *list[], char *element) {
 
 int setup_config(Grapher *grapher, dictionary *options,
 		char *variable_order[], int n_vars, char *valid_rules[]) {
-
-	printf("--------------------------------------\nSetting up the grapher.\n");
+	printf("--------------------------------------\n");
+	printf("Setting up the grapher.\n");
 	char *integrator;
 	integrator = iniparser_getstring(options, ":integrator", "");
 	grapher->integrate = get_integrator(integrator);
@@ -170,6 +170,35 @@ int setup_config(Grapher *grapher, dictionary *options,
 	// The options have been parsed, free the space.
 	iniparser_freedict(options);
 
+	// Finish preparing the grapher.
+    printf("------------------------------------\n");
+	printf("Finished installing settings. Time for a few sanity checks.\n");
+    printf("Working with %s and %s.\n", grapher->parm1, grapher->parm2);
+    print_limits("t", grapher->t_limits);
+    print_limits(grapher->parm1, grapher->parm1_limits);
+    print_limits(grapher->parm2, grapher->parm2_limits);
+
+    grapher->height = pixels(grapher->parm1_limits);
+    grapher->width = pixels(grapher->parm2_limits);
+
+    if ( grapher->height <= 0 || grapher->width <= 0 ) {
+        printf("Either the height or width is invalid: %d x %d.\n",
+                grapher->height, grapher->width);
+        exit(1);
+    } else {
+        printf("Dimensions: %d x %d.\n", grapher->width, grapher->height);
+    }
+
+    printf("Starting each run with r = (");
+    int a;
+    for (a = 0; a < grapher->r0_length; a++) {
+        printf("%f", grapher->r0[a]);
+        if ( a+1 != grapher->r0_length ) {
+            printf(",");
+        }
+    }
+    printf(")\n");
+    printf("(appropriate values will be used for the chosen variables)\n");
 	return(0);
 }
 

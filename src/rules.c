@@ -21,3 +21,7 @@ int first_flip(double *r, double *r0) {
 int validate_all(double *r) {
 	return(1);
 }
+
+int speed(double *r, double *r0) {
+	return( r[1] > 5 );
+}

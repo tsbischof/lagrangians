@@ -30,6 +30,7 @@ typedef struct Grapher {
 
 void print_limits(char *name, double *limits);
 void do_image(Grapher *grapher);
+double do_pixel(Grapher *grapher, double *r, double *r0, int i, int j);
 int pixels(double *limits);
 void to_raw(Grapher *grapher);
 void to_ppm(Grapher *grapher);

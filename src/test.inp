@@ -1,9 +1,9 @@
-title = Double well test
-comment = Blargh
-integrator = double_well
+title = 
+comment = 
+integrator = trig
 rule = first_turnaround
 
-t = 0,0.1,10
-x = -5,0.01,5
-v = -5,0.01,5
+t = 0,0.01,10
+x = -10,0.002,10
+v = -10,0.002,10
 plot = x,v
