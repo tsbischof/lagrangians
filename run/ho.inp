@@ -2,7 +2,7 @@ title=harmonic oscillator test
 integrator=harmonic_oscillator
 rule=first_turnaround
 
-t=0,0.1,10
+t=0,0.01,10
 x=-5,0.001,5
 v=-5,0.001,5
 plot=x,v
