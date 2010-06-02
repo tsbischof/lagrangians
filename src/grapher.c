@@ -79,7 +79,12 @@ double do_pixel(Grapher *grapher, double *r, double *r0, int i, int j) {
 				t += grapher->t_limits[1];
 			}
 		}
-		return(t);
+
+		if ( t > grapher->t_limits[2] ) {
+			return(grapher->t_limits[2]);
+		} else {
+			return(t);
+		}
 	} else {
 		return(grapher->t_limits[2]);
 	}

@@ -6,6 +6,8 @@
 #include "double_well.h"
 #include "double_pendulum.h"
 #include "trig.h"
+#include "trig2.h"
+
 #include "rules.h"
 #include "grapher.h"
 
@@ -18,6 +20,8 @@ void (*get_dispatcher(char *integrator))(dictionary *, Grapher *grapher) {
 		return(&do_double_pendulum);
 	} else if ( ! strcmp(integrator, "trig") ) {
 		return(&do_trig);
+	} else if ( ! strcmp(integrator, "trig2") ) {
+		return(&do_trig2);
 	} else {
 		return(NULL);
 	}
@@ -32,6 +36,8 @@ void (*get_integrator(char *integrator))(double *, double) {
 		return(&integrate_double_pendulum);
 	} else if ( ! strcmp(integrator, "trig") ) {
 		return(&integrate_trig);
+	} else if ( ! strcmp(integrator, "trig2") ) {
+		return(&integrate_trig2);
 	} else {
 		return(NULL);
 	}
