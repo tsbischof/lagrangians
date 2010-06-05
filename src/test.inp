@@ -1,9 +1,9 @@
 title = 
 comment = 
-integrator = trig2
+integrator = trig3
 rule = first_turnaround
 
 t = 0,0.01,100
-x = -100,0.01,100
-v = -100,0.01,100
+x = -10,0.1,10
+v = -10,0.1,10
 plot = x,v

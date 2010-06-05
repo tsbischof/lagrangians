@@ -2,9 +2,11 @@ CC = cc
 CFLAGS = -Wall 
 LD = cc
 LIBS = -lm 
-OBJS = double_pendulum.o double_well.o grapher.o harmonic_oscillator.o \
+OBJS =  systems/harmonic_oscillator.o systems/double_well.o \
+		systems/double_pendulum.o systems/trig.o systems/trig2.o \
+		systems/trig3.o \
 		image_funcs.o installed.o integrators.o main.o parse_utils.o rules.o \
-		trig.o trig2.o  \
+		grapher.o \
 		iniparser/dictionary.o iniparser/iniparser.o 
 TARGETS = lagrangians
 

@@ -2,11 +2,13 @@
 #include <string.h>
 
 #include "iniparser/iniparser.h"
-#include "harmonic_oscillator.h"
-#include "double_well.h"
-#include "double_pendulum.h"
-#include "trig.h"
-#include "trig2.h"
+
+#include "systems/harmonic_oscillator.h"
+#include "systems/double_well.h"
+#include "systems/double_pendulum.h"
+#include "systems/trig.h"
+#include "systems/trig2.h"
+#include "systems/trig3.h"
 
 #include "rules.h"
 #include "grapher.h"
@@ -22,6 +24,8 @@ void (*get_dispatcher(char *integrator))(dictionary *, Grapher *grapher) {
 		return(&do_trig);
 	} else if ( ! strcmp(integrator, "trig2") ) {
 		return(&do_trig2);
+	} else if ( ! strcmp(integrator, "trig3") ) {
+		return(&do_trig3);
 	} else {
 		return(NULL);
 	}
@@ -38,6 +42,8 @@ void (*get_integrator(char *integrator))(double *, double) {
 		return(&integrate_trig);
 	} else if ( ! strcmp(integrator, "trig2") ) {
 		return(&integrate_trig2);
+	} else if ( ! strcmp(integrator, "trig3") ) {
+		return(&integrate_trig3);
 	} else {
 		return(NULL);
 	}
