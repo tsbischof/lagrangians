@@ -8,10 +8,14 @@ import os
 
 def do_run(filename):
     lagrangians = "/home/tsbischof/src/lagrangians/src/lagrangians"
-    log_name = re.sub("inp$", "log", filename)
+    base = filename[:-3]
+    log_name = base + "log"
     print("Working with input file", filename)
     log_file = open(log_name, "w")
     subprocess.Popen([lagrangians, filename], stdout=log_file).wait()
+    subprocess.Popen(["convert", base + "ppm", base + "png"]).wait()
+    subprocess.Popen(["bzip2", base + "raw"]).wait()
+    subprocess.Popen(["bzip2", base + "ppm"]).wait()
     log_file.close()
 
 if __name__ == "__main__":
