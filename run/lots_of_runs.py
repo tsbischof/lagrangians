@@ -11,20 +11,21 @@ plot = phi1,phi2
 """
 
 omega1 = -3
-omega2 = -3
+omega2_init = -3
 
-domega1 = 0.01
-domega2 = 0.01
+domega1 = 0.1
+domega2 = 0.1
 
 omega1_limit = 3
 omega2_limit = 3
 
 n = 0
 while omega1 < omega1_limit:
+    omega2 = omega2_init
     while omega2 < omega2_limit:
         f = open("dp%08d.inp" % n, "w")
         f.write(input_file % (omega1, omega2))
         f.close()
         n += 1
-        omega1 += domega1
         omega2 += domega2
+    omega1 += domega1
