@@ -40,7 +40,7 @@ void do_image(Grapher *grapher) {
 //#pragma omp parallel for firstprivate(r, r0) schedule(dynamic)
 	for ( i = 0; i < grapher->height; i++) {
 		for ( j = 0; j < grapher->width; j++) {
-			if ( ++k % 100000 == 0 ) {
+			if ( ++k % (grapher->width*grapher->height / 1000) == 0 ) {
 				printf("On pixel %ld of %ld.\n", k, total_pixels);;
 			}
 
@@ -64,12 +64,11 @@ double do_pixel(Grapher *grapher, double *r, double *r0, int i, int j) {
 					+ grapher->parm2_limits[1]*j;
 			r[m] = r0[m];
 		} else {
-			r[m] = 0;
+			r[m] = grapher->r0[m];
 		}
 	}
 
 	int done = 0;
-
 	if ( grapher->validate(&r[0]) ) {
 		while (t < grapher->t_limits[2] && ! done) {
 			grapher->integrate(&r[0], grapher->t_limits[1]);

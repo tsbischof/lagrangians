@@ -73,7 +73,13 @@ int setup_config(Grapher *grapher, dictionary *options,
 	char *integrator;
 	integrator = iniparser_getstring(options, ":integrator", "");
 	grapher->integrate = get_integrator(integrator);
-	printf("Installed integrator %s.\n", integrator);
+
+	if ( grapher->integrate != NULL ) {
+		printf("Installed integrator %s.\n", integrator);
+	} else {
+		printf("Fatal: could not install integrator %s.\n", integrator);
+		return(1);
+	}
 
 	// Check that the rule is allowed for this simulation.
 	char *rule;
@@ -94,8 +100,12 @@ int setup_config(Grapher *grapher, dictionary *options,
 
 	char *validator;
 	validator = iniparser_getstring(options, ":validator", "all");
-	printf("Found validator '%s'.\n", validator);
 	grapher->validate = get_validator(validator);
+	if ( grapher->validate != NULL ) {
+		printf("Found validator %s.\n", validator);
+	} else { 
+		printf("Failed while installing validator %s.\n", validator);
+	}	
 
 	// Determine if x and y are valid variables.
 	char *plot;
@@ -127,8 +137,10 @@ int setup_config(Grapher *grapher, dictionary *options,
 	// To do: actually do this.
 	grapher->r0 = (double*)malloc(sizeof(double)*n_vars);
 	int i;
+	char key[100];
 	for (i = 0; i < n_vars; i++) {
-		grapher->r0[i] = 0;
+		sprintf(key, ":%s", variable_order[i]);
+		grapher->r0[i] = atof(iniparser_getstring(options, key, ""));
 	}
 	grapher->r0_length = n_vars;
 

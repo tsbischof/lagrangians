@@ -9,6 +9,7 @@
 #include "systems/trig.h"
 #include "systems/trig2.h"
 #include "systems/trig3.h"
+#include "systems/dangling_stick.h"
 
 #include "rules.h"
 #include "grapher.h"
@@ -26,6 +27,8 @@ void (*get_dispatcher(char *integrator))(dictionary *, Grapher *grapher) {
 		return(&do_trig2);
 	} else if ( ! strcmp(integrator, "trig3") ) {
 		return(&do_trig3);
+	} else if ( ! strcmp(integrator, "dangling_stick") ) {
+		return(&do_dangling_stick);
 	} else {
 		return(NULL);
 	}
@@ -44,6 +47,8 @@ void (*get_integrator(char *integrator))(double *, double) {
 		return(&integrate_trig2);
 	} else if ( ! strcmp(integrator, "trig3") ) {
 		return(&integrate_trig3);
+	} else if ( ! strcmp(integrator, "dangling_stick") ) {
+		return(&integrate_dangling_stick);
 	} else {
 		return(NULL);
 	}
@@ -54,6 +59,8 @@ int (*get_rule(char *rule))(double *, double *) {
 		return(&first_turnaround);
 	} else if ( ! strcmp(rule, "first_flip") ) {
 		return(&first_flip);
+	} else if ( ! strcmp(rule, "first_flip_dangling_stick") ) {
+		return(&first_flip_dangling_stick);
 	} else if ( ! strcmp(rule, "speed") ) {
 		return(&speed);
 	} else {
@@ -64,6 +71,8 @@ int (*get_rule(char *rule))(double *, double *) {
 int (*get_validator(char *validator))(double *) {
 	if ( ! strcmp(validator, "energy_double_pendulum")) {
 		return(energy_double_pendulum);
+	} else if ( ! strcmp(validator, "energy_dangling_stick")) {
+		return(energy_dangling_stick);
 	} else if ( ! strcmp(validator, "all") ) {
 		return(validate_all);
 	} else {

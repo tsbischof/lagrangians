@@ -7,10 +7,7 @@ double l1 = 1;
 double l2 = 1;
 double g = 9.8;
 
-int PHI1 = 0;
-int OMEGA1 = 1;
-int PHI2 = 2;
-int OMEGA2 = 3;
+enum { PHI1, OMEGA1, PHI2, OMEGA2 };
 
 void derivs_double_pendulum(double *r, double *drdt) {
     double delta = r[PHI2] - r[PHI1];

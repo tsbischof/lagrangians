@@ -1,9 +1,12 @@
 title = 
 comment = 
-integrator = trig3
-rule = first_turnaround
+integrator = double_pendulum
+rule = first_flip
+validator = energy_double_pendulum
 
 t = 0,0.01,100
-x = -10,0.1,10
-v = -10,0.1,10
-plot = x,v
+phi1 = -3.14,0.00314,3.14
+phi2 = -3.14,0.00314,3.14
+omega1 = 1
+omega2 = 1
+plot = phi1, phi2

@@ -25,3 +25,7 @@ int validate_all(double *r) {
 int speed(double *r, double *r0) {
 	return( r[1] > 5 );
 }
+
+int first_flip_dangling_stick(double *r, double *r0) {
+	return( (r[4] > 2*PI) || (r[4] < -2*PI) );
+}
