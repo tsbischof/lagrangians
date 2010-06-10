@@ -11,6 +11,12 @@ int main(int argc, char *argv[]) {
 
 	if (argc != 2) {
 		printf("Usage: lagrangians input_file.\n");
+		printf("You invoked using: ");
+		int i;
+		for (i = 0; i < argc; i++) {
+			printf("%s ", argv[i]);
+		}
+		printf("\n");
 		return(1);
 	}
 
