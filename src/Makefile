@@ -1,5 +1,5 @@
 CC = cc
-CFLAGS = -Wall 
+CFLAGS = -Wall -fopenmp
 LD = cc
 LIBS = -lm 
 OBJS =  systems/harmonic_oscillator.o systems/double_well.o \

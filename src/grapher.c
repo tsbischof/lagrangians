@@ -42,7 +42,7 @@ void do_image(Grapher *grapher) {
 		print_every = 1;
 	}
 
-#pragma omp parallel for firstprivate(r, r0) schedule(dynamic)
+#pragma omp parallel for private(i, j) firstprivate(r, r0) schedule(dynamic)
 	for ( i = 0; i < grapher->height; i++) {
 		for ( j = 0; j < grapher->width; j++) {
 			if ( k % print_every == 0 ) {

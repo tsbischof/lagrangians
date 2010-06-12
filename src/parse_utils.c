@@ -135,7 +135,7 @@ int setup_config(Grapher *grapher, dictionary *options,
 	}
 
 	// Install the rest of the variables, if present.
-//	grapher->r0 = (double*)malloc(sizeof(double)*n_vars);
+	grapher->r0 = (double*)malloc(sizeof(double)*n_vars);
 	int i;
 	char key[100];
 	for (i = 0; i < n_vars; i++) {

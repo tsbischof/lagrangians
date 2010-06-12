@@ -21,7 +21,7 @@ typedef struct Grapher {
 
 	double t_limits[3];
 
-	double r0[100]; /* holds the default values for the starting vector.
+	double *r0; /* holds the default values for the starting vector.
 				  * Some will be overridden for parm1 and parm2.
 				  */
 	int r0_length;
