@@ -14,7 +14,7 @@ int first_turnaround(double *r, double *r0) {
 	return( (r[1] == 0) || (sign(r[1]) == sign(r0[1])*-1) );
 }
 
-int first_flip(double *r, double *r0) {
+int first_flip_double_pendulum(double *r, double *r0) {
 	return ( (r[2] > 2*PI) || (r[2] < -2*PI) );
 }
 

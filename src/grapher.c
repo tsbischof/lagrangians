@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-//#include <omp.h>
+#include <omp.h>
 #include "grapher.h"
 #include "image_funcs.h"
 
@@ -37,13 +37,18 @@ void do_image(Grapher *grapher) {
 	
 	printf("--------------------------------\nStarting the image run.\n");
 
-//#pragma omp parallel for firstprivate(r, r0) schedule(dynamic)
+	int print_every = grapher->width*grapher->height / 1000;
+	if ( print_every == 0 ) {
+		print_every = 1;
+	}
+
+#pragma omp parallel for firstprivate(r, r0) schedule(dynamic)
 	for ( i = 0; i < grapher->height; i++) {
 		for ( j = 0; j < grapher->width; j++) {
-			if ( ++k % (grapher->width*grapher->height / 1000) == 0 ) {
-				printf("On pixel %ld of %ld.\n", k, total_pixels);;
+			if ( k % print_every == 0 ) {
+				printf("On pixel %ld of %ld.\n", k, total_pixels);
 			}
-
+			k++;
 			grapher->image[i][j] = do_pixel(grapher, &r[0], &r0[0], i, j);
 		}
 	}
@@ -58,14 +63,13 @@ double do_pixel(Grapher *grapher, double *r, double *r0, int i, int j) {
 		if ( m == grapher->parm1_index ) {
 			r0[m] = grapher->parm1_limits[0]
 					 + grapher->parm1_limits[1]*i;
-			r[m] = r0[m];
 		} else if ( m == grapher->parm2_index ) {
 			r0[m] = grapher->parm2_limits[0]
 					+ grapher->parm2_limits[1]*j;
-			r[m] = r0[m];
 		} else {
-			r[m] = grapher->r0[m];
+			r0[m] = grapher->r0[m];
 		}
+		r[m] = r0[m];
 	}
 
 	int done = 0;

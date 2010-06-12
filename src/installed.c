@@ -57,8 +57,8 @@ void (*get_integrator(char *integrator))(double *, double) {
 int (*get_rule(char *rule))(double *, double *) {
 	if ( ! strcmp(rule, "first_turnaround") ) {
 		return(&first_turnaround);
-	} else if ( ! strcmp(rule, "first_flip") ) {
-		return(&first_flip);
+	} else if ( ! strcmp(rule, "first_flip_double_pendulum") ) {
+		return(&first_flip_double_pendulum);
 	} else if ( ! strcmp(rule, "first_flip_dangling_stick") ) {
 		return(&first_flip_dangling_stick);
 	} else if ( ! strcmp(rule, "speed") ) {

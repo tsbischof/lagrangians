@@ -57,7 +57,7 @@ int index_of(char *list[], char *element) {
 	int i = 0;
 
 	while ( list[i] != '\0' ) {
-		if ( strcmp(list[i], element) ) {
+		if ( ! strcmp(list[i], element) ) {
 			return(i);
 		} else {
 			i++;
@@ -78,7 +78,7 @@ int setup_config(Grapher *grapher, dictionary *options,
 		printf("Installed integrator %s.\n", integrator);
 	} else {
 		printf("Fatal: could not install integrator %s.\n", integrator);
-		return(1);
+		exit(1);
 	}
 
 	// Check that the rule is allowed for this simulation.
@@ -91,11 +91,11 @@ int setup_config(Grapher *grapher, dictionary *options,
 			printf("Installed rule %s.\n", rule);
 		} else {
 			printf("Fatal: Could not install valid rule %s.\n", rule);
-			return(2);
+			exit(2);
 		}
 	} else {
 		printf("Fatal: Found invalid rule %s.\n", rule);
-		return(1);
+		exit(1);
 	}
 
 	char *validator;
@@ -105,6 +105,7 @@ int setup_config(Grapher *grapher, dictionary *options,
 		printf("Found validator %s.\n", validator);
 	} else { 
 		printf("Failed while installing validator %s.\n", validator);
+		exit(1);
 	}	
 
 	// Determine if x and y are valid variables.
@@ -130,12 +131,11 @@ int setup_config(Grapher *grapher, dictionary *options,
 		}
 	} else {
 		printf("Fatal: Plot parameter %s is invalid.\n", plot);
-		return(1);
+		exit(1);
 	}
 
 	// Install the rest of the variables, if present.
-	// To do: actually do this.
-	grapher->r0 = (double*)malloc(sizeof(double)*n_vars);
+//	grapher->r0 = (double*)malloc(sizeof(double)*n_vars);
 	int i;
 	char key[100];
 	for (i = 0; i < n_vars; i++) {

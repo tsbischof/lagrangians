@@ -1,10 +1,10 @@
 title = 
 comment = 
-integrator = dangling_stick
-rule = first_flip_dangling_stick
-validator = energy_dangling_stick
+integrator = double_pendulum
+rule = first_flip_double_pendulum
+validator = energy_double_pendulum
 
 t = 0,0.01,100
-r = 0.01,0.01,2
-omega = -3.14,0.0314,3.14
-plot = r,omega
+phi1 = -3.14,0.0314,3.14
+phi2 = -3.14,0.0314,3.14
+plot = phi1,phi2
