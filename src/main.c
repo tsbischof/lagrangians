@@ -1,8 +1,8 @@
 #include <stdio.h>
 
 #include "parse_utils.h"
-#include "installed.h"
 #include "iniparser/iniparser.h"
+#include "installed.h"
 
 int main(int argc, char *argv[]) {
 	// To do: write a raw image every so often, as a backup. Allow restart from the dumped file.
@@ -42,9 +42,9 @@ int main(int argc, char *argv[]) {
 	}
 
 	char *integrator;
-	integrator = iniparser_getstring(options, ":integrator", "");
+	integrator = iniparser_getstring(options, ":system", "");
 	if ( ! strcmp(integrator, "") ) {
-		printf("No 'integrator = ... ' line found.\n");
+		printf("Fatal: No 'system = ... ' line found.\n");
 		return(1);
 	}
 

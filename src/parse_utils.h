@@ -2,15 +2,19 @@
 #define PARSE_UTILS_H_
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
 #include "grapher.h"
 #include "iniparser/iniparser.h"
 
 int contains(char *list[], char *element);
 int parse_plot(char  *line, char **x, char **y);
 int parse_limits(char *line, double *limits);
-int index_of(char *list[], char *element);
 int setup_config(Grapher *grapher, dictionary *options,
-		char *variable_order[], int n_vars, char *valid_rules[]);
+		char *variable_order[], double *variable_defaults, int n_vars, 
+		Functions *functions);
 char* name_from_config(char *config_filename);
 
 #endif

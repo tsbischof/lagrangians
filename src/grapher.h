@@ -27,6 +27,17 @@ typedef struct Grapher {
 	int r0_length;
 } Grapher;
 
+typedef struct Functions {
+	char *integrate_names[100];
+	void (*integrate_funcs[100])(double *, double);
+	
+	char *rule_names[100];
+	int (*rule_funcs[100])(double *, double *);
+
+	int validate;
+	char *validate_names[100];
+	int (*validate_funcs[100])(double *);
+} Functions; 
 
 void print_limits(char *name, double *limits);
 void do_image(Grapher *grapher);

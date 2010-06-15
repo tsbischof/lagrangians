@@ -1,18 +1,4 @@
-#include <stdio.h>
-#include <string.h>
-
-#include "iniparser/iniparser.h"
-
-#include "systems/harmonic_oscillator.h"
-#include "systems/double_well.h"
-#include "systems/double_pendulum.h"
-#include "systems/trig.h"
-#include "systems/trig2.h"
-#include "systems/trig3.h"
-#include "systems/dangling_stick.h"
-
-#include "rules.h"
-#include "grapher.h"
+#include "installed.h"
 
 void (*get_dispatcher(char *integrator))(dictionary *, Grapher *grapher) {
 	if ( ! strcmp(integrator, "harmonic_oscillator") ) {
@@ -23,58 +9,8 @@ void (*get_dispatcher(char *integrator))(dictionary *, Grapher *grapher) {
 		return(&do_double_pendulum);
 	} else if ( ! strcmp(integrator, "trig") ) {
 		return(&do_trig);
-	} else if ( ! strcmp(integrator, "trig2") ) {
-		return(&do_trig2);
-	} else if ( ! strcmp(integrator, "trig3") ) {
-		return(&do_trig3);
 	} else if ( ! strcmp(integrator, "dangling_stick") ) {
 		return(&do_dangling_stick);
-	} else {
-		return(NULL);
-	}
-}
-
-void (*get_integrator(char *integrator))(double *, double) {
-	if ( ! strcmp(integrator, "harmonic_oscillator") ) {
-		return(&integrate_harmonic_oscillator);
-	} else if ( ! strcmp(integrator, "double_well") ) {
-		return(&integrate_double_well);
-	} else if ( ! strcmp(integrator, "double_pendulum") ) {
-		return(&integrate_double_pendulum);
-	} else if ( ! strcmp(integrator, "trig") ) {
-		return(&integrate_trig);
-	} else if ( ! strcmp(integrator, "trig2") ) {
-		return(&integrate_trig2);
-	} else if ( ! strcmp(integrator, "trig3") ) {
-		return(&integrate_trig3);
-	} else if ( ! strcmp(integrator, "dangling_stick") ) {
-		return(&integrate_dangling_stick);
-	} else {
-		return(NULL);
-	}
-}
-
-int (*get_rule(char *rule))(double *, double *) {
-	if ( ! strcmp(rule, "first_turnaround") ) {
-		return(&first_turnaround);
-	} else if ( ! strcmp(rule, "first_flip_double_pendulum") ) {
-		return(&first_flip_double_pendulum);
-	} else if ( ! strcmp(rule, "first_flip_dangling_stick") ) {
-		return(&first_flip_dangling_stick);
-	} else if ( ! strcmp(rule, "speed") ) {
-		return(&speed);
-	} else {
-		return(NULL);
-	}
-}
-
-int (*get_validator(char *validator))(double *) {
-	if ( ! strcmp(validator, "energy_double_pendulum")) {
-		return(energy_double_pendulum);
-	} else if ( ! strcmp(validator, "energy_dangling_stick")) {
-		return(energy_dangling_stick);
-	} else if ( ! strcmp(validator, "all") ) {
-		return(validate_all);
 	} else {
 		return(NULL);
 	}

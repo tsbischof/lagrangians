@@ -1,10 +1,7 @@
-title = 
-comment = 
-integrator = double_pendulum
-rule = first_flip_double_pendulum
-validator = energy_double_pendulum
+system = double_pendulum
+rule = first_flip
 
 t = 0,0.01,100
-phi1 = -3.14,0.0314,3.14
-phi2 = -3.14,0.0314,3.14
+phi1 = -10,0.1,10
+phi2 = -10,0.1,10
 plot = phi1,phi2

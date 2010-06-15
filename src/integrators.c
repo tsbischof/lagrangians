@@ -1,11 +1,14 @@
 #include <math.h>
 
 void verlet(double (*force)(double *),  double *r, double dt) {
-	double f = force(r);
-	r[0] += r[1]*dt + 1/2*f*pow(dt,2);
-	r[1] += f*dt;
-	f = force(r);
-	r[1] += f*dt;
+/* Integrates the coordinates by the leapfrog (Verlet) method. Assumes r[0]
+ * contains the position, r[1] the velocity, and r[2] the mass.
+ */
+	double a = force(r)/r[2];
+	r[0] += r[1]*dt + 1/2*a*pow(dt,2);
+	r[1] += a*dt/2;
+	a = force(r)/r[2];
+	r[1] += a*dt/2;
 }
 
 void runge_kutta_4(void (*derivs)(double *, double *),

@@ -1,25 +1,18 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
-
-#include "iniparser/iniparser.h"
-#include "grapher.h"
 #include "parse_utils.h"
-#include "installed.h"
+#include "rules.h"
 
 const char *delims = " ,";
 
 int contains(char *list[], char *element) {
 	int i = 0;
 	while ( list[i] != '\0' ) {
-		if ( strcmp(list[i], element) ) {
-			return(1);
+		if ( ! strcmp(list[i], element) ) {
+			return(i);
 		} else {
 			i++;
 		}
 	}
-	return(0);
+	return(-1);
 }
 
 int parse_plot(char *plot, char **x, char **y) {
@@ -52,32 +45,30 @@ int parse_limits(char *line, double *limits) {
 	}	
 	return(0);
 }
-	
-int index_of(char *list[], char *element) {
-	int i = 0;
-
-	while ( list[i] != '\0' ) {
-		if ( ! strcmp(list[i], element) ) {
-			return(i);
-		} else {
-			i++;
-		}
-	}
-	return(-1);
-}
 
 int setup_config(Grapher *grapher, dictionary *options,
-		char *variable_order[], int n_vars, char *valid_rules[]) {
+		char *variable_order[], double *variable_defaults, int n_vars, 
+		Functions *functions) {
+	int i;
 	printf("--------------------------------------\n");
 	printf("Setting up the grapher.\n");
 	char *integrator;
 	integrator = iniparser_getstring(options, ":integrator", "");
-	grapher->integrate = get_integrator(integrator);
+	if ( ! strcmp("", integrator) ) {
+		integrator = iniparser_getstring(options, ":system", "");
+	}
 
-	if ( grapher->integrate != NULL ) {
-		printf("Installed integrator %s.\n", integrator);
+	if ( (i = contains(functions->integrate_names, integrator)) >= 0 ) {
+		grapher->integrate = functions->integrate_funcs[i];
+		if ( grapher->integrate != NULL ) {
+			printf("Installed integrator %s.\n", integrator);
+		} else {
+			printf("Fatal: Could not install valid integrator %s.\n", 
+					integrator);
+			exit(2);
+		}
 	} else {
-		printf("Fatal: could not install integrator %s.\n", integrator);
+		printf("Fatal: Found invalid integrator %s.\n", integrator);
 		exit(1);
 	}
 
@@ -85,8 +76,8 @@ int setup_config(Grapher *grapher, dictionary *options,
 	char *rule;
 	rule = iniparser_getstring(options, ":rule", "");
 
-	if ( contains(valid_rules, rule) ) {
-		grapher->rule = get_rule(rule);
+	if ( (i = contains(functions->rule_names, rule)) >= 0 ) {
+		grapher->rule = functions->rule_funcs[i];
 		if ( grapher->rule != NULL ) {
 			printf("Installed rule %s.\n", rule);
 		} else {
@@ -100,12 +91,25 @@ int setup_config(Grapher *grapher, dictionary *options,
 
 	char *validator;
 	validator = iniparser_getstring(options, ":validator", "all");
-	grapher->validate = get_validator(validator);
-	if ( grapher->validate != NULL ) {
-		printf("Found validator %s.\n", validator);
-	} else { 
-		printf("Failed while installing validator %s.\n", validator);
-		exit(1);
+	if ( ! strcmp(validator, "all") ) {
+		printf("Installed validator validate_all.\n");
+		grapher->validate = validate_all;
+	} else {
+		if ( functions->validate && 
+			 (i = contains(functions->validate_names, validator)) >= 0 ) {
+			grapher->validate = functions->validate_funcs[i];
+			if ( grapher->validate != NULL ) { 
+				printf("Found validator %s.\n", validator);
+			} else { 
+				printf("Fatal: Could not install valid validator %s.\n", 
+						validator);
+				exit(2);
+			}
+		} else {
+			printf("Fatal: Found invalid validator %s.\n",
+					validator);
+			exit(1);
+		}
 	}	
 
 	// Determine if x and y are valid variables.
@@ -113,10 +117,12 @@ int setup_config(Grapher *grapher, dictionary *options,
 	plot = iniparser_getstring(options, ":plot", "");
 	parse_plot(plot, &grapher->parm1, &grapher->parm2);
 
-	if ( contains(variable_order, grapher->parm1) 
-		&& contains(variable_order, grapher->parm2) ) {
-		grapher->parm1_index = index_of(variable_order, grapher->parm1);
-		grapher->parm2_index = index_of(variable_order, grapher->parm2);
+	if ( (grapher->parm1_index = 
+			contains(variable_order, grapher->parm1)) >= 0 
+		  &&
+		 (grapher->parm2_index = 
+			contains(variable_order, grapher->parm2)) >= 0) {
+		; // both are reasonable indices
 	} else {
 		printf("Invalid plot %s with variables %s and %s.\n", plot, 
 						grapher->parm1, grapher->parm2);
@@ -136,11 +142,17 @@ int setup_config(Grapher *grapher, dictionary *options,
 
 	// Install the rest of the variables, if present.
 	grapher->r0 = (double*)malloc(sizeof(double)*n_vars);
-	int i;
 	char key[100];
+	char *val;
 	for (i = 0; i < n_vars; i++) {
 		sprintf(key, ":%s", variable_order[i]);
-		grapher->r0[i] = atof(iniparser_getstring(options, key, ""));
+		val = iniparser_getstring(options, key, "");
+		printf("%s\n", val);
+		if ( ! strcmp(val, "") ) {
+			grapher->r0[i] = variable_defaults[i];
+		} else {
+			grapher->r0[i] = atof(val);
+		}
 	}
 	grapher->r0_length = n_vars;
 
@@ -201,15 +213,15 @@ int setup_config(Grapher *grapher, dictionary *options,
         printf("Dimensions: %d x %d.\n", grapher->width, grapher->height);
     }
 
-    printf("Starting each run with r = (");
-    int a;
-    for (a = 0; a < grapher->r0_length; a++) {
-        printf("%f", grapher->r0[a]);
-        if ( a+1 != grapher->r0_length ) {
-            printf(",");
-        }
+    printf("Starting each run with:\n");
+    for (i = 0; i < grapher->r0_length; i++) {
+		printf("%s: ", variable_order[i]);
+		if ( i == grapher->parm1_index || i == grapher->parm2_index ) {
+			printf("*\n");
+		} else {
+			printf("%f\n", grapher->r0[i]);
+		}
     }
-    printf(")\n");
     printf("(appropriate values will be used for the chosen variables)\n");
 	return(0);
 }

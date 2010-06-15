@@ -97,7 +97,7 @@ int pixels(double *limits) {
 	/* Tells how many pixels are required to span the limits with appropriate
 	 * increments. 
 	 */
-	return((int)ceil((limits[2]-limits[0])/limits[1]) + 1);
+	return((int)ceil((limits[2]-limits[0])/limits[1])+1);
 }
 
 void to_raw(Grapher *grapher) {
