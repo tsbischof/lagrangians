@@ -1,78 +1,101 @@
-#include "includes.h"
 #include "dangling_stick.h"
 
 /* Simulates the motion of a massless stick with a mass on either end, attached
- * to a spring.
+ * to a spring. Descriptions of parameters:
+ * r: length of the spring
+ * theta: angle of the spring, relative to vertical.
+ * phi: angle of the stick, relative to vertical.
+ * m1: mass of the mass connected to the spring
+ * m2: mass of the mass dangling from the stick
+ * k: spring constant for the spring
+ * l: length of the stick
+ * g: gravitational constant
  */
 
-double m1_ds = 1; // mass attached to the spring
-double m2_ds = 1; // mass attached to the other end of the stick
-double r0 = 1; // natural length of the spring
-double k = 1; // spring constant
-double l = 1; // length of the massless stick
-double g_ds = 9.8; 
+enum { R, DR, THETA, DTHETA, PHI, DPHI, M1, M2, R0, K, L, G };
 
-enum { R, DR, THETA, DTHETA, PHI, DPHI };
+void do_dangling_stick(dictionary *options, Grapher *grapher) {
+	Functions functions;
+	functions.integrate_names[0] = "dangling_stick";
+	functions.integrate_funcs[0] = integrate_dangling_stick;
+
+	functions.rule_names[0] = "first_flip";
+	functions.rule_funcs[0] = first_flip_dangling_stick;
+
+	functions.validate = 1;
+	functions.validate_names[0] = "energy";
+	functions.validate_funcs[0] = energy_dangling_stick;
+
+    char *variable_order[12] = {"r", "dr", "theta", "dtheta", "phi", "dphi",
+								"m1", "m2", "r0", "k", "l", "g"};
+	double variable_defaults[12] = {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 9.8};
+    setup_config(grapher, options, &variable_order[0], &variable_defaults[0],
+				12, &functions);
+}
 
 void derivs_dangling_stick(double *r, double *drdt) {
 	drdt[R] = r[DR];
 	drdt[THETA] = r[DTHETA];
 	drdt[PHI] = r[DPHI];
 
-	drdt[DR] = 1.0/(2*m1_ds*(m1_ds+m2_ds))  
-			  * ( k*(2*m1_ds+m2_ds)*(r0-r[R]) 
-				+ 2*m1_ds*(m1_ds+m2_ds)*r[R]*pow(r[DTHETA],2)
-				+ 2*g_ds*m1_ds*(m1_ds+m2_ds)*cos(r[THETA])
-				+ 2*l*m1_ds*m2_ds*pow(r[DPHI],2)*cos(r[THETA]-r[PHI])
-				- k*m2_ds*(r0-r[R])*cos(2*(r[THETA]-r[PHI])));
-	drdt[DTHETA] = 1.0/(2*m1_ds*(m1_ds+m2_ds)*r[R]) 
-				  * ( k*m2_ds*(r0-r[R])*sin(2*(r[THETA]-r[PHI])) 
-					- 2*g_ds*m1_ds*(m1_ds+m2_ds)*sin(r[THETA]) 
-					- 4*m1_ds*(m1_ds+m2_ds)*r[DR]*r[DTHETA]
-					+ 2*l*m1_ds*m2_ds*pow(r[DPHI],2)*sin(r[THETA]-r[PHI]));
-	drdt[DPHI] = k*(r0-r[R])*sin(r[THETA]-r[PHI])/(l*m1_ds);
+	drdt[DR] = 1.0/(2*r[M1]*(r[M1]+r[M2]))  
+			  * ( r[K]*(2*r[M1]+r[M2])*(r[R0]-r[R]) 
+				+ 2*r[M1]*(r[M1]+r[M2])*r[R]*pow(r[DTHETA],2)
+				+ 2*r[G]*r[M1]*(r[M1]+r[M2])*cos(r[THETA])
+				+ 2*r[L]*r[M1]*r[M2]*pow(r[DPHI],2)*cos(r[THETA]-r[PHI])
+				- r[K]*r[M2]*(r[R0]-r[R])*cos(2*(r[THETA]-r[PHI])));
+	drdt[DTHETA] = 1.0/(2*r[M1]*(r[M1]+r[M2])*r[R]) 
+				  * ( r[K]*r[M2]*(r[R0]-r[R])*sin(2*(r[THETA]-r[PHI])) 
+					- 2*r[G]*r[M1]*(r[M1]+r[M2])*sin(r[THETA]) 
+					- 4*r[M1]*(r[M1]+r[M2])*r[DR]*r[DTHETA]
+					+ 2*r[L]*r[M1]*r[M2]*pow(r[DPHI],2)*sin(r[THETA]-r[PHI]));
+	drdt[DPHI] = r[K]*(r[R0]-r[R])*sin(r[THETA]-r[PHI])/(r[L]*r[M1]);
 }
 
 void integrate_dangling_stick(double *r, double dt) {
-	runge_kutta_4(derivs_dangling_stick, r, dt, 6);
+	runge_kutta_4(derivs_dangling_stick, r, dt, 12);
 }
 
 double T_dangling_stick(double *r) {
-	return( 1.0/2*m1_ds*( pow(r[R]*r[DTHETA]*cos(r[THETA])
+	return( 1.0/2*r[M1]*( pow(r[R]*r[DTHETA]*cos(r[THETA])
 						  +r[DR]*sin(r[THETA]),2) +
 				pow(-r[DR]*cos(r[THETA])
 					+r[R]*r[DTHETA]*sin(r[THETA]), 2)) +
-			1.0/2*m2_ds*( 
+			1.0/2*r[M2]*( 
 				pow(r[R]*r[DTHETA]*cos(r[THETA])
 				   +r[DR]*sin(r[THETA])
-				   +l*r[DPHI]*cos(r[PHI]), 2)
+				   +r[L]*r[DPHI]*cos(r[PHI]), 2)
 			  + pow(-r[DR]*cos(r[THETA])
 					+r[R]*r[DTHETA]*sin(r[THETA])
-					+l*r[DPHI]*sin(r[PHI]),2)));
+					+r[L]*r[DPHI]*sin(r[PHI]),2)));
 }
 
 double U_dangling_stick(double *r) {
-	return(k/2*pow(r[R]-r0,2)
-		- m2_ds*g_ds*(r[R]*cos(r[THETA])+l*cos(r[PHI]))
-		- m1_ds*g_ds*r[R]*cos(r[THETA]) );
+	return(r[K]/2*pow(r[R]-r[R0],2)
+		- r[M2]*r[G]*(r[R]*cos(r[THETA])+r[L]*cos(r[PHI]))
+		- r[M1]*r[G]*r[R]*cos(r[THETA]) );
 }
 
 int energy_dangling_stick(double *r) {
-	extern double PI;
-	double r_min[6];
-	r_min[R] = r0;
+	double r_min[12];
+	r_min[R] = r[R0];
 	r_min[DR] = 0;
 	r_min[THETA] = 0;
 	r_min[DTHETA] = 0;
-	r_min[PHI] = PI;
+	r_min[PHI] = M_PI;
 	r_min[DPHI] = 0;
+	r_min[M1] = r[M1];
+	r_min[M2] = r[M2];
+	r_min[R0] = r[R0];
+	r_min[K] = r[K];
+	r_min[L] = r[L];
+	r_min[G] = r[G];
 
 	return( U_dangling_stick(r) + T_dangling_stick(r) 
 			> U_dangling_stick(&r_min[0]) );
 } 
 
-void do_dangling_stick(dictionary *options, Grapher *grapher) {
-	char *valid_rules = {"first_flip"};
-	char *variable_order[6] = {"r", "dr", "theta", "dtheta", "phi", "dphi"};
-	setup_config(grapher, options, &variable_order[0], 6, &valid_rules);
+int first_flip_dangling_stick(double *r, double *r0) {
+	return( (r[PHI] > 2*M_PI) || (r[PHI] < -2*M_PI) );
 }
+

@@ -10,4 +10,6 @@
 #include "../installed.h"
 #include "../iniparser/iniparser.h"
 
+extern const double PI;
+
 #endif
