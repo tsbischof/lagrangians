@@ -5,14 +5,13 @@ import re
 import subprocess
 import sys
 import os
+import time
 
 def do_run(filename):
     lagrangians = "/home/tsbischof/src/lagrangians/lagrangians"
     base = filename[:-3]
-    if os.path.isfile(base+"png"):
-        return()
     log_name = base + "log"
-    print("Working with input file", filename)
+    print("%s: Working with input file" % time.strftime("%Y.%m.%d %X"), filename)
     log_file = open(log_name, "w")
     subprocess.Popen([lagrangians, filename], stdout=log_file).wait()
     subprocess.Popen(["convert", base + "ppm", base + "png"]).wait()
@@ -25,9 +24,10 @@ if __name__ == "__main__":
     pool = Pool(1)
 
     input_files = list()
-    for filename in filter(lambda x: x.endswith(".inp"), sys.argv):
+    for filename in filter(lambda x: x.endswith(".inp"),
+         map(lambda y: y.strip(), sys.stdin.readlines())):
         if os.path.isfile(filename) \
-           and not os.path.isfile(re.sub("inp$", "raw", filename)):
+           and not os.path.isfile(re.sub("inp$", "png", filename)):
             input_files.append(filename)
 
     pool.map(do_run, input_files)
