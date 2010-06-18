@@ -3,10 +3,9 @@
 
 #include "includes.h"
 
+void do_trig(dictionary *options, Grapher *grapher);
 double force_trig(double *r);
 void integrate_trig(double *r, double dt);
-void do_trig(dictionary *options, Grapher *grapher);
-
 double force_trig2(double *r);
 void integrate_trig2(double *r, double dt);
 double force_trig3(double *r);

@@ -59,6 +59,7 @@ int main(int argc, char *argv[]) {
 		do_image(&grapher);
 		to_raw(&grapher);
 		to_ppm(&grapher);
+		grapher_free(&grapher);
 		return(0);
 	} else {
 		printf("Integrator %s is not available.\n", integrator);

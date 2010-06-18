@@ -9,6 +9,7 @@ void do_double_pendulum(dictionary *options, Grapher *grapher);
 double U_double_pendulum(double *);
 double T_double_pendulum(double *);
 int energy_double_pendulum(double *);
-int first_flip_double_pendulum(double *, double *);
+double first_flip_double_pendulum(double *, double *, double, double *, int);
+double count_flips_double_pendulum(double *, double *, double, double *, int);
 
 #endif

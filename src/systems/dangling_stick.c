@@ -9,7 +9,7 @@
  * m2: mass of the mass dangling from the stick
  * k: spring constant for the spring
  * l: length of the stick
- * g: gravitational constant
+ * A `d' in front of the variable indicates a time derivative.
  */
 
 enum { R, DR, THETA, DTHETA, PHI, DPHI, M1, M2, R0, K, L, G };
@@ -34,22 +34,18 @@ void do_dangling_stick(dictionary *options, Grapher *grapher) {
 }
 
 void derivs_dangling_stick(double *r, double *drdt) {
+	drdt[DR] = (-2*r[G]*pow(r[M1],2)-3*r[G]*r[M1]*r[M2]-r[G]*pow(r[M2],2)+2*r[K]*r[M1]*r[R0]+r[K]*r[M2]*r[R0]+2*r[G]*pow(r[M1],2)*cos(r[THETA])+2*r[G]*r[M1]*r[M2]*cos(r[THETA])+r[G]*r[M1]*r[M2]*cos(2*(r[THETA]-r[PHI]))+r[G]*pow(r[M2],2)*cos(2*(r[THETA]-r[PHI]))-r[K]*r[M2]*r[R0]*cos(2*(r[THETA]-r[PHI]))+r[R]*(-(r[K]*(2*r[M1]+r[M2]-r[M2]*cos(2*(r[THETA]-r[PHI]))))+2*r[M1]*(r[M1]+r[M2])*pow(r[DTHETA],2))+2*r[L]*r[M1]*r[M2]*cos(r[THETA]-r[PHI])*pow(r[DPHI],2))/(2.*r[M1]*(r[M1]+r[M2]));
+	drdt[DTHETA] = -(2*r[G]*pow(r[M1],2)*sin(r[THETA])+2*r[G]*r[M1]*r[M2]*sin(r[THETA])+r[G]*r[M1]*r[M2]*sin(2*(r[THETA]-r[PHI]))+r[G]*pow(r[M2],2)*sin(2*(r[THETA]-r[PHI]))-r[K]*r[M2]*r[R0]*sin(2*(r[THETA]-r[PHI]))+r[K]*r[M2]*r[R]*sin(2*(r[THETA]-r[PHI]))+4*r[M1]*(r[M1]+r[M2])*r[DR]*r[DTHETA]+2*r[L]*r[M1]*r[M2]*sin(r[THETA]-r[PHI])*pow(r[DPHI],2))/(2.*r[M1]*(r[M1]+r[M2])*r[R]);
+	drdt[DPHI] = ((r[G]*(r[M1]+r[M2])-r[K]*r[R0]+r[K]*r[R])*sin(r[THETA]-r[PHI]))/(r[L]*r[M1]);
 	drdt[R] = r[DR];
 	drdt[THETA] = r[DTHETA];
 	drdt[PHI] = r[DPHI];
-
-	drdt[DR] = 1.0/(2*r[M1]*(r[M1]+r[M2]))  
-			  * ( r[K]*(2*r[M1]+r[M2])*(r[R0]-r[R]) 
-				+ 2*r[M1]*(r[M1]+r[M2])*r[R]*pow(r[DTHETA],2)
-				+ 2*r[G]*r[M1]*(r[M1]+r[M2])*cos(r[THETA])
-				+ 2*r[L]*r[M1]*r[M2]*pow(r[DPHI],2)*cos(r[THETA]-r[PHI])
-				- r[K]*r[M2]*(r[R0]-r[R])*cos(2*(r[THETA]-r[PHI])));
-	drdt[DTHETA] = 1.0/(2*r[M1]*(r[M1]+r[M2])*r[R]) 
-				  * ( r[K]*r[M2]*(r[R0]-r[R])*sin(2*(r[THETA]-r[PHI])) 
-					- 2*r[G]*r[M1]*(r[M1]+r[M2])*sin(r[THETA]) 
-					- 4*r[M1]*(r[M1]+r[M2])*r[DR]*r[DTHETA]
-					+ 2*r[L]*r[M1]*r[M2]*pow(r[DPHI],2)*sin(r[THETA]-r[PHI]));
-	drdt[DPHI] = r[K]*(r[R0]-r[R])*sin(r[THETA]-r[PHI])/(r[L]*r[M1]);
+	drdt[R0] = 0;
+	drdt[G] = 0;
+	drdt[K] = 0;
+	drdt[L] = 0;
+	drdt[M1] = 0;
+	drdt[M2] = 0;
 }
 
 void integrate_dangling_stick(double *r, double dt) {
@@ -57,27 +53,20 @@ void integrate_dangling_stick(double *r, double dt) {
 }
 
 double T_dangling_stick(double *r) {
-	return( 1.0/2*r[M1]*( pow(r[R]*r[DTHETA]*cos(r[THETA])
-						  +r[DR]*sin(r[THETA]),2) +
-				pow(-r[DR]*cos(r[THETA])
-					+r[R]*r[DTHETA]*sin(r[THETA]), 2)) +
-			1.0/2*r[M2]*( 
-				pow(r[R]*r[DTHETA]*cos(r[THETA])
-				   +r[DR]*sin(r[THETA])
-				   +r[L]*r[DPHI]*cos(r[PHI]), 2)
-			  + pow(-r[DR]*cos(r[THETA])
-					+r[R]*r[DTHETA]*sin(r[THETA])
-					+r[L]*r[DPHI]*sin(r[PHI]),2)));
+	return( 1/2*(r[M1]+r[M2])*(pow(r[DR],2)+pow(r[R]*r[DTHETA],2))
+		  + 1/2*r[M2]*(pow(r[L]*r[DPHI],2)+2*r[DR]+r[L]
+                       + r[DPHI]*sin(r[THETA]-r[PHI])
+                       + 2*r[L]*cos(r[THETA]-r[PHI])*r[R]*r[DTHETA]*r[DPHI]));
 }
 
 double U_dangling_stick(double *r) {
-	return(r[K]/2*pow(r[R]-r[R0],2)
-		- r[M2]*r[G]*(r[R]*cos(r[THETA])+r[L]*cos(r[PHI]))
-		- r[M1]*r[G]*r[R]*cos(r[THETA]) );
+	return( 1/2*r[K]*pow(r[R]-r[R0],2) + (r[M1]+r[M2])*r[G]*(1-cos(r[THETA])) +
+			r[M2]*r[G]*(1-cos(r[PHI])) );
 }
 
 int energy_dangling_stick(double *r) {
-	double r_min[12];
+	return(1==1);
+	double r_min[11];
 	r_min[R] = r[R0];
 	r_min[DR] = 0;
 	r_min[THETA] = 0;
@@ -89,13 +78,17 @@ int energy_dangling_stick(double *r) {
 	r_min[R0] = r[R0];
 	r_min[K] = r[K];
 	r_min[L] = r[L];
-	r_min[G] = r[G];
 
 	return( U_dangling_stick(r) + T_dangling_stick(r) 
 			> U_dangling_stick(&r_min[0]) );
 } 
 
-int first_flip_dangling_stick(double *r, double *r0) {
-	return( (r[PHI] > 2*M_PI) || (r[PHI] < -2*M_PI) );
+double first_flip_dangling_stick(double *r, double *r0, 
+		double t, double *values,
+		int done) {
+	if ( ! done ) {
+		return( (r[PHI] > 2*M_PI) || (r[PHI] < -2*M_PI) );
+	} else {
+		return(t);
+	}	
 }
-

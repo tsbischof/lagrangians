@@ -9,7 +9,7 @@ void do_dangling_stick(dictionary *options, Grapher *grapher);
 double U_dangling_stick(double *);
 double T_dangling_stick(double *);
 int energy_dangling_stick(double *);
-int first_flip_dangling_stick(double *, double *);
+double first_flip_dangling_stick(double *, double *, double, double *, int);
 
 
 #endif

@@ -5,7 +5,7 @@ typedef struct Grapher {
 	char *name;
 	char *comment;
 	void (*integrate)(double *, double);
-	int (*rule)(double *, double *);
+	double (*rule)(double *, double *, double, double *, int);
 	int (*validate)(double *);
 	double **image;
 
@@ -32,7 +32,7 @@ typedef struct Functions {
 	void (*integrate_funcs[100])(double *, double);
 	
 	char *rule_names[100];
-	int (*rule_funcs[100])(double *, double *);
+	double (*rule_funcs[100])(double *, double *, double, double *, int);
 
 	int validate;
 	char *validate_names[100];
@@ -45,5 +45,6 @@ double do_pixel(Grapher *grapher, double *r, double *r0, int i, int j);
 int pixels(double *limits);
 void to_raw(Grapher *grapher);
 void to_ppm(Grapher *grapher);
+void grapher_free(Grapher *grapher);
 
 #endif

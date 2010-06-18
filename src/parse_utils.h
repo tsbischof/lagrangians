@@ -8,6 +8,7 @@
 
 #include "grapher.h"
 #include "iniparser/iniparser.h"
+#include "rules.h"
 
 int contains(char *list[], char *element);
 int parse_plot(char  *line, char **x, char **y);

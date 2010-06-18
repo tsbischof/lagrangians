@@ -43,16 +43,13 @@ void image_to_raw(Grapher *grapher, char *filename) {
 	printf("Writing image to raw file: %s.\n", filename);
 
 	FILE *output;
-	output = fopen(filename, "w");
-	fprintf(output, "%d %d\n", grapher->width, grapher->height);
-
+	output = fopen(filename, "wb");
 	int i,j;
 
 	for (i = 0; i < grapher->height; i++) {
 		for (j = 0; j < grapher->width; j++) {
-			fprintf(output, "%f ", grapher->image[i][j]);
+			fwrite(&grapher->image[i][j], 1, sizeof(double), output);
 		}
-		fprintf(output, "\n");
 	}
 	fclose(output);
 	printf("Finished writing raw file %s.\n", filename);

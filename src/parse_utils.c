@@ -1,5 +1,4 @@
 #include "parse_utils.h"
-#include "rules.h"
 
 const char *delims = " ,";
 
@@ -147,7 +146,6 @@ int setup_config(Grapher *grapher, dictionary *options,
 	for (i = 0; i < n_vars; i++) {
 		sprintf(key, ":%s", variable_order[i]);
 		val = iniparser_getstring(options, key, "");
-		printf("%s\n", val);
 		if ( ! strcmp(val, "") ) {
 			grapher->r0[i] = variable_defaults[i];
 		} else {

@@ -1,9 +1,18 @@
+#include "grapher.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <omp.h>
-#include "grapher.h"
 #include "image_funcs.h"
+#include "time.h"
+
+
+enum { NOT_DONE, DONE };
+
+void grapher_free(Grapher *grapher) {
+	free(&grapher->image[0][0]);
+	free(&grapher->r0[0]);
+}
 
 void print_limits(char *name, double *limits) {
 	printf("%s: [%f, %f, %f]\n", name, limits[0], limits[1], limits[2]);
@@ -42,11 +51,20 @@ void do_image(Grapher *grapher) {
 		print_every = 1;
 	}
 
+	time_t rawtime;
+	struct tm * timeinfo;
+	char fmttime[100];
+
 #pragma omp parallel for private(i, j) firstprivate(r, r0) schedule(dynamic)
 	for ( i = 0; i < grapher->height; i++) {
 		for ( j = 0; j < grapher->width; j++) {
 			if ( k % print_every == 0 ) {
-				printf("On pixel %ld of %ld.\n", k, total_pixels);
+				time(&rawtime);
+				timeinfo = localtime(&rawtime);
+				strftime(fmttime, 100, "%Y.%m.%d %H:%M:%S", timeinfo);
+				printf("%s: On pixel %ld of %ld (%.1f%%).\n", 
+					fmttime, k, total_pixels, 
+					k/(float)total_pixels*100);
 			}
 			k++;
 			grapher->image[i][j] = do_pixel(grapher, &r[0], &r0[0], i, j);
@@ -73,24 +91,20 @@ double do_pixel(Grapher *grapher, double *r, double *r0, int i, int j) {
 	}
 
 	int done = 0;
+	double values[100];
 	if ( grapher->validate(&r[0]) ) {
 		while (t < grapher->t_limits[2] && ! done) {
 			grapher->integrate(&r[0], grapher->t_limits[1]);
-			if ( grapher->rule(&r[0], &r0[0]) ) {
+			if ( grapher->rule(&r[0], &r0[0], t, &values[0], NOT_DONE) ) {
 				done = 1;
 			} else {
 				t += grapher->t_limits[1];
 			}
 		}
-
-		if ( t > grapher->t_limits[2] ) {
-			return(grapher->t_limits[2]);
-		} else {
-			return(t);
-		}
 	} else {
-		return(grapher->t_limits[2]);
+		t = grapher->t_limits[2];
 	}
+	return(grapher->rule(&r[0], &r0[0], t, &values[0], DONE));
 }
 
 int pixels(double *limits) {
