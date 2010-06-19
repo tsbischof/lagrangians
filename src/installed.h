@@ -13,6 +13,7 @@
 #include "systems/double_well.h"
 #include "systems/trig.h"
 #include "systems/dangling_stick.h"
+#include "systems/springy_pendulum.h"
 
 void (*get_dispatcher(char *integrator))(dictionary *, Grapher *);
 

@@ -11,6 +11,8 @@ void (*get_dispatcher(char *integrator))(dictionary *, Grapher *grapher) {
 		return(&do_trig);
 	} else if ( ! strcmp(integrator, "dangling_stick") ) {
 		return(&do_dangling_stick);
+	} else if ( ! strcmp(integrator, "springy_pendulum") ) {
+		return(&do_springy_pendulum);
 	} else {
 		return(NULL);
 	}

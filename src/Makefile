@@ -5,7 +5,8 @@ LIBS = -lm
 OBJS =  image_funcs.o integrators.o main.o parse_utils.o rules.o installed.o \
 		grapher.o iniparser/dictionary.o iniparser/iniparser.o \
 		systems/double_pendulum.o systems/dangling_stick.o \
-		systems/harmonic_oscillator.o systems/double_well.o systems/trig.o
+		systems/harmonic_oscillator.o systems/double_well.o systems/trig.o \
+		systems/springy_pendulum.o
 TARGETS = lagrangians
 
 all: lagrangians

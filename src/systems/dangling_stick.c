@@ -52,16 +52,12 @@ void integrate_dangling_stick(double *r, double dt) {
 	runge_kutta_4(derivs_dangling_stick, r, dt, 12);
 }
 
-double T_dangling_stick(double *r) {
-	return( 1/2*(r[M1]+r[M2])*(pow(r[DR],2)+pow(r[R]*r[DTHETA],2))
-		  + 1/2*r[M2]*(pow(r[L]*r[DPHI],2)+2*r[DR]+r[L]
-                       + r[DPHI]*sin(r[THETA]-r[PHI])
-                       + 2*r[L]*cos(r[THETA]-r[PHI])*r[R]*r[DTHETA]*r[DPHI]));
+double U_dangling_stick(double *r) {
+	return(r[G]*r[L]*r[M2]*(1-cos(r[PHI]))+r[G]*(r[M1]+r[M2])*(1-cos(r[THETA]))*r[R]+(r[K]*pow(-r[R0]+r[R],2))/2.);
 }
 
-double U_dangling_stick(double *r) {
-	return( 1/2*r[K]*pow(r[R]-r[R0],2) + (r[M1]+r[M2])*r[G]*(1-cos(r[THETA])) +
-			r[M2]*r[G]*(1-cos(r[PHI])) );
+double T_dangling_stick(double *r) {
+	return(((r[M1]+r[M2])*(pow(r[DR],2)+pow(r[R],2)*pow(r[DTHETA],2)))/2.+(r[M2]*(2*r[L]*sin(r[THETA]-r[PHI])*r[DR]*r[DPHI]+2*r[L]*cos(r[THETA]-r[PHI])*r[R]*r[DTHETA]*r[DPHI]+pow(r[L],2)*pow(r[DPHI],2)))/2.);
 }
 
 int energy_dangling_stick(double *r) {
