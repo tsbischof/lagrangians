@@ -11,7 +11,7 @@ def do_run(filename):
     lagrangians = "/home/tsbischof/src/lagrangians/lagrangians"
     base = filename[:-3]
     log_name = base + "log"
-    log_file = open("log", "w")
+    log_file = open("log", "a")
     log_file.write("%s: Working with input file %s.\n" % (time.strftime("%Y.%m.%d %X"), filename))
     log_file.close()
     log_file = open(log_name, "w")

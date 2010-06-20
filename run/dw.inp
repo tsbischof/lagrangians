@@ -1,5 +1,4 @@
-title=Double well test
-integrator=double_well
+system=double_well
 rule=first_turnaround
 
 t=0,0.01,100

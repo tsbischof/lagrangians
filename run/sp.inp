@@ -1,0 +1,10 @@
+system = springy_pendulum
+rule = lower_flip
+
+t=0,0.01,250
+phi1 = 0,0.001,3.1415926
+r = 0.01, 0.001, 5
+dr = 3
+dphi1 = -2
+dphi2 = 2
+plot = r, phi1
