@@ -194,8 +194,10 @@ int setup_config(Grapher *grapher, dictionary *options,
 	// Are we going to try to use the GPU?
 	char *use_gpu = iniparser_getstring(options, ":use_gpu", "");
 	if ( ! strcmp(use_gpu, "true") ) {
+		printf("Will attempt to use the GPU for calculations.\n");
 		grapher->use_gpu = 1;
 	} else {
+		printf("Will use the CPU for calculations.\n");
 		grapher->use_gpu = 0;
 	}
 	
