@@ -25,6 +25,8 @@ typedef struct Grapher {
 				  * Some will be overridden for parm1 and parm2.
 				  */
 	int r0_length;
+
+	int use_gpu;
 } Grapher;
 
 typedef struct Functions {
@@ -41,7 +43,8 @@ typedef struct Functions {
 
 void print_limits(char *name, double *limits);
 void do_image(Grapher *grapher);
-double do_pixel(Grapher *grapher, double *r, double *r0, int i, int j);
+void do_pixel(double *result, Grapher *grapher, 
+				double *r, double *r0, int i, int j);
 int pixels(double *limits);
 void to_raw(Grapher *grapher);
 void to_ppm(Grapher *grapher);

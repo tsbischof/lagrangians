@@ -1,8 +1,14 @@
-system = springy_pendulum
-rule = upper_flip
+system = trig
+integrator = full
+rule = first_turnaround
 
 t=0,0.01,100
-phi1 = -3.14, 0.01, 0
-r = 0.1, 0.01, 2
-dr = 4
-plot = phi1, r
+x = -30, 0.1, 30
+v = -30, 0.1, 30
+k1 = 0.1
+k2 = 0.1
+k3 = 4
+k4 = 2
+k5 = 4
+k6 = 2
+plot = x, v

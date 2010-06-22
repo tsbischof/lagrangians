@@ -46,49 +46,59 @@ void do_image(Grapher *grapher) {
 	
 	printf("--------------------------------\nStarting the image run.\n");
 
-	int print_every = grapher->width*grapher->height / 1000;
-	if ( print_every == 0 ) {
-		print_every = 1;
-	}
+	if ( grapher->use_gpu ) {
+		printf("Using the GPU.\n");
+		//GPU!
+		;
+	} else {
+		printf("Using the CPU.\n");
+		int print_every = grapher->width*grapher->height / 1000;
+		if ( print_every == 0 ) {
+			print_every = 1;
+		}
 
-	time_t rawtime;
-	struct tm * timeinfo;
-	char fmttime[100];
+		time_t rawtime;
+		struct tm * timeinfo;
+		char fmttime[100];
 
 #pragma omp parallel for private(i, j) firstprivate(r, r0) schedule(dynamic)
-	for ( i = 0; i < grapher->height; i++) {
-		for ( j = 0; j < grapher->width; j++) {
-			if ( k % print_every == 0 ) {
-				time(&rawtime);
-				timeinfo = localtime(&rawtime);
-				strftime(fmttime, 100, "%Y.%m.%d %H:%M:%S", timeinfo);
-				printf("%s: On pixel %ld of %ld (%.1f%%).\n", 
-					fmttime, k, total_pixels, 
-					k/(float)total_pixels*100);
+		for ( i = 0; i < grapher->height; i++) {
+			for ( j = 0; j < grapher->width; j++) {
+				if ( k % print_every == 0 ) {
+					time(&rawtime);
+					timeinfo = localtime(&rawtime);
+					strftime(fmttime, 100, "%Y.%m.%d %H:%M:%S", timeinfo);
+					printf("%s: On pixel %ld of %ld (%.1f%%).\n", 
+						fmttime, k, total_pixels, 
+						k/(float)total_pixels*100);
+				}
+				k++;
+	
+				do_pixel(&grapher->image[i][j], grapher, &r[0], &r0[0], i, j);
 			}
-			k++;
-			grapher->image[i][j] = do_pixel(grapher, &r[0], &r0[0], i, j);
 		}
 	}
 
 	printf("Building image complete.\n");
 }
 
-double do_pixel(Grapher *grapher, double *r, double *r0, int i, int j) {
+void do_pixel(double *result, Grapher *grapher, 
+			double *r, double *r0, int i, int j) {
 	double t = grapher->t_limits[0];
+
 	int m;
 	for (m = 0; m < grapher->r0_length; m++) {
 		if ( m == grapher->parm1_index ) {
 			r0[m] = grapher->parm1_limits[0]
-					 + grapher->parm1_limits[1]*i;
-		} else if ( m == grapher->parm2_index ) {
-			r0[m] = grapher->parm2_limits[0]
-					+ grapher->parm2_limits[1]*j;
-		} else {
-			r0[m] = grapher->r0[m];
-		}
-		r[m] = r0[m];
-	}
+                     + grapher->parm1_limits[1]*i;
+        } else if ( m == grapher->parm2_index ) {
+            r0[m] = grapher->parm2_limits[0]
+                     + grapher->parm2_limits[1]*j;
+        } else {
+            r0[m] = grapher->r0[m];
+        }
+            r[m] = r0[m];
+    }
 
 	int done = 0;
 	double values[100];
@@ -104,7 +114,12 @@ double do_pixel(Grapher *grapher, double *r, double *r0, int i, int j) {
 	} else {
 		t = grapher->t_limits[2];
 	}
-	return(grapher->rule(&r[0], &r0[0], t, &values[0], DONE));
+
+   if ( t > grapher->t_limits[2] ) {
+        t = grapher->t_limits[2];
+    }
+
+	*result = grapher->rule(&r[0], &r0[0], t, &values[0], DONE);
 }
 
 int pixels(double *limits) {

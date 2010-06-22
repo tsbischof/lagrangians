@@ -125,6 +125,7 @@ int setup_config(Grapher *grapher, dictionary *options,
 	} else {
 		printf("Invalid plot %s with variables %s and %s.\n", plot, 
 						grapher->parm1, grapher->parm2);
+		exit(1);
 	}
 
 	if ( grapher->parm1_index >= 0 || grapher->parm2_index >= 0 ) {
@@ -171,6 +172,7 @@ int setup_config(Grapher *grapher, dictionary *options,
 	} else {
 		printf("Found invalid limits for either %s, %s, or t.", 
 			 grapher->parm1, grapher->parm2);
+		exit(1);
 	}
 
 	// Find the comment, if any.
@@ -188,6 +190,14 @@ int setup_config(Grapher *grapher, dictionary *options,
 	strcpy(grapher->name, name);
 	printf("Filename '%s' will be used as the base for output.\n", 
 						grapher->name);
+
+	// Are we going to try to use the GPU?
+	char *use_gpu = iniparser_getstring(options, ":use_gpu", "");
+	if ( ! strcmp(use_gpu, "true") ) {
+		grapher->use_gpu = 1;
+	} else {
+		grapher->use_gpu = 0;
+	}
 	
 	// The options have been parsed, free the space.
 	iniparser_freedict(options);
@@ -220,15 +230,10 @@ int setup_config(Grapher *grapher, dictionary *options,
 			printf("%f\n", grapher->r0[i]);
 		}
     }
+
+	if ( grapher->use_gpu ) {
+		printf("Will attempt to use the system's GPU for calculations.\n");
+	}
     printf("(appropriate values will be used for the chosen variables)\n");
 	return(0);
-}
-
-char* name_from_config(char *config_filename) {
-	char *name = malloc(sizeof(char)*100);
-	if ( sscanf(config_filename, "%s.inp", name) ) {
-		return(name);
-	} else {
-		return(config_filename);
-	}
 }

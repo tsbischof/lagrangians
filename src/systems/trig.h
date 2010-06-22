@@ -10,5 +10,7 @@ double force_trig2(double *r);
 void integrate_trig2(double *r, double dt);
 double force_trig3(double *r);
 void integrate_trig3(double *r, double dt);
+double force_trigfull(double *);
+void integrate_trigfull(double *, double);
 
 #endif

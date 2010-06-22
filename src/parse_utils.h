@@ -16,6 +16,5 @@ int parse_limits(char *line, double *limits);
 int setup_config(Grapher *grapher, dictionary *options,
 		char *variable_order[], double *variable_defaults, int n_vars, 
 		Functions *functions);
-char* name_from_config(char *config_filename);
 
 #endif
