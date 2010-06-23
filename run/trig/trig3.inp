@@ -1,0 +1,9 @@
+title = 
+comment = 
+integrator = trig3
+rule = first_turnaround
+
+t = 0,0.01,100
+x = -50,0.01,50
+v = -50,0.01,50
+plot = x,v

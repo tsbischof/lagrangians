@@ -1,6 +1,5 @@
-title = 
-comment = 
-integrator = trig
+system = trig
+integrator = 1
 rule = first_turnaround
 
 t = 0,0.01,10
