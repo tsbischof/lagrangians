@@ -7,7 +7,7 @@
 #include <ctype.h>
 
 #include "grapher.h"
-#include "iniparser/iniparser.h"
+#include <iniparser.h>
 #include "rules.h"
 
 int contains(char *list[], char *element);

@@ -6,6 +6,10 @@
 #include "image_funcs.h"
 #include "time.h"
 
+#ifdef USE_GPU
+#include <brook/Stream.h>
+#endif
+
 
 enum { NOT_DONE, DONE };
 
@@ -46,20 +50,54 @@ void do_image(Grapher *grapher) {
 	
 	printf("--------------------------------\nStarting the image run.\n");
 
+    int print_every = grapher->width*grapher->height / 1000;
+    if ( print_every == 0 ) {
+        print_every = 1;
+    }
+
+    time_t rawtime;
+    struct tm * timeinfo;
+    char fmttime[100];
+
 	if ( grapher->use_gpu ) {
+#ifdef USE_GPU
 		printf("Using the GPU.\n");
-		//GPU!
-		;
+		/* Here, we create a stream of inidices which represent the pixel 
+		 * position. These are fed into the kernel, along with the appropriate
+		 * system, integrator, and rule type, and output is a stream of doubles
+		 * which represents the values for that row.
+		 * 
+		 * It may be possible to run this with OpenMP as well, with each thread
+		 * running a separate row.
+		 */
+		double indices[grapher->width][2];
+		::brook::Stream<int> indicesStream(2, grapher->width);
+		::brook::Stream<double> resultStream(1, grapher->width);
+
+		for (i = 0; i < grapher->width; i++) {
+			indices[i][0] = i;
+			indices[i][1] = 0;
+		}
+		
+		for (i = 0; i < grapher->height; i++) {
+			time(&rawtime);
+            timeinfo = localtime(&rawtime);
+            strftime(fmttime, 100, "%Y.%m.%d %H:%M:%S", timeinfo);
+            printf("%s: On row %d of %d (%.1f%%).\n", fmttime, i,
+					grapher->height, i/(float)grapher->height*100);
+
+			indicesStream.read(indices);
+			grapher->gpu_kernel(indicesStream, resultStream);
+			resultStream.write(grapher->image[i]);
+			for (j = 0; j < grapher->width; j++) {
+				indices[j][1]++;
+			}
+		}
+#else
+		printf("Not compiled with GPU support. Sorry.\n");
+#endif
 	} else {
 		printf("Using the CPU.\n");
-		int print_every = grapher->width*grapher->height / 1000;
-		if ( print_every == 0 ) {
-			print_every = 1;
-		}
-
-		time_t rawtime;
-		struct tm * timeinfo;
-		char fmttime[100];
 
 #pragma omp parallel for private(i, j) firstprivate(r, r0) schedule(dynamic)
 		for ( i = 0; i < grapher->height; i++) {
@@ -100,13 +138,12 @@ void do_pixel(double *result, Grapher *grapher,
             r[m] = r0[m];
     }
 
-	int done = 0;
 	double values[100];
 	if ( grapher->validate(&r[0]) ) {
-		while (t < grapher->t_limits[2] && ! done) {
+		while (t < grapher->t_limits[2] ) {
 			grapher->integrate(&r[0], grapher->t_limits[1]);
 			if ( grapher->rule(&r[0], &r0[0], t, &values[0], NOT_DONE) ) {
-				done = 1;
+				break;
 			} else {
 				t += grapher->t_limits[1];
 			}

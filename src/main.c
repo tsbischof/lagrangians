@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 #include "parse_utils.h"
-#include "iniparser/iniparser.h"
+#include <iniparser.h>
 #include "installed.h"
 
 int main(int argc, char *argv[]) {

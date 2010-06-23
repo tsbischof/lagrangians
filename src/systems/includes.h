@@ -8,7 +8,7 @@
 #include "../integrators.h"
 #include "../parse_utils.h"
 #include "../installed.h"
-#include "../iniparser/iniparser.h"
+#include <iniparser.h>
 
 extern const double PI;
 

@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "iniparser/iniparser.h"
+#include <iniparser.h>
 #include "rules.h"
 #include "grapher.h"
 
