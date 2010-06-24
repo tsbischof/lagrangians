@@ -1,14 +1,15 @@
 system = trig
 integrator = full
 rule = first_turnaround
+extend_time = true
 
-t=0,0.01,100
-x = -30, 0.1, 30
-v = -30, 0.1, 30
+t=0,0.01,15
+x = -30, 0.5, 30
+v = -30, 0.5, 30
 k1 = 0.1
 k2 = 0.1
 k3 = 4
 k4 = 2
-k5 = 4
+k5 = 5
 k6 = 2
 plot = x, v

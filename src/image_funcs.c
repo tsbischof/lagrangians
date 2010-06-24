@@ -15,15 +15,8 @@ void image_to_ppm(Grapher *grapher, char *filename) {
 	printf("Getting maximum pixel value.\n");
 
 	int i, j;
-	double max_pixel = 0;
-	for (i = 0; i < grapher->height; i++) {
-		for (j = 0; j < grapher->width; j++) {
-			if (max_pixel < grapher->image[i][j]) {
-				max_pixel = grapher->image[i][j];
-			}
-		}
-	}
-	printf("Found maximum pixel value of %f.\n", max_pixel);
+	double max_pixel = get_max_pixel(grapher);
+	printf("Found maximum pixel value of %F.\n", max_pixel);
 
 	int rgb[3];
 
@@ -73,4 +66,46 @@ void choose_RGB(double pixel, double max_pixel, int *rgb) {
 		}
 		val -= (RGB_SCALE+1);
 	}
+}
+
+int read_image(Grapher *grapher) {
+/* Read in the file to the image stored in the grapher, and record the 
+ * maximum pixel value for later use. This is useful for restarts and 
+ * other manipulations of the image.
+ */
+	int i, j;
+	grapher->max_pixel = 0;
+
+	FILE *raw_file;
+	char filename[100];
+	sprintf(filename, "%s.raw", grapher->name);
+	raw_file = fopen(filename, "r");
+	if ( raw_file == NULL ) {
+		printf("Fatal: Could not find starting file %s.\n", filename);
+		return(1);
+	}
+	
+	for (i = 0; i < grapher->height; i++) {
+		for (j = 0; j < grapher->width; j++) {
+			fread(&grapher->image[i][j], 1, sizeof(double), raw_file);
+			if ( grapher->image[i][j] > grapher->max_pixel ) {
+				grapher->max_pixel = grapher->image[i][j];
+			}
+		}
+	}
+	fclose(raw_file);
+	return(0);
+}
+
+double get_max_pixel(Grapher *grapher) {
+	int i,j;
+	double result = 0.0;
+	for (i = 0; i < grapher->height; i++) {
+		for (j = 0; j < grapher->width; j++) {
+			if (result < grapher->image[i][j]) {
+				result = grapher->image[i][j];
+			}
+		}
+	}
+	return(result);
 }

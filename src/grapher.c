@@ -59,6 +59,16 @@ void do_image(Grapher *grapher) {
     struct tm * timeinfo;
     char fmttime[100];
 
+	if ( grapher->extend_time ) {
+		if (!read_image(grapher)) {
+			printf("Successfully read in the existing image.\n");
+		} else {
+			printf("Fatal: failed while reading the existing image %s.raw.\n",
+					grapher->name);
+			exit(1);
+		}
+	}
+
 	if ( grapher->use_gpu ) {
 #ifdef USE_GPU
 		printf("Using the GPU.\n");
@@ -118,11 +128,28 @@ void do_image(Grapher *grapher) {
 	}
 
 	printf("Building image complete.\n");
+	grapher->max_pixel = get_max_pixel(grapher);
+	if ( grapher->max_pixel == grapher->t_limits[2] ) {
+		printf("Some pixels hit the maximum value of %f.\n", 
+				grapher->t_limits[2]);
+	} else {
+		printf("Time limits exceeded the maximum pixel value.\n");
+	}
 }
 
 void do_pixel(double *result, Grapher *grapher, 
 			double *r, double *r0, int i, int j) {
 	double t = grapher->t_limits[0];
+
+	/* If we are extending time, we only need to run those pixels which are
+ 	 * currently at their limits. This assumes that the values increase with
+ 	 * time, but if needed this can be changed for certain rules.
+ 	 */
+	if ( grapher->extend_time ) {
+		if ( grapher->image[i][j] < grapher->max_pixel ) {
+			return;
+		}
+	}
 
 	int m;
 	for (m = 0; m < grapher->r0_length; m++) {

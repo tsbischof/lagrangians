@@ -35,6 +35,9 @@ typedef struct Grapher {
 	void (*gpu_kernel)(::brook::Stream indicesStream, 
 						::brook::Stream resultsStream);
 #endif
+
+	int extend_time;
+	double max_pixel;
 } Grapher;
 
 typedef struct Functions {

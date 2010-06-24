@@ -182,6 +182,17 @@ int setup_config(Grapher *grapher, dictionary *options,
 	strcpy(grapher->comment, comment);
 	printf("Found comment '%s'.\n", grapher->comment);
 
+	// Are we doing a fresh run, or extending the exising image?
+	char *extend_time;
+	extend_time = iniparser_getstring(options, ":extend_time", "");
+	if ( !strcmp(extend_time, "true") ) {
+		printf("Extending the time limits of an existing simulation.\n");
+		grapher->extend_time = 1;
+	} else {
+		printf("Starting the simulation with a fresh image.\n");
+		grapher->extend_time = 0;
+	}
+
 	// Get the filename base from the input file.
 	char *config_filename = iniparser_getstring(options, ":filename", "");
 	char *name;
