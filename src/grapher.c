@@ -28,13 +28,13 @@ void do_image(Grapher *grapher) {
 	 */
 
 	int i,j;
-	grapher->image = malloc(grapher->height*sizeof(double));
+	grapher->image = (double **)malloc(grapher->height*sizeof(double));
 	if ( grapher->image == NULL ) {
 		printf("Insufficient memory to create the image rows.\n");
 		exit(1);
 	}
 	for (i = 0; i < grapher->height; i++) {	
-		grapher->image[i] = malloc(grapher->width*sizeof(double));
+		grapher->image[i] = (double*)malloc(grapher->width*sizeof(double));
 		if (grapher->image[i] == NULL) {
 			printf("Insufficient memory to create row %d.\n", i);
 			exit(1);
@@ -194,14 +194,14 @@ int pixels(double *limits) {
 }
 
 void to_raw(Grapher *grapher) {
-	char *name = malloc(sizeof(grapher->name)+4);
+	char *name = (char*)malloc(sizeof(grapher->name)+4);
 	sprintf(name, "%s.raw", grapher->name);
 	image_to_raw(grapher, name);
 }
 
 
 void to_ppm(Grapher *grapher) {
-	char *name = malloc(sizeof(grapher->name)+4);
+	char *name = (char*)malloc(sizeof(grapher->name)+4);
 	sprintf(name, "%s.ppm", grapher->name);
 	image_to_ppm(grapher, name);
 }

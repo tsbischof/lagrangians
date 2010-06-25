@@ -1,6 +1,11 @@
-CC = cc
-CFLAGS = -Wall -fopenmp
-LD = cc
+OPENMP = -fopenmp
+USE_GPU = #-DUSE_GPU
+OPENCL = 
+BROOK = 
+
+CC = c++
+CFLAGS = -Wall $(OPENMP) $(USE_GPU)
+LD = c++
 INCLUDES = -I/usr/local/include
 LIBS = -lm -liniparser
 OBJS =  image_funcs.o integrators.o main.o parse_utils.o rules.o installed.o \
@@ -9,7 +14,6 @@ OBJS =  image_funcs.o integrators.o main.o parse_utils.o rules.o installed.o \
 		systems/harmonic_oscillator.o systems/double_well.o systems/trig.o \
 		systems/springy_pendulum.o
 TARGETS = lagrangians
-USE_GPU = False
 
 all: lagrangians
 

@@ -17,10 +17,10 @@ int contains(char *list[], char *element) {
 int parse_plot(char *plot, char **x, char **y) {
 	char *token;
 	token = strtok(plot, delims);
-	*x = malloc(sizeof(token));
+	*x = (char*)malloc(sizeof(token));
 	strcpy(*x, token);
 	token = strtok(NULL, delims);
-	*y = malloc(sizeof(token));
+	*y = (char*)malloc(sizeof(token));
 	strcpy(*y, token);
 	if ( y == NULL ) {
 		return(1);
@@ -178,7 +178,7 @@ int setup_config(Grapher *grapher, dictionary *options,
 	// Find the comment, if any.
 	char *comment;
 	comment = iniparser_getstring(options, ":comment", "");
-	grapher->comment = malloc(sizeof(comment));
+	grapher->comment = (char*)malloc(sizeof(comment));
 	strcpy(grapher->comment, comment);
 	printf("Found comment '%s'.\n", grapher->comment);
 
@@ -197,7 +197,7 @@ int setup_config(Grapher *grapher, dictionary *options,
 	char *config_filename = iniparser_getstring(options, ":filename", "");
 	char *name;
 	name = strtok(config_filename, ".");
-	grapher->name = malloc(sizeof(name));
+	grapher->name = (char*)malloc(sizeof(name));
 	strcpy(grapher->name, name);
 	printf("Filename '%s' will be used as the base for output.\n", 
 						grapher->name);
