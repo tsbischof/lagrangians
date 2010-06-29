@@ -23,9 +23,6 @@ typedef struct Grapher {
 	double parm2_limits[3];
 	int height;
 
-	int i;
-	int j;
-
 	double t_limits[3];
 
 	double *r0; /* holds the default values for the starting vector.
