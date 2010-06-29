@@ -18,7 +18,7 @@ TARGETS = lagrangians
 all: lagrangians
 
 lagrangians: $(OBJS)
-	$(LD) $(CFLAGS) $(INCLUDES) $(LIBS) -o $@ $(OBJS) 
+	$(LD) $(CFLAGS) $(INCLUDES) $(LIBS) -o $@ $(OBJS)
 
 $%.o: %.c
 	$(CC) $(CFLAGS) $(INCLUDES) $(LIBS) -o $@ $<

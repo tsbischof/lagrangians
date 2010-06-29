@@ -1,11 +1,11 @@
 system = trig
 integrator = full
 rule = first_turnaround
-extend_time = true
+extend_time = false
 
 t=0,0.01,15
-x = -30, 0.5, 30
-v = -30, 0.5, 30
+x = -30, 0.1, 30
+v = -30, 0.1, 30
 k1 = 0.1
 k2 = 0.1
 k3 = 4

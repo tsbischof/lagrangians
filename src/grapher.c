@@ -79,6 +79,12 @@ void do_image(Grapher *grapher) {
 		 * 
 		 * It may be possible to run this with OpenMP as well, with each thread
 		 * running a separate row.
+		 *
+		 * This probably will work if the GPU routines are kept in separted .cpp
+		 * files, and are accessed only through C-safe routines. Basically,
+		 * pass the grapher to a helper function which then calls the corrent 
+		 * kernel, handles errors, etc. This means less time worrying about 
+		 * C++ conventions.
 		 */
 		double indices[grapher->width][2];
 		::brook::Stream<int> indicesStream(2, grapher->width);
@@ -150,20 +156,6 @@ void do_pixel(double *result, Grapher *grapher,
 			return;
 		}
 	}
-
-	int m;
-	for (m = 0; m < grapher->r0_length; m++) {
-		if ( m == grapher->parm1_index ) {
-			r0[m] = grapher->parm1_limits[0]
-                     + grapher->parm1_limits[1]*i;
-        } else if ( m == grapher->parm2_index ) {
-            r0[m] = grapher->parm2_limits[0]
-                     + grapher->parm2_limits[1]*j;
-        } else {
-            r0[m] = grapher->r0[m];
-        }
-            r[m] = r0[m];
-    }
 
 	double values[100];
 	if ( grapher->validate(&r[0]) ) {
