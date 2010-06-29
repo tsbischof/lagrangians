@@ -1,9 +1,7 @@
 #include <stdio.h>
 
 #include "parse_utils.h"
-//extern "C" {
-	#include <iniparser.h>
-//}
+#include <iniparser.h>
 #include "installed.h"
 
 int main(int argc, char *argv[]) {
@@ -43,9 +41,9 @@ int main(int argc, char *argv[]) {
 		return(1);
 	}
 
-	char *integrator;
-	integrator = iniparser_getstring(options, ":system", "");
-	if ( ! strcmp(integrator, "") ) {
+	char *system;
+	system = iniparser_getstring(options, ":system", "");
+	if ( ! strcmp(system, "") ) {
 		printf("Fatal: No 'system = ... ' line found.\n");
 		return(1);
 	}
@@ -53,10 +51,11 @@ int main(int argc, char *argv[]) {
 	dictionary_set(options, ":filename", config_filename);
 
 	void (*dispatcher)(dictionary *, Grapher *);
-	dispatcher = get_dispatcher(integrator);
+	dispatcher = get_dispatcher(system);
 	Grapher grapher;
+	grapher.system = system;
 	if ( dispatcher != NULL ) {
-		printf("Integrator %s is available.\n", integrator);
+		printf("System %s is available.\n", system);
 		dispatcher(options, &grapher);
 		do_image(&grapher);
 		to_raw(&grapher);
@@ -64,7 +63,7 @@ int main(int argc, char *argv[]) {
 		grapher_free(&grapher);
 		return(0);
 	} else {
-		printf("Integrator %s is not available.\n", integrator);
+		printf("Integrator %s is not available.\n", system);
 		return(1);
 	}
 }

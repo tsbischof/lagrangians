@@ -1,10 +1,6 @@
 #ifndef GRAPHER_H_
 #define GRAPHER_H_
 
-#ifdef USE_GPU
-#include <brook/Stream.h>
-#endif
-
 typedef struct Grapher {
 	char *name;
 	char *comment;
@@ -31,10 +27,7 @@ typedef struct Grapher {
 	int r0_length;
 
 	int use_gpu;
-#ifdef USE_GPU
-	void (*gpu_kernel)(::brook::Stream indicesStream, 
-						::brook::Stream resultsStream);
-#endif
+	char *system;
 
 	int extend_time;
 	double max_pixel;

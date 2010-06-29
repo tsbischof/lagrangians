@@ -6,10 +6,7 @@
 #include "image_funcs.h"
 #include "time.h"
 
-#ifdef USE_GPU
-#include <brook/Stream.h>
-#endif
-
+//#include "systems/gpu/brook_base.h"
 
 enum { NOT_DONE, DONE };
 
@@ -42,22 +39,10 @@ void do_image(Grapher *grapher) {
 	}
 	printf("Successfully allocated image.\n");
 
-	long int k = 0;
-	long int total_pixels = grapher->height*grapher->width;
-
 	double r[grapher->r0_length];
 	double r0[grapher->r0_length]; 
 	
 	printf("--------------------------------\nStarting the image run.\n");
-
-    int print_every = grapher->width*grapher->height / 1000;
-    if ( print_every == 0 ) {
-        print_every = 1;
-    }
-
-    time_t rawtime;
-    struct tm * timeinfo;
-    char fmttime[100];
 
 	if ( grapher->extend_time ) {
 		if (!read_image(grapher)) {
@@ -72,47 +57,24 @@ void do_image(Grapher *grapher) {
 	if ( grapher->use_gpu ) {
 #ifdef USE_GPU
 		printf("Using the GPU.\n");
-		/* Here, we create a stream of inidices which represent the pixel 
-		 * position. These are fed into the kernel, along with the appropriate
-		 * system, integrator, and rule type, and output is a stream of doubles
-		 * which represents the values for that row.
-		 * 
-		 * It may be possible to run this with OpenMP as well, with each thread
-		 * running a separate row.
-		 *
-		 * This probably will work if the GPU routines are kept in separted .cpp
-		 * files, and are accessed only through C-safe routines. Basically,
-		 * pass the grapher to a helper function which then calls the corrent 
-		 * kernel, handles errors, etc. This means less time worrying about 
-		 * C++ conventions.
-		 */
-		double indices[grapher->width][2];
-		::brook::Stream<int> indicesStream(2, grapher->width);
-		::brook::Stream<double> resultStream(1, grapher->width);
-
-		for (i = 0; i < grapher->width; i++) {
-			indices[i][0] = i;
-			indices[i][1] = 0;
-		}
-		
-		for (i = 0; i < grapher->height; i++) {
-			time(&rawtime);
-            timeinfo = localtime(&rawtime);
-            strftime(fmttime, 100, "%Y.%m.%d %H:%M:%S", timeinfo);
-            printf("%s: On row %d of %d (%.1f%%).\n", fmttime, i,
-					grapher->height, i/(float)grapher->height*100);
-
-			indicesStream.read(indices);
-			grapher->gpu_kernel(indicesStream, resultStream);
-			resultStream.write(grapher->image[i]);
-			for (j = 0; j < grapher->width; j++) {
-				indices[j][1]++;
-			}
-		}
+		grapher->gpu_kernel(grapher);
 #else
-		printf("Not compiled with GPU support. Sorry.\n");
+		printf("GPU computation not supported. Sorry.\n");
+		exit(1);
 #endif
 	} else {
+	    long int k = 0;
+		long int total_pixels = grapher->height*grapher->width;
+
+	    int print_every = grapher->width*grapher->height / 1000;
+	    if ( print_every == 0 ) {
+        	print_every = 1;
+    	}
+
+    	time_t rawtime;
+    	struct tm * timeinfo;
+    	char fmttime[100];
+
 		printf("Using the CPU.\n");
 
 #pragma omp parallel for private(i, j) firstprivate(r, r0) schedule(dynamic)
@@ -156,6 +118,20 @@ void do_pixel(double *result, Grapher *grapher,
 			return;
 		}
 	}
+
+    int m;
+    for (m = 0; m < grapher->r0_length; m++) {
+        if ( m == grapher->parm1_index ) {
+            r0[m] = grapher->parm1_limits[0]
+                     + grapher->parm1_limits[1]*i;
+        } else if ( m == grapher->parm2_index ) {
+            r0[m] = grapher->parm2_limits[0]
+                     + grapher->parm2_limits[1]*j;
+        } else {
+            r0[m] = grapher->r0[m];
+        }
+            r[m] = r0[m];
+    }
 
 	double values[100];
 	if ( grapher->validate(&r[0]) ) {
