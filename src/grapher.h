@@ -3,6 +3,8 @@
 
 typedef struct Grapher {
 	char *name;
+	char *system;
+
 	char *raw_filename;
 
 	int restart;
@@ -32,13 +34,11 @@ typedef struct Grapher {
 				  */
 	int r0_length;
 
-	int use_gpu;
-	char *system;
-
 	int extend_time;
 	double max_pixel;
 
-	void (*gpu_kernel)(void);
+	int use_gpu;
+	char *gpu_type;
 } Grapher;
 
 typedef struct Functions {

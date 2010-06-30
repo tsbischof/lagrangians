@@ -61,7 +61,8 @@ void do_image(Grapher *grapher) {
 
 	if ( grapher->use_gpu ) {
 		printf("Using the GPU.\n");
-		grapher->gpu_kernel();
+		printf("Just kidding, GPU kernals are not completed yet.\n");
+		exit(1);
 	} else {
 		printf("Using the CPU.\n");
 

@@ -203,14 +203,28 @@ int setup_config(Grapher *grapher, dictionary *options,
 						grapher->name);
 
 	// Are we going to try to use the GPU?
-	char *use_gpu = iniparser_getstring(options, ":use_gpu", "");
-	if ( ! strcmp(use_gpu, "true") ) {
+	char *gpu = iniparser_getstring(options, ":gpu", "");
+
+	/* There are a few major GPU development toolkits. The ones I am aware of:
+ 	 * -Brook+ (ATI)
+ 	 * -CUDA (NVIDIA)
+ 	 * -OpenCL (newer graphics cards)
+ 	 *
+ 	 * For each of these, separated kernels will be needed. If we record the
+ 	 * GPU type, we can dispatch the jobs appropriately later.
+ 	 */
+	
+	if ( ! strcmp(gpu, "brook") || ! strcmp(gpu, "opencl")
+		|| ! strcmp(gpu, "cuda") ) {
 #ifdef USE_GPU
 		printf("Will attempt to use the GPU for calculations.\n");
+		grapher->gpu_type = (char*)malloc(sizeof(gpu));
+		strcpy(grapher->gpu_type, gpu);
 		grapher->use_gpu = 1;
 #else 
 		grapher->use_gpu = 0;
-		printf("GPU support not enabled.\n");
+		printf("Found valid GPU type %s, but GPU support not enabled.\n",
+				gpu);
 #endif
 	} else {
 		printf("Will use the CPU for calculations.\n");
@@ -234,6 +248,7 @@ int setup_config(Grapher *grapher, dictionary *options,
 		grapher->restart = 0;
 		printf("Starting a fresh run, rather than a restart.\n");
 	}
+
 	
 	// The options have been parsed, free the space.
 	iniparser_freedict(options);

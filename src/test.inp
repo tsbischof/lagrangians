@@ -2,6 +2,7 @@ system = harmonic_oscillator
 rule = first_turnaround
 ;restart = true
 ;extend_time = true
+gpu = opencl
 
 t=0,0.01,3.14
 x = -30, 0.5, 30
