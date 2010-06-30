@@ -136,8 +136,12 @@ void restart_to_grapher(Grapher *grapher) {
 	}
 
 	for (i = 0; i < grapher->height; i++) {
-		for (j = 0; j < grapher->width; j++) {
-			fread(&grapher->image[i][j], sizeof(double), 1, restart_file);
+		if ( grapher->finished_rows[i] ) {
+			for (j = 0; j < grapher->width; j++) {
+				fread(&grapher->image[i][j], sizeof(double), 1, restart_file);
+			}
+		} else {
+			fseek(restart_file, sizeof(double)*grapher->width, SEEK_CUR);
 		}
 	}
 	fclose(restart_file);
