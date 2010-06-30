@@ -125,7 +125,7 @@ void do_image(Grapher *grapher) {
 	printf("Building image complete.\n");
 
 	restart_to_raw(grapher);
-	remove(grapher->restart_filename);
+//	remove(grapher->restart_filename);
 
 	printf("------------------------------------\n");
 

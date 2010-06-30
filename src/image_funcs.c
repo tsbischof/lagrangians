@@ -168,8 +168,7 @@ void allocate_restart_file(Grapher *grapher) {
 	FILE *restart_file;
 	restart_file = fopen(grapher->restart_filename, "r");
 	if ( restart_file != NULL ) {
-		printf("here\n");
-		printf("Data already exists in %s. This run will overwrite the data, so move it out of the way first.\n", grapher->restart_filename);
+		printf("Data already exists in %s. \nThis run will overwrite the data, so move it out of the way or use:\n\trestart = true\n", grapher->restart_filename);
 		fclose(restart_file);
 		exit(1);
 	}
