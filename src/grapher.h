@@ -3,6 +3,12 @@
 
 typedef struct Grapher {
 	char *name;
+	char *raw_filename;
+
+	int restart;
+	char *restart_filename;
+	int *finished_rows;
+
 	char *comment;
 	void (*integrate)(double *, double);
 	double (*rule)(double *, double *, double, double *, int);
@@ -31,6 +37,8 @@ typedef struct Grapher {
 
 	int extend_time;
 	double max_pixel;
+
+	void (*gpu_kernel)(void);
 } Grapher;
 
 typedef struct Functions {
@@ -50,8 +58,10 @@ void do_image(Grapher *grapher);
 void do_pixel(double *result, Grapher *grapher, 
 				double *r, double *r0, int i, int j);
 int pixels(double *limits);
-void to_raw(Grapher *grapher);
-void to_ppm(Grapher *grapher);
+void grapher_to_raw(Grapher *grapher);
+void grapher_to_ppm(Grapher *grapher);
 void grapher_free(Grapher *grapher);
+void write_row(Grapher *grapher, int row);
+void allocate_grapher_image(Grapher *grapher);
 
 #endif

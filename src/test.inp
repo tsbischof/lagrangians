@@ -1,15 +1,9 @@
-system = trig
-integrator = full
+system = harmonic_oscillator
 rule = first_turnaround
-extend_time = false
+;restart = true
+;extend_time = true
 
-t=0,0.01,15
-x = -30, 0.1, 30
-v = -30, 0.1, 30
-k1 = 0.1
-k2 = 0.1
-k3 = 4
-k4 = 2
-k5 = 5
-k6 = 2
+t=0,0.01,3.14
+x = -30, 0.5, 30
+v = -30, 0.5, 30
 plot = x, v

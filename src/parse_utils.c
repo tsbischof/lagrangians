@@ -216,6 +216,24 @@ int setup_config(Grapher *grapher, dictionary *options,
 		printf("Will use the CPU for calculations.\n");
 		grapher->use_gpu = 0;
 	}
+
+	// Restart files are nice.
+	grapher->restart_filename = (char*)malloc(sizeof(grapher->name)+8);
+	sprintf(grapher->restart_filename, "%s.restart", grapher->name);
+
+    grapher->raw_filename = (char*)malloc(sizeof(grapher->name)+4);
+	sprintf(grapher->raw_filename, "%s.raw", grapher->name);
+	printf("Will write the restart data to %s.\n", grapher->restart_filename);
+
+	char *restart = iniparser_getstring(options, ":restart", "false");
+	if ( ! strcmp(restart, "true") ) {
+		grapher->restart = 1;
+		printf("Will use the data in %s to restart the run.\n", 
+					grapher->restart_filename);
+	} else {
+		grapher->restart = 0;
+		printf("Starting a fresh run, rather than a restart.\n");
+	}
 	
 	// The options have been parsed, free the space.
 	iniparser_freedict(options);
@@ -253,5 +271,15 @@ int setup_config(Grapher *grapher, dictionary *options,
 	if ( grapher->use_gpu ) {
 		printf("Will attempt to use the system's GPU for calculations.\n");
 	}
+
+	// We will keep track of finished rows as a way of enabling restarts.
+    grapher->finished_rows = (int*)malloc(grapher->height*sizeof(int));
+    for (i = 0; i < grapher->height; i++) {
+        grapher->finished_rows[i] = 0;
+    }
+
+
+
+
 	return(0);
 }

@@ -58,8 +58,7 @@ int main(int argc, char *argv[]) {
 		printf("System %s is available.\n", system);
 		dispatcher(options, &grapher);
 		do_image(&grapher);
-		to_raw(&grapher);
-		to_ppm(&grapher);
+		grapher_to_ppm(&grapher);
 		grapher_free(&grapher);
 		return(0);
 	} else {

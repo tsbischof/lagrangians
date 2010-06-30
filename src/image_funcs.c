@@ -2,7 +2,9 @@
 
 #define RGB_SCALE 255 // maximum channel value
 
-void image_to_ppm(Grapher *grapher, char *filename) {
+void grapher_to_ppm(Grapher *grapher) {
+	char *filename= (char*)malloc(sizeof(grapher->name)/sizeof(char) + 4);
+	sprintf(filename, "%s.ppm", grapher->name);
 	printf("--------------------------\n");
 	printf("Writing image to ppm file: %s.\n", filename);
 
@@ -31,21 +33,21 @@ void image_to_ppm(Grapher *grapher, char *filename) {
 	printf("Finished writing ppm file %s.\n", filename);
 }
 
-void image_to_raw(Grapher *grapher, char *filename) {
+void grapher_to_raw(Grapher *grapher) {
 	printf("---------------------------------\n");
-	printf("Writing image to raw file: %s.\n", filename);
+	printf("Writing image to raw file: %s.\n", grapher->raw_filename);
 
 	FILE *output;
-	output = fopen(filename, "wb");
+	output = fopen(grapher->raw_filename, "wb");
 	int i,j;
 
 	for (i = 0; i < grapher->height; i++) {
 		for (j = 0; j < grapher->width; j++) {
-			fwrite(&grapher->image[i][j], 1, sizeof(double), output);
+			fwrite(&grapher->image[i][j], sizeof(double), 1, output);
 		}
 	}
 	fclose(output);
-	printf("Finished writing raw file %s.\n", filename);
+	printf("Finished writing raw file %s.\n", grapher->raw_filename);
 }
 
 void choose_RGB(double pixel, double max_pixel, int *rgb) {
@@ -68,7 +70,7 @@ void choose_RGB(double pixel, double max_pixel, int *rgb) {
 	}
 }
 
-int read_image(Grapher *grapher) {
+void raw_to_grapher(Grapher *grapher) {
 /* Read in the file to the image stored in the grapher, and record the 
  * maximum pixel value for later use. This is useful for restarts and 
  * other manipulations of the image.
@@ -82,19 +84,18 @@ int read_image(Grapher *grapher) {
 	raw_file = fopen(filename, "r");
 	if ( raw_file == NULL ) {
 		printf("Fatal: Could not find starting file %s.\n", filename);
-		return(1);
+		exit(1);
 	}
 	
 	for (i = 0; i < grapher->height; i++) {
 		for (j = 0; j < grapher->width; j++) {
-			fread(&grapher->image[i][j], 1, sizeof(double), raw_file);
+			fread(&grapher->image[i][j], sizeof(double), 1, raw_file);
 			if ( grapher->image[i][j] > grapher->max_pixel ) {
 				grapher->max_pixel = grapher->image[i][j];
 			}
 		}
 	}
 	fclose(raw_file);
-	return(0);
 }
 
 double get_max_pixel(Grapher *grapher) {
@@ -108,4 +109,117 @@ double get_max_pixel(Grapher *grapher) {
 		}
 	}
 	return(result);
+}
+
+void restart_to_grapher(Grapher *grapher) {
+	FILE *restart_file;
+	restart_file = fopen(grapher->restart_filename, "rb");
+
+	printf("--------------------------------------------------------------\n");
+	printf("Reading in restart data from %s.\n", grapher->restart_filename);
+
+	if ( restart_file == NULL ) {
+		printf("Error: could not read restart file %s.\n", 
+					grapher->restart_filename);
+		exit(1);
+	}
+	
+	int i, j;
+	for (i = 0; i < grapher->height; i++) {
+		fread(&grapher->finished_rows[i], sizeof(int), 1, restart_file);
+/*		if ( grapher->finished_rows[i] ) {
+			printf("Row %d is already finished.\n", i);
+		} else {
+			printf("Row %d remains to be finished.\n", i);
+		} */
+	}
+
+	for (i = 0; i < grapher->height; i++) {
+		for (j = 0; j < grapher->width; j++) {
+			fread(&grapher->image[i][j], sizeof(double), 1, restart_file);
+		}
+	}
+	fclose(restart_file);
+	printf("--------------------------------------------------------------\n");
+} 
+
+void write_restart_row(Grapher *grapher, int row) {
+    FILE *restart_file;
+    restart_file = fopen(grapher->restart_filename, "r+b");
+
+    // First, write the row data to file.
+    fseek(restart_file, grapher->height*sizeof(int)
+					+ row*grapher->width*sizeof(double), SEEK_SET);
+	int j;
+	for (j = 0; j < grapher->width; j++) {
+		fwrite(&grapher->image[row][j], sizeof(double), 1, restart_file);
+	}
+   
+    // Next, record that we have finished writing the data.
+    fseek(restart_file, row*sizeof(int), SEEK_SET);
+    int finished[1] = {1};
+    fwrite(finished, sizeof(int), 1, restart_file);
+    
+	fclose(restart_file);
+}
+
+void allocate_restart_file(Grapher *grapher) {
+	FILE *restart_file;
+	restart_file = fopen(grapher->restart_filename, "wb");
+
+	if ( restart_file == NULL ) {
+		printf("Error: could not open restart file %s for writing.\n",
+					grapher->restart_filename);
+		exit(1);
+	} else {
+		printf("Allocating %s on disk.\n", grapher->restart_filename);
+	}
+
+	int i;
+	int unfinished[] = {0};
+	for (i = 0; i < grapher->height; i++) {
+		fwrite(unfinished, sizeof(int), 1, restart_file);
+	}
+
+	double blank_row[grapher->width];
+	for (i = 0; i < grapher->width; i++) {
+		blank_row[i] = 0;
+	}
+	for (i = 0; i < grapher->height; i++) {
+		fwrite(blank_row, sizeof(double), grapher->width, restart_file);
+	}
+
+	printf("Successfully allocated %s on disk.\n", grapher->restart_filename);
+	fclose(restart_file);
+}
+
+void restart_to_raw(Grapher *grapher) {
+	FILE *restart_file, *raw_file;
+	restart_file = fopen(grapher->restart_filename, "rb");
+	raw_file = fopen(grapher->raw_filename, "wb");
+
+	printf("-------------------------------------\n");
+    printf("Converting temporary data from %s to raw data in %s.\n",
+           grapher->restart_filename, grapher->raw_filename);
+
+
+	if ( restart_file == NULL ) {
+		printf("Error: could not open %s for reading.\n",
+				grapher->restart_filename);
+	} else if ( raw_file == NULL ) {
+		printf("Error: could not open %s for writing.\n",
+				grapher->raw_filename);
+	} else {
+		fseek(restart_file, sizeof(int)*grapher->height, SEEK_SET);
+		int i, j;
+		double value;
+		for (i = 0; i < grapher->height; i++) {
+			for (j = 0; j < grapher->width; j++) {
+				fread(&value, sizeof(double), 1, restart_file);
+				fwrite(&value, sizeof(double), 1, raw_file);
+			}
+		}
+
+		printf("Finished writing data to %s.\n", grapher->raw_filename);
+	}
 }

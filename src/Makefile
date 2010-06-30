@@ -6,7 +6,6 @@ BROOK =
 CC = cc
 CFLAGS = -Wall $(OPENMP) $(USE_GPU)
 LD = cc
-INCLUDES = -I/usr/local/include
 LIBS = -lm -liniparser
 OBJS =  image_funcs.o integrators.o main.o parse_utils.o rules.o installed.o \
 		grapher.o  \

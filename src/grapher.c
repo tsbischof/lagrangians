@@ -3,15 +3,18 @@
 #include <stdlib.h>
 #include <math.h>
 #include <omp.h>
-#include "image_funcs.h"
 #include "time.h"
+#include "image_funcs.h"
 
 //#include "systems/gpu/brook_base.h"
 
 enum { NOT_DONE, DONE };
 
 void grapher_free(Grapher *grapher) {
-	free(&grapher->image[0][0]);
+	int i;
+	for ( i = 0; i < grapher->height; i++) {
+		free(&grapher->image[i][0]);
+	}
 	free(&grapher->r0[0]);
 }
 
@@ -19,83 +22,99 @@ void print_limits(char *name, double *limits) {
 	printf("%s: [%f, %f, %f]\n", name, limits[0], limits[1], limits[2]);
 }
 
+void allocate_grapher_image(Grapher *grapher) {
+	int i;
+    grapher->image = (double **)malloc(grapher->height*sizeof(double));
+    if ( grapher->image == NULL ) {
+        printf("Insufficient memory to create the image rows.\n");
+        exit(1);
+    }
+    for (i = 0; i < grapher->height; i++) {
+        grapher->image[i] = (double*)malloc(grapher->width*sizeof(double));
+        if (grapher->image[i] == NULL) {
+            printf("Insufficient memory to create row %d.\n", i);
+            exit(1);
+        }
+    }
+    printf("Successfully allocated image in memory.\n");
+}
+	
+
 void do_image(Grapher *grapher) {
 	/* Create the image. Allocate the pixel array and populate it using the
 	 * integrator and rule.
 	 */
 
-	int i,j;
-	grapher->image = (double **)malloc(grapher->height*sizeof(double));
-	if ( grapher->image == NULL ) {
-		printf("Insufficient memory to create the image rows.\n");
-		exit(1);
-	}
-	for (i = 0; i < grapher->height; i++) {	
-		grapher->image[i] = (double*)malloc(grapher->width*sizeof(double));
-		if (grapher->image[i] == NULL) {
-			printf("Insufficient memory to create row %d.\n", i);
-			exit(1);
-		}
-	}
-	printf("Successfully allocated image.\n");
+	allocate_grapher_image(grapher);
 
-	double r[grapher->r0_length];
-	double r0[grapher->r0_length]; 
-	
 	printf("--------------------------------\nStarting the image run.\n");
 
 	if ( grapher->extend_time ) {
-		if (!read_image(grapher)) {
-			printf("Successfully read in the existing image.\n");
-		} else {
-			printf("Fatal: failed while reading the existing image %s.raw.\n",
-					grapher->name);
-			exit(1);
-		}
+		raw_to_grapher(grapher);
+	} 
+
+	if ( grapher->restart ) {
+		restart_to_grapher(grapher);
+	} else {
+		allocate_restart_file(grapher);
 	}
 
 	if ( grapher->use_gpu ) {
-#ifdef USE_GPU
 		printf("Using the GPU.\n");
-		grapher->gpu_kernel(grapher);
-#else
-		printf("GPU computation not supported. Sorry.\n");
-		exit(1);
-#endif
+		grapher->gpu_kernel();
 	} else {
-	    long int k = 0;
-		long int total_pixels = grapher->height*grapher->width;
-
-	    int print_every = grapher->width*grapher->height / 1000;
-	    if ( print_every == 0 ) {
-        	print_every = 1;
-    	}
+		printf("Using the CPU.\n");
 
     	time_t rawtime;
     	struct tm * timeinfo;
     	char fmttime[100];
 
-		printf("Using the CPU.\n");
+   		double r[grapher->r0_length];
+    	double r0[grapher->r0_length];
+
+    	int i, j;
+    	long int k = 0;
+    	long int total_pixels = grapher->height*grapher->width;
+
+    	int print_every = grapher->width*grapher->height / 1000;
+    	if ( print_every == 0 ) {
+        	print_every = 1;
+    	}
+
 
 #pragma omp parallel for private(i, j) firstprivate(r, r0) schedule(dynamic)
-		for ( i = 0; i < grapher->height; i++) {
-			for ( j = 0; j < grapher->width; j++) {
-				if ( k % print_every == 0 ) {
-					time(&rawtime);
-					timeinfo = localtime(&rawtime);
-					strftime(fmttime, 100, "%Y.%m.%d %H:%M:%S", timeinfo);
-					printf("%s: On pixel %ld of %ld (%.1f%%).\n", 
-						fmttime, k, total_pixels, 
-						k/(float)total_pixels*100);
+		for (i = 0; i < grapher->height; i++) {
+			if ( grapher->finished_rows[i] ) {
+				printf("Found finished row %d.\n", i);
+				k += grapher->width;
+			} else {
+				for (j = 0; j < grapher->width; j++) {
+					if ( k % print_every == 0 ) {
+						rawtime = time(NULL);
+						timeinfo = localtime(&rawtime);
+						strftime(fmttime, 100, "%Y.%m.%d %H:%M:%S", timeinfo);
+						printf("%s: On pixel %ld of %ld (%.1f%%).\n", 
+							fmttime, k, total_pixels, 
+							k/(double)total_pixels*100);
+					}
+					k++;
+					do_pixel(&grapher->image[i][j], grapher, &r[0], &r0[0], 
+								i, j);
 				}
-				k++;
-	
-				do_pixel(&grapher->image[i][j], grapher, &r[0], &r0[0], i, j);
+
+				write_restart_row(grapher, i);
+				grapher->finished_rows[i] = 1;
 			}
 		}
 	}
 
 	printf("Building image complete.\n");
+
+	restart_to_raw(grapher);
+	remove(grapher->restart_filename);
+
+	printf("------------------------------------\n");
+
 	grapher->max_pixel = get_max_pixel(grapher);
 	if ( grapher->max_pixel == grapher->t_limits[2] ) {
 		printf("Some pixels hit the maximum value of %f.\n", 
@@ -161,15 +180,3 @@ int pixels(double *limits) {
 	return((int)ceil((limits[2]-limits[0])/limits[1])+1);
 }
 
-void to_raw(Grapher *grapher) {
-	char *name = (char*)malloc(sizeof(grapher->name)+4);
-	sprintf(name, "%s.raw", grapher->name);
-	image_to_raw(grapher, name);
-}
-
-
-void to_ppm(Grapher *grapher) {
-	char *name = (char*)malloc(sizeof(grapher->name)+4);
-	sprintf(name, "%s.ppm", grapher->name);
-	image_to_ppm(grapher, name);
-}
