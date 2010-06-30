@@ -31,6 +31,7 @@ void grapher_to_ppm(Grapher *grapher) {
 	}
 	fclose(output);
 	printf("Finished writing ppm file %s.\n", filename);
+	free(filename);
 }
 
 void grapher_to_raw(Grapher *grapher) {
@@ -165,6 +166,14 @@ void write_restart_row(Grapher *grapher, int row) {
 
 void allocate_restart_file(Grapher *grapher) {
 	FILE *restart_file;
+	restart_file = fopen(grapher->restart_filename, "r");
+	if ( restart_file != NULL ) {
+		printf("here\n");
+		printf("Data already exists in %s. This run will overwrite the data, so move it out of the way first.\n", grapher->restart_filename);
+		fclose(restart_file);
+		exit(1);
+	}
+
 	restart_file = fopen(grapher->restart_filename, "wb");
 
 	if ( restart_file == NULL ) {

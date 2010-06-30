@@ -2,16 +2,16 @@
 #define GRAPHER_H_
 
 typedef struct Grapher {
-	char *name;
-	char *system;
+	char name[100];
+	char system[100];
 
-	char *raw_filename;
+	char raw_filename[100];
 
 	int restart;
-	char *restart_filename;
+	char restart_filename[100];
 	int *finished_rows;
 
-	char *comment;
+	char comment[1000];
 	void (*integrate)(double *, double);
 	double (*rule)(double *, double *, double, double *, int);
 	int (*validate)(double *);
@@ -29,16 +29,17 @@ typedef struct Grapher {
 
 	double t_limits[3];
 
-	double *r0; /* holds the default values for the starting vector.
-				  * Some will be overridden for parm1 and parm2.
-				  */
-	int r0_length;
 
 	int extend_time;
 	double max_pixel;
 
 	int use_gpu;
-	char *gpu_type;
+	char gpu_type[100];
+
+	int r0_length;
+    double *r0; /* holds the default values for the starting vector.
+                  * Some will be overridden for parm1 and parm2.
+                  */
 } Grapher;
 
 typedef struct Functions {

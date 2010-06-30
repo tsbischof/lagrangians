@@ -11,11 +11,25 @@
 enum { NOT_DONE, DONE };
 
 void grapher_free(Grapher *grapher) {
-	int i;
-	for ( i = 0; i < grapher->height; i++) {
-		free(&grapher->image[i][0]);
-	}
-	free(&grapher->r0[0]);
+/*	free(grapher->name);
+	free(grapher->system);
+
+	free(grapher->raw_filename);
+	free(grapher->restart_filename); */
+	free(&grapher->finished_rows[0]);
+//	free(grapher->comment);
+	
+    int i;
+    for ( i = 0; i < grapher->height; i++) {
+        free(&grapher->image[i][0]);
+    }
+	free(&grapher->image[0]);
+
+	free(grapher->parm1);
+	free(grapher->parm2);
+    free(&grapher->r0[0]);
+
+//	free(grapher->gpu_type);
 }
 
 void print_limits(char *name, double *limits) {
@@ -81,7 +95,6 @@ void do_image(Grapher *grapher) {
     	if ( print_every == 0 ) {
         	print_every = 1;
     	}
-
 
 #pragma omp parallel for private(i, j) firstprivate(r, r0) schedule(dynamic)
 		for (i = 0; i < grapher->height; i++) {

@@ -30,7 +30,6 @@ int main(int argc, char *argv[]) {
 		fclose(config_file);
 	} else {
 		printf("Input file %s could not be read.\n", config_filename);
-		fclose(config_file);
 		return(1);
 	}
 
@@ -53,7 +52,8 @@ int main(int argc, char *argv[]) {
 	void (*dispatcher)(dictionary *, Grapher *);
 	dispatcher = get_dispatcher(system);
 	Grapher grapher;
-	grapher.system = system;
+//	grapher.system = (char *)malloc(sizeof(system));
+	strcpy(grapher.system, system);
 	if ( dispatcher != NULL ) {
 		printf("System %s is available.\n", system);
 		dispatcher(options, &grapher);
