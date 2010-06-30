@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from multiprocessing import Pool
 import re
@@ -15,7 +15,7 @@ def do_run(filename):
     log_file.write("%s: Working with input file %s.\n" % (time.strftime("%Y.%m.%d %X"), filename))
     log_file.close()
     log_file = open(log_name, "w")
-    subprocess.Popen([lagrangians, filename], stdout=log_file).wait()
+    subprocess.Popen([lagrangians, filename], stdout=log_file, stderr=log_file).wait()
     subprocess.Popen(["convert", base + "ppm", base + "png"]).wait()
     subprocess.Popen(["bzip2", base + "raw"]).wait()
     subprocess.Popen(["convert", base + "ppm", base + "png"]).wait()
