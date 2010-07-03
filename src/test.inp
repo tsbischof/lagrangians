@@ -1,9 +1,10 @@
 system = harmonic_oscillator
 rule = first_turnaround
-restart = true
+;restart = true
 ;extend_time = true
+;gpu = brook
 
-t=0,0.01,3.14
-x = -30, 0.1, 30
-v = -30, 0.1, 30
+t=0,0.01,10
+x = -5, 0.01, 5
+v = -5, 0.01, 5
 plot = x, v

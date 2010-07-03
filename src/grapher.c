@@ -1,12 +1,16 @@
 #include "grapher.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <omp.h>
-#include "time.h"
+#include <time.h>
 #include "image_funcs.h"
 
-//#include "systems/gpu/brook_base.h"
+#ifdef USE_GPU
+#include "systems/gpu/gpu_brook.h"
+//#include "systems/gpu/gpu_opencl.h"
+#endif
 
 enum { NOT_DONE, DONE };
 
@@ -74,9 +78,13 @@ void do_image(Grapher *grapher) {
 	}
 
 	if ( grapher->use_gpu ) {
+#ifdef USE_GPU
 		printf("Using the GPU.\n");
-		printf("Just kidding, GPU kernals are not completed yet.\n");
+		gpu_brook(grapher);
+#else
+		printf("GPU support not enabled.\n");
 		exit(1);
+#endif
 	} else {
 		printf("Using the CPU.\n");
 
@@ -95,6 +103,10 @@ void do_image(Grapher *grapher) {
     	if ( print_every == 0 ) {
         	print_every = 1;
     	}
+
+		for (i = 0; i < grapher->r0_length; i++) {
+			r0[i] = grapher->r0[i];
+		}
 
 #pragma omp parallel for private(i, j) firstprivate(r, r0) schedule(dynamic)
 		for (i = 0; i < grapher->height; i++) {
@@ -125,7 +137,6 @@ void do_image(Grapher *grapher) {
 	printf("Building image complete.\n");
 
 	restart_to_raw(grapher);
-//	remove(grapher->restart_filename);
 
 	printf("------------------------------------\n");
 
@@ -152,21 +163,17 @@ void do_pixel(double *result, Grapher *grapher,
 		}
 	}
 
-    int m;
+	r0[grapher->parm1_index] = grapher->r0[grapher->parm1_index]
+							+ i * grapher->parm1_limits[1];
+	
+	r0[grapher->parm2_index] = grapher->r0[grapher->parm2_index]
+							+ j * grapher->parm2_limits[1];
+	int m;
     for (m = 0; m < grapher->r0_length; m++) {
-        if ( m == grapher->parm1_index ) {
-            r0[m] = grapher->parm1_limits[0]
-                     + grapher->parm1_limits[1]*i;
-        } else if ( m == grapher->parm2_index ) {
-            r0[m] = grapher->parm2_limits[0]
-                     + grapher->parm2_limits[1]*j;
-        } else {
-            r0[m] = grapher->r0[m];
-        }
             r[m] = r0[m];
     }
 
-	double values[100];
+	double values[10];
 	if ( grapher->validate(&r[0]) ) {
 		while (t < grapher->t_limits[2] ) {
 			grapher->integrate(&r[0], grapher->t_limits[1]);

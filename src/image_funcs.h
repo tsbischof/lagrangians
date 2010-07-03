@@ -1,9 +1,6 @@
-#ifndef IMAGE_H_
-#define IMAGE_H_
+#ifndef IMAGE_FUNCS_H_
+#define IMAGE_FUNCS_H_
 
-#include <stdio.h>
-#include <math.h>
-#include <stdlib.h>
 #include "grapher.h"
 
 void grapher_to_ppm(Grapher *grapher);

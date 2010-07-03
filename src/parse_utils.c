@@ -1,5 +1,12 @@
 #include "parse_utils.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+#include "rules.h"
+
 const char *delims = " ,";
 
 int contains(char *list[], char *element) {
@@ -235,7 +242,6 @@ int setup_config(Grapher *grapher, dictionary *options,
 	// Restart files are nice.
 //	grapher->restart_filename = (char*)malloc(sizeof(grapher->name)+8);
 	sprintf(grapher->restart_filename, "%s.restart", grapher->name);
-	printf("here\n");
 
 //    grapher->raw_filename = (char*)malloc(sizeof(grapher->name)+4);
 	sprintf(grapher->raw_filename, "%s.raw", grapher->name);

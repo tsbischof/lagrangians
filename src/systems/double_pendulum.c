@@ -1,5 +1,7 @@
 #include "double_pendulum.h"
 
+#include <math.h>
+
 /* Simulates the motion of two pendulums, attached to each other. The first
  * pendulum is attached to a fixed point, has a mass m1 attached to its lower
  * end, and has length l1. The second pendulum is fixed to the bottom of the 

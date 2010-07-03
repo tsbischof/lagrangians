@@ -1,5 +1,9 @@
 #include "image_funcs.h"
 
+#include <math.h>
+#include <stdlib.h>
+#include <stdio.h>
+
 #define RGB_SCALE 255 // maximum channel value
 
 void grapher_to_ppm(Grapher *grapher) {

@@ -1,7 +1,14 @@
 #include <stdio.h>
 
 #include "parse_utils.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 #include <iniparser.h>
+#ifdef __cplusplus
+}
+#endif
 #include "installed.h"
 
 int main(int argc, char *argv[]) {

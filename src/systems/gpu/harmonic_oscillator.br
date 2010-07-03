@@ -1,0 +1,24 @@
+// enum { X, V, M, K }
+
+kernel void harmonic_oscillator_gpu(float4 r0<>, float4 t_limits, out float result<>) {
+	float t = t_limits.x;
+	float a;
+	float v0 = r0.y;
+	float4 r = r0;
+	while ( t < t_limits.z ) {
+		a = -r.w*r.x;
+		r.x += r.y*t_limits.y + (float)1/(float)2*a*t_limits.y*t_limits.y;
+		r.y += a*t_limits.y/(float)2;
+		a = -r.w*r.x;
+		r.y += a*t_limits.y/(float)2; 
+
+		if ( abs(r.y) == (float)0 || sign(r.y) == -sign(v0) ) {
+			break;
+		} else {
+			t += t_limits.y;
+		}
+	}
+
+	result = t;
+}
+
