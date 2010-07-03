@@ -1,7 +1,7 @@
 OPENMP = -fopenmp
-USE_GPU = -DUSE_GPU
+USE_GPU = #-DUSE_GPU
 OPENCL = 
-BROOK = true
+BROOK = #true
 
 
 CFLAGS = -Wall ${OPENMP} ${USE_GPU}
