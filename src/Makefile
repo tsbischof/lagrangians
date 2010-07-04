@@ -1,10 +1,10 @@
 OPENMP = -fopenmp
+
 USE_GPU = #-DUSE_GPU
 OPENCL = 
 BROOK = #true
 
-
-CFLAGS = -Wall ${OPENMP} ${USE_GPU}
+CFLAGS = -Wall -O3 ${OPENMP} ${USE_GPU}
 
 ifdef USE_GPU
 CC = c++
