@@ -21,7 +21,7 @@ OBJS :=  image_funcs.o integrators.o main.o parse_utils.o rules.o installed.o \
 SYSTEMS := harmonic_oscillator trig double_well \
 		double_pendulum dangling_stick springy_pendulum double_spring
 OBJS += ${addsuffix .o, ${addprefix systems/, ${SYSTEMS}}}
-TARGETS = lagrangians
+TARGET = lagrangians
 
 ifeq (${BROOK},true)
 BRCC = brcc
@@ -34,9 +34,9 @@ LIBS += ${BRLIBS}
 else
 endif
 
-all: lagrangians
+all: ${TARGET}
 
-lagrangians: ${BROBJS} ${OBJS}
+${TARGET}: ${BROBJS} ${OBJS}
 	${LD} ${CFLAGS} ${LIBS} -o $@ ${OBJS} ${BROBJS}
 
 $%.o: %.c
@@ -47,6 +47,9 @@ ${BROBJS}: ${BRKERNS}
 
 ${BRKERNS}: 
 	${BRCC} ${@:.brook=.br}
+
+install: ${TARGET}
+	mv ${TARGET} ~tsbischof/bin/.
 
 clean:
 	rm -f ${OBJS} ${TARGETS} ${BRGEN} ${BROBJS} 

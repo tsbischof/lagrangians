@@ -8,19 +8,21 @@ import os
 import time
 
 def do_run(filename):
-    lagrangians = "/home/tsbischof/src/lagrangians/run/lagrangians"
-    base = filename[:-3]
-    log_name = base + "log"
-    log_file = open("log", "a")
-    log_file.write("%s: Working with input file %s.\n" % (time.strftime("%Y.%m.%d %X"), filename))
-    log_file.close()
-    log_file = open(log_name, "w")
-    subprocess.Popen([lagrangians, filename], stdout=log_file, stderr=log_file).wait()
-    subprocess.Popen(["convert", base + "ppm", base + "png"]).wait()
-    subprocess.Popen(["bzip2", base + "raw"]).wait()
-    subprocess.Popen(["convert", base + "ppm", base + "png"]).wait()
-    subprocess.Popen(["bzip2", base + "ppm"]).wait()
-    log_file.close()
+    queue_file = "#!/bin/sh\n"
+    lagrangians = "lagrangians"
+    base = filename[:-4]
+    log_name = base + ".log"
+
+    queue_file += "cd %s\n" % os.getcwd()
+    queue_file += "%s %s\n" % (lagrangians, filename)
+    queue_file += "convert %s.ppm %s.png\n" % (base, base)
+    queue_file += "bzip2 %s.raw %s.ppm\n" % (base, base)
+
+    queue_script = open(base + "_run.sh", "w")
+    queue_script.write(queue_file)
+    queue_script.close()
+
+    subprocess.Popen(["qsub", base+"_run.sh"]).wait()
 
 if __name__ == "__main__":
     os.nice(19)
