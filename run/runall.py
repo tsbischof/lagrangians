@@ -8,7 +8,7 @@ import os
 import time
 
 def do_run(filename):
-    lagrangians = "/home/tsbischof/src/lagrangians/lagrangians"
+    lagrangians = "/home/tsbischof/src/lagrangians/run/lagrangians"
     base = filename[:-3]
     log_name = base + "log"
     log_file = open("log", "a")

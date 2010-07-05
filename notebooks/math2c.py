@@ -13,18 +13,26 @@ reserved = ["cos", "sin", "pow"]
 subs = [["Cos", "cos"], ["Sin", "sin"], ["Power", "pow"], ["==", "="], \
         [r"\(t\)", ""], [" ", ""], ["\\\\", ""]]
 
+equation_type = True
+
 for in_word, out_word in subs:
-   file = re.sub(in_word, out_word, file)
+    file = re.sub(in_word, out_word, file)
+
 
 file_tmp = file
 for m in re.finditer(r"\[(?P<var>[^]]+)]", file):
     file_tmp = re.sub(r"\[%s]" % m.group("var"), m.group("var").lower(), file_tmp)
 file = file_tmp
-
+file_tmp = file
+for m in re.finditer("Subscript\((?P<var>[^,]+),(?P<num>[0-9]+)\)", file):
+    file_tmp = re.sub("Subscript\(%s,%s\)" % (m.group("var"), m.group("num")), \
+                      "%s%s" % (m.group("var"), m.group("num")), file_tmp)
+file = file_tmp
 file_tmp = file
 for m in re.finditer("Derivative\((?P<order>[0-9]+)\)\((?P<var>[^)]+)\)",
                      file):
-    file_tmp = re.sub("Derivative\(%s\)\(%s\)" % (m.group("order"), m.group("var")),
+    file_tmp = re.sub("Derivative\(%s\)\(%s\)" % (m.group("order"), \
+                                                  m.group("var")), \
                       "d%s" % m.group("var").lower(), file_tmp)
 file = file_tmp
 result = list()
@@ -33,6 +41,9 @@ for line in map(lambda x: re.sub(",$", "",x ),
     m = re.search("^\((?P<var>[^,]+),(?P<right>.+)\)$", line)
     if m:
         result.append("drdt[%s] = %s" % (m.group("var"), m.group("right")))
+    else:
+        equation_type = False # we have a general expression, not a rule
+        result.append(line)
 file = file_tmp
 
 separators = "()[]-+*/=,. "
@@ -62,7 +73,7 @@ for line in result:
             final_line += term
         else:
             my_vars.add(term.upper())
-            if left:
+            if left and equation_type:
                 final_line += term.upper()
             else:
                 final_line += "r[%s]" % term.upper()
@@ -70,5 +81,7 @@ for line in result:
     
 for line in final_result:
     print("\t%s;" % line)
-for var in my_vars:
-    print("\tdrdt[%s] = 0;" % var)
+
+if equation_type:
+    for var in my_vars:
+        print("\tdrdt[%s] = 0;" % var)

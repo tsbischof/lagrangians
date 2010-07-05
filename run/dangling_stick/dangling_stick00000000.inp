@@ -4,8 +4,7 @@ restart = true
 
 t = 0, 0.01, 200
 r = 0.0005, 0.0005, 5
-phi = 0, 0.0005, 3.1415926
-dphi2 = 2
+phi2 = 0, 0.0005, 3.1415926
 dr = 2
-dphi = -2
-plot = r, phi
+dphi2 = -2
+plot = r, phi2

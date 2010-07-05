@@ -16,11 +16,11 @@ LD = cc
 endif
 
 LIBS = -lm -liniparser
-OBJS =  image_funcs.o integrators.o main.o parse_utils.o rules.o installed.o \
-        grapher.o  \
-        systems/double_pendulum.o systems/dangling_stick.o \
-        systems/harmonic_oscillator.o systems/double_well.o systems/trig.o \
-        systems/springy_pendulum.o
+OBJS :=  image_funcs.o integrators.o main.o parse_utils.o rules.o installed.o \
+        grapher.o  
+SYSTEMS := harmonic_oscillator trig double_well \
+		double_pendulum dangling_stick springy_pendulum double_spring
+OBJS += ${addsuffix .o, ${addprefix systems/, ${SYSTEMS}}}
 TARGETS = lagrangians
 
 ifeq (${BROOK},true)
