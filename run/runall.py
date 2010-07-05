@@ -18,11 +18,11 @@ def do_run(filename):
     queue_file += "convert %s.ppm %s.png\n" % (base, base)
     queue_file += "bzip2 %s.raw %s.ppm\n" % (base, base)
 
-    queue_script = open(base + "_run.sh", "w")
+    queue_script = open(base + ".sh", "w")
     queue_script.write(queue_file)
     queue_script.close()
 
-    subprocess.Popen(["qsub", base+"_run.sh"]).wait()
+    subprocess.Popen(["qsub", base+".sh"]).wait()
 
 if __name__ == "__main__":
     os.nice(19)
