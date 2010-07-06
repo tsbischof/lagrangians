@@ -15,9 +15,10 @@ CC = cc
 LD = cc
 endif
 
-LIBS = -lm -liniparser
+LDFLAGS := -lm -liniparser
+CPPFLAGS =
 OBJS :=  image_funcs.o integrators.o main.o parse_utils.o rules.o installed.o \
-        grapher.o  
+        grapher.o 
 SYSTEMS := harmonic_oscillator trig double_well \
 		double_pendulum dangling_stick springy_pendulum double_spring
 OBJS += ${addsuffix .o, ${addprefix systems/, ${SYSTEMS}}}
@@ -37,13 +38,13 @@ endif
 all: ${TARGET}
 
 ${TARGET}: ${BROBJS} ${OBJS}
-	${LD} ${CFLAGS} ${LIBS} -o $@ ${OBJS} ${BROBJS}
+	${LD} ${LDFLAGS} ${CFLAGS} ${CPPFLAGS} -o $@ ${OBJS} ${BROBJS}
 
 $%.o: %.c
-	${CC} ${CFLAGS} ${LIBS} -o $@ $<
+	${CC} ${LDFLAGS} ${CFLAGS} ${CPPFLAGS} -c -o $@ $<
 
 ${BROBJS}: ${BRKERNS} 
-	${CC} ${CFLAGS} ${LIBS} -c -o $@ ${@:.o=.cpp}
+	${CC} ${LDFLAGS} ${CFLAGS} ${CPPFLAGS} -c -o $@ ${@:.o=.cpp}
 
 ${BRKERNS}: 
 	${BRCC} ${@:.brook=.br}
