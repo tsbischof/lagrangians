@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "parse_utils.h"
 
@@ -59,8 +60,7 @@ int main(int argc, char *argv[]) {
 	void (*dispatcher)(dictionary *, Grapher *);
 	dispatcher = get_dispatcher(system);
 	Grapher grapher;
-//	grapher.system = (char *)malloc(sizeof(system));
-	strcpy(grapher.system, system);
+	grapher.system = strdup(system);
 	if ( dispatcher != NULL ) {
 		printf("System %s is available.\n", system);
 		dispatcher(options, &grapher);

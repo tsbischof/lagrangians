@@ -7,7 +7,7 @@
 #define RGB_SCALE 255 // maximum channel value
 
 void grapher_to_ppm(Grapher *grapher) {
-	char *filename= (char*)malloc(sizeof(grapher->name)/sizeof(char) + 4);
+	char *filename= (char*)malloc(strlen(grapher->name)+1+4);
 	sprintf(filename, "%s.ppm", grapher->name);
 	printf("--------------------------\n");
 	printf("Writing image to ppm file: %s.\n", filename);

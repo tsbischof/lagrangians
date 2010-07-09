@@ -2,16 +2,16 @@
 #define GRAPHER_H_
 
 typedef struct Grapher {
-	char name[100];
-	char system[100];
+	char *name;
+	char *system;
 
-	char raw_filename[100];
+	char *raw_filename;
 
 	int restart;
-	char restart_filename[100];
+	char *restart_filename;
 	int *finished_rows;
 
-	char comment[1000];
+	char *comment;
 	void (*integrate)(double *, double);
 	double (*rule)(double *, double *, double, double *, int);
 	int (*validate)(double *);
@@ -34,7 +34,7 @@ typedef struct Grapher {
 	double max_pixel;
 
 	int use_gpu;
-	char gpu_type[100];
+	char *gpu_type;
 
 	int r0_length;
     double *r0; /* holds the default values for the starting vector.

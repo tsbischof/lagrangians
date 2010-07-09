@@ -15,12 +15,13 @@ CC = cc
 LD = cc
 endif
 
-LDFLAGS := -lm -liniparser
+LDFLAGS := -lm -liniparser 
 CPPFLAGS =
 OBJS :=  image_funcs.o integrators.o main.o parse_utils.o rules.o installed.o \
         grapher.o 
 SYSTEMS := harmonic_oscillator trig double_well \
-		double_pendulum dangling_stick springy_pendulum double_spring
+		double_pendulum dangling_stick springy_pendulum double_spring \
+		platform_with_springs
 OBJS += ${addsuffix .o, ${addprefix systems/, ${SYSTEMS}}}
 TARGET = lagrangians
 

@@ -24,11 +24,9 @@ int contains(char *list[], char *element) {
 int parse_plot(char *plot, char **x, char **y) {
 	char *token;
 	token = strtok(plot, delims);
-	*x = (char*)malloc(sizeof(token));
-	strcpy(*x, token);
+	*x = strdup(token);
 	token = strtok(NULL, delims);
-	*y = (char*)malloc(sizeof(token));
-	strcpy(*y, token);
+	*y = strdup(token);
 	if ( y == NULL ) {
 		return(1);
 	} else {
@@ -185,7 +183,7 @@ int setup_config(Grapher *grapher, dictionary *options,
 	// Find the comment, if any.
 	char *comment;
 	comment = iniparser_getstring(options, ":comment", "");
-//	grapher->comment = (char*)malloc(sizeof(comment));
+	grapher->comment = strdup(comment);
 	strcpy(grapher->comment, comment);
 	printf("Found comment '%s'.\n", grapher->comment);
 
@@ -204,7 +202,7 @@ int setup_config(Grapher *grapher, dictionary *options,
 	char *config_filename = iniparser_getstring(options, ":filename", "");
 	char *name;
 	name = strtok(config_filename, ".");
-//	grapher->name = (char*)malloc(sizeof(name));
+	grapher->name = strdup(name);
 	strcpy(grapher->name, name);
 	printf("Filename '%s' will be used as the base for output.\n", 
 						grapher->name);
@@ -221,7 +219,7 @@ int setup_config(Grapher *grapher, dictionary *options,
  	 * GPU type, we can dispatch the jobs appropriately later.
  	 */
 
-//    grapher->gpu_type = (char*)malloc(sizeof(gpu));
+    grapher->gpu_type = strdup(gpu);
     strcpy(grapher->gpu_type, gpu);
 		
 	if ( ! strcmp(gpu, "brook") || ! strcmp(gpu, "opencl")
@@ -240,10 +238,10 @@ int setup_config(Grapher *grapher, dictionary *options,
 	}
 
 	// Restart files are nice.
-//	grapher->restart_filename = (char*)malloc(sizeof(grapher->name)+8);
+	grapher->restart_filename = (char*)malloc(strlen(grapher->name)+1+8);
 	sprintf(grapher->restart_filename, "%s.restart", grapher->name);
 
-//    grapher->raw_filename = (char*)malloc(sizeof(grapher->name)+4);
+    grapher->raw_filename = (char*)malloc(strlen(grapher->name)+1+4);
 	sprintf(grapher->raw_filename, "%s.raw", grapher->name);
 	printf("Will write the restart data to %s.\n", grapher->restart_filename); 
 

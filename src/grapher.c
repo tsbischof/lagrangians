@@ -15,13 +15,13 @@
 enum { NOT_DONE, DONE };
 
 void grapher_free(Grapher *grapher) {
-/*	free(grapher->name);
+	free(grapher->name);
 	free(grapher->system);
 
 	free(grapher->raw_filename);
-	free(grapher->restart_filename); */
+	free(grapher->restart_filename); 
 	free(&grapher->finished_rows[0]);
-//	free(grapher->comment);
+	free(grapher->comment);
 	
     int i;
     for ( i = 0; i < grapher->height; i++) {

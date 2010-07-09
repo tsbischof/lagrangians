@@ -10,6 +10,7 @@
 #include "systems/dangling_stick.h"
 #include "systems/springy_pendulum.h"
 #include "systems/double_spring.h"
+#include "systems/platform_with_springs.h"
 
 void (*get_dispatcher(char *integrator))(dictionary *, Grapher *grapher) {
 	if ( ! strcmp(integrator, "harmonic_oscillator") ) {
@@ -26,6 +27,8 @@ void (*get_dispatcher(char *integrator))(dictionary *, Grapher *grapher) {
 		return(&do_springy_pendulum);
 	} else if ( ! strcmp(integrator, "double_spring") ) {
 		return(&do_double_spring);
+	} else if ( ! strcmp(integrator, "platform_with_springs") ) {
+		return(&do_platform_with_springs);
 	} else {
 		return(NULL);
 	}
