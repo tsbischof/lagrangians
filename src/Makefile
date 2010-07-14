@@ -54,4 +54,4 @@ install: ${TARGET}
 	cp ${TARGET} ~tsbischof/bin/.
 
 clean:
-	rm -f ${OBJS} ${TARGETS} ${BRGEN} ${BROBJS} 
+	rm -f ${OBJS} ${TARGET} ${BRGEN} ${BROBJS} 
