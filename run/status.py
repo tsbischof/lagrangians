@@ -40,19 +40,29 @@ def read_restart(filename, height):
         restart_file.close()
         return(completed)
     except:
-#        print("Could not read restart file %s." % restart_filename)
+        print("Could not read restart file %s." % restart_filename)
         return(-1)
+
+def find_files():
+    filenames = list()
+    for root, dirs, files in os.walk(os.getcwd()):
+        for filename in files:
+            myfile = os.path.join(root, filename)
+            if myfile.endswith(".inp"):
+                base = myfile[:-4]
+                if os.path.isfile(base+".restart"):
+                    if os.path.isfile(base+".png"):
+                        print("%s is finished." % myfile)
+                    else:
+                        filenames.append(myfile)
+    return(filenames)   
 
 if __name__ == "__main__":
     filenames = sys.argv[1:]
     if len(filenames) == 0:
-        for root, dirs, files in os.walk(os.getcwd()):
-            for filename in files:
-                if filename.endswith(".inp") \
-               and not os.path.isfile(os.path.join(root, filename[:-4]+".png")):
-                    filenames.append(os.path.join(root, filename))
-
-    for filename in filenames:
+        filenames = find_files()
+        
+    for filename in sorted(filenames):
         height = get_height(filename)
         completed = read_restart(filename, height)
         if completed >= 0:

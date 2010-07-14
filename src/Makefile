@@ -51,7 +51,7 @@ ${BRKERNS}:
 	${BRCC} ${@:.brook=.br}
 
 install: ${TARGET}
-	mv ${TARGET} ~tsbischof/bin/.
+	cp ${TARGET} ~tsbischof/bin/.
 
 clean:
 	rm -f ${OBJS} ${TARGETS} ${BRGEN} ${BROBJS} 
