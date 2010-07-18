@@ -8,7 +8,7 @@ import tempfile
 import math
 import struct
 
-def get_height(filename):
+def read_config(filename):
     config_file = tempfile.TemporaryFile("w+t")
     config_file.write('[config]\n')
     f = open(filename, "r")
@@ -19,11 +19,16 @@ def get_height(filename):
 
     parser = configparser.SafeConfigParser()
     parser.readfp(config_file)
-    y = parser.get("config", "plot").split(",")[0]
-    y_limits = list(map(float, parser.get("config", y).split(",")))
-    height = math.ceil((y_limits[2]-y_limits[0])/y_limits[1]+1)
-    config_file.close()
-    return(height)
+    return(parser)
+
+def get_t_limits(parser):
+    return(list(map(float, parser.get("config", "t").split(","))))
+
+def get_size(parser):
+    plot = map(lambda x: x.strip(), parser.get("config", "plot").split(","))
+    limits = map(lambda x: list(map(float, parser.get("config", x).split(","))), plot)
+    size = list(map(lambda x: math.ceil((x[2]-x[0])/x[1]+1), limits))
+    return(size)
 
 def read_restart(filename, height):
     restart_filename = filename[:-4] + ".restart"
@@ -51,10 +56,11 @@ def find_files():
             if myfile.endswith(".inp"):
                 base = myfile[:-4]
                 if os.path.isfile(base+".restart"):
-                    if os.path.isfile(base+".png"):
-                        print("%s is finished." % myfile)
-                    else:
-                        filenames.append(myfile)
+                    filenames.append(myfile)
+#                    if os.path.isfile(base+".png"):
+#                        print("%s is finished." % myfile)
+#                    else:
+#                        filenames.append(myfile)
     return(filenames)   
 
 if __name__ == "__main__":
@@ -63,7 +69,8 @@ if __name__ == "__main__":
         filenames = find_files()
         
     for filename in sorted(filenames):
-        height = get_height(filename)
+        parser = read_config(filename)
+        height, width = get_size(parser)
         completed = read_restart(filename, height)
         if completed >= 0:
             print("%s: Finished %d of %d rows." % (filename, completed, height))
