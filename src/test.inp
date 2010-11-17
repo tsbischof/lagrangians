@@ -1,11 +1,11 @@
-system = double_spring
-rule = lower_flip
-validate = energy
+system = harmonic_oscillator
+rule = first_turnaround
+;validate = energy
 ;restart = true
 ;extend_time = true
 ;gpu = brook
 
 t=0,0.01,100
-phi1 = -1, 0.01, 1
-phi2 = -1, 0.01, 1
-plot = phi1, phi2
+x = -10, 0.01, 1
+v = -10, 0.01, 1
+plot = x,v

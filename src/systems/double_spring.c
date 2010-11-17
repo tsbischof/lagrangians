@@ -76,13 +76,13 @@ int energy_double_spring(double *r) {
 	r_min[M2] = r[M2];
 
 	r_min[K1] = r[K1];
-	r_min[R1] = r[R1];
-	r_min[DR1] = r[DR1];
+	r_min[R1] = r[R10];
+	r_min[DR1] = 0;
 	r_min[R10] = r[R10];
 
 	r_min[K2] = r[K2];
-	r_min[R2] = r[R2];
-	r_min[DR2] = r[DR2];
+	r_min[R2] = r[R20];
+	r_min[DR2] = 0;
 	r_min[R20] = r[R20];
 
 	r_min[G] = r[G];

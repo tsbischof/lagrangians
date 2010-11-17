@@ -1,4 +1,5 @@
 OPENMP = -fopenmp
+MPI = -fmpi
 
 USE_GPU = #-DUSE_GPU
 OPENCL = 
