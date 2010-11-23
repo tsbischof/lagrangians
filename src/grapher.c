@@ -42,7 +42,7 @@ void print_limits(char *name, double *limits) {
 
 void allocate_grapher_image(Grapher *grapher) {
 	int i;
-    grapher->image = (double **)malloc(grapher->height*sizeof(double));
+    grapher->image = (double **)malloc(grapher->height*sizeof(double *));
     if ( grapher->image == NULL ) {
         printf("Insufficient memory to create the image rows.\n");
         exit(1);
