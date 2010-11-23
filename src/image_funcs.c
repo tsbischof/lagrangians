@@ -122,7 +122,6 @@ void restart_to_grapher(Grapher *grapher) {
 	FILE *restart_file;
 	restart_file = fopen(grapher->restart_filename, "rb");
 
-	printf("--------------------------------------------------------------\n");
 	printf("Reading in restart data from %s.\n", grapher->restart_filename);
 
 	if ( restart_file == NULL ) {
