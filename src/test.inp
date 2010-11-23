@@ -6,6 +6,6 @@ rule = first_turnaround
 ;gpu = brook
 
 t=0,0.01,100
-x = -10, 0.01, 1
-v = -10, 0.01, 1
+x = -10, 0.01, 10
+v = -10, 0.01, 10
 plot = x,v
