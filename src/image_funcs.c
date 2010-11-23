@@ -83,6 +83,8 @@ void raw_to_grapher(Grapher *grapher) {
 	int i, j;
 	grapher->max_pixel = 0;
 
+	allocate_grapher_image(grapher);
+
 	FILE *raw_file;
 	char filename[100];
 	sprintf(filename, "%s.raw", grapher->name);
@@ -129,7 +131,7 @@ void restart_to_grapher(Grapher *grapher) {
 		exit(1);
 	}
 	
-	int i, j;
+	int i;
 	for (i = 0; i < grapher->height; i++) {
 		fread(&grapher->finished_rows[i], sizeof(int), 1, restart_file);
 /*		if ( grapher->finished_rows[i] ) {
@@ -139,7 +141,7 @@ void restart_to_grapher(Grapher *grapher) {
 		} */
 	}
 
-	for (i = 0; i < grapher->height; i++) {
+	/*for (i = 0; i < grapher->height; i++) {
 		if ( grapher->finished_rows[i] ) {
 			for (j = 0; j < grapher->width; j++) {
 				fread(&grapher->image[i][j], sizeof(double), 1, restart_file);
@@ -147,12 +149,12 @@ void restart_to_grapher(Grapher *grapher) {
 		} else {
 			fseek(restart_file, sizeof(double)*grapher->width, SEEK_CUR);
 		}
-	}
+	} */
 	fclose(restart_file);
 	printf("--------------------------------------------------------------\n");
 } 
 
-void write_restart_row(Grapher *grapher, int row) {
+void write_restart_row(Grapher *grapher, double *myrow, int row) {
     FILE *restart_file;
     restart_file = fopen(grapher->restart_filename, "r+b");
 
@@ -161,7 +163,7 @@ void write_restart_row(Grapher *grapher, int row) {
 					+ row*grapher->width*sizeof(double), SEEK_SET);
 	int j;
 	for (j = 0; j < grapher->width; j++) {
-		fwrite(&grapher->image[row][j], sizeof(double), 1, restart_file);
+		fwrite(&myrow[j], sizeof(double), 1, restart_file);
 	}
    
     // Next, record that we have finished writing the data.

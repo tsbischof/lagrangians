@@ -63,11 +63,12 @@ void do_image(Grapher *grapher) {
 	 * integrator and rule.
 	 */
 
-	allocate_grapher_image(grapher);
+//	allocate_grapher_image(grapher); // for memory
 
 	printf("--------------------------------\nStarting the image run.\n");
 
 	if ( grapher->extend_time ) {
+		allocate_grapher_image(grapher); // for memory
 		raw_to_grapher(grapher);
 	} 
 
@@ -80,6 +81,7 @@ void do_image(Grapher *grapher) {
 	if ( grapher->use_gpu ) {
 #ifdef USE_GPU
 		printf("Using the GPU.\n");
+		allocate_grapher_image(grapher); // for memory
 		gpu_brook(grapher);
 #else
 		printf("GPU support not enabled.\n");
@@ -107,8 +109,10 @@ void do_image(Grapher *grapher) {
 		for (i = 0; i < grapher->r0_length; i++) {
 			r0[i] = grapher->r0[i];
 		}
+		
+		double my_row[grapher->width];
 
-#pragma omp parallel for private(i, j) firstprivate(r, r0) schedule(dynamic)
+#pragma omp parallel for private(i, j) firstprivate(r, r0, my_row) schedule(dynamic)
 		for (i = 0; i < grapher->height; i++) {
 			if ( grapher->finished_rows[i] ) {
 				printf("Found finished row %d.\n", i);
@@ -124,11 +128,10 @@ void do_image(Grapher *grapher) {
 							k/(double)total_pixels*100);
 					}
 					k++;
-					do_pixel(&grapher->image[i][j], grapher, &r[0], &r0[0], 
-								i, j);
+					do_pixel(&my_row[j], grapher, &r[0], &r0[0], i, j);
 				}
 
-				write_restart_row(grapher, i);
+				write_restart_row(grapher, &my_row[0], i);
 				grapher->finished_rows[i] = 1;
 			}
 		}
@@ -140,6 +143,7 @@ void do_image(Grapher *grapher) {
 
 	printf("------------------------------------\n");
 
+	raw_to_grapher(grapher);
 	grapher->max_pixel = get_max_pixel(grapher);
 	if ( grapher->max_pixel == grapher->t_limits[2] ) {
 		printf("Some pixels hit the maximum value of %f.\n", 
