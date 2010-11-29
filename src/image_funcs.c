@@ -153,7 +153,7 @@ void restart_to_grapher(Grapher *grapher) {
 	printf("--------------------------------------------------------------\n");
 } 
 
-void write_restart_row(Grapher *grapher, double *myrow, int row) {
+void write_restart_row(Grapher *grapher, double *myrow, int row, int mark) {
     FILE *restart_file;
     restart_file = fopen(grapher->restart_filename, "r+b");
 
@@ -168,7 +168,10 @@ void write_restart_row(Grapher *grapher, double *myrow, int row) {
     // Next, record that we have finished writing the data.
     fseek(restart_file, row*sizeof(int), SEEK_SET);
     int finished[1] = {1};
-    fwrite(finished, sizeof(int), 1, restart_file);
+	if ( mark ) {
+/* If we are recording that the row is finished, record. */
+	    fwrite(finished, sizeof(int), 1, restart_file);
+	}
     
 	fclose(restart_file);
 }

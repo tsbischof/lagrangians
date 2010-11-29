@@ -67,12 +67,19 @@ void do_image(Grapher *grapher) {
 
 	printf("--------------------------------\nStarting the image run.\n");
 
-	if ( grapher->extend_time ) {
-		allocate_grapher_image(grapher); // for memory
+	if ( grapher->extend_time  && (!grapher->restart)) {
+/* For the first trial of extending time, make the restart file contain all
+ * of the current data, so that we can stop things early if needed.
+ */
 		raw_to_grapher(grapher);
-	} 
-
-	if ( grapher->restart ) {
+		allocate_restart_file(grapher);
+		int k;
+		printf("Converting the raw image to a restart file.\n");
+		for (k = 0; k < grapher->height; k++) {
+			write_restart_row(grapher, &grapher->image[k][0], k, 0);
+			grapher->finished_rows[k] = 0;
+		}
+	} else if ( grapher->restart || grapher->extend_time) {
 		restart_to_grapher(grapher);
 	} else {
 		allocate_restart_file(grapher);
@@ -131,9 +138,16 @@ void do_image(Grapher *grapher) {
 					do_pixel(&my_row[j], grapher, &r[0], &r0[0], i, j);
 				}
 
-				write_restart_row(grapher, &my_row[0], i);
+				write_restart_row(grapher, &my_row[0], i, 1);
 				grapher->finished_rows[i] = 1;
 			}
+		}
+
+		if ( grapher->extend_time && (!grapher->restart) ) {
+			for (i = 0; i < grapher->height; i++) {
+				free(grapher->image[i]);
+			}
+			free(grapher->image);
 		}
 	}
 
@@ -144,6 +158,7 @@ void do_image(Grapher *grapher) {
 	printf("------------------------------------\n");
 
 	raw_to_grapher(grapher);
+
 	grapher->max_pixel = get_max_pixel(grapher);
 	if ( grapher->max_pixel == grapher->t_limits[2] ) {
 		printf("Some pixels hit the maximum value of %f.\n", 

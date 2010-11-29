@@ -1,7 +1,7 @@
 system = harmonic_oscillator
 rule = first_turnaround
 ;validate = energy
-restart = true
+;restart = true
 ;extend_time = true
 ;gpu = brook
 
