@@ -242,9 +242,13 @@ class LagrangiansMainWindow(QtGui.QMainWindow):
 
     def open_file(self):
         fileDialog = QtGui.QFileDialog(self)
-        self.base_filename = fileDialog.getOpenFileName(self, \
-                        "Open input file", os.getcwd(), "Input Files (*.inp)")
-        self.base_filename = self.base_filename[:-4]
+        self.base_filename = str(fileDialog.getOpenFileName(self, \
+                        "Open input file", os.getcwd(), "Input Files (*.inp)"))
+
+        head, tail = os.path.split(self.base_filename)
+
+        os.chdir(head)
+        self.base_filename = tail[:-4]
         self.set_names()
 
         if os.path.isfile(self.image_filename):
@@ -254,7 +258,11 @@ class LagrangiansMainWindow(QtGui.QMainWindow):
         self.config_to_window()
             
     def set_names(self):
-        self.image_filename = self.base_filename + ".ppm"
+        if os.path.isfile(self.base_filename + ".png"):
+            self.image_filename = self.base_filename + ".png"
+        else:
+            self.image_filename = self.base_filename + ".ppm"
+            
         self.input_filename = self.base_filename + ".inp"
 
     def change_system(self):
@@ -338,6 +346,26 @@ class LagrangiansMainWindow(QtGui.QMainWindow):
                     spinner.setValue(vals[1])
                 else:
                     spinner.setValue(vals[2])
+
+        time_vals = list(map(float, parser.get("config", "t").split(",")))
+        self.controlWindow.timeStepSpin.setValue(time_vals[1])
+        self.controlWindow.timeLimitSpin.setValue(time_vals[2])
+
+        try:
+            validator = parser.get("config", "validator")
+            if validator:
+                self.controlWindow.validatorComboBox.setCurrentIndex(\
+                    self.controlWindow.validatorComboBox.findText(validator))
+        except:
+            pass
+
+        try:
+            rule = parser.get("config", "rule")
+            if validator:
+                self.controlWindow.ruleComboBox.setCurrentIndex(\
+                    self.controlWindow.ruleComboBox.findText(rule))
+        except:
+            pass
 
     def update_image(self):
         self.image = QtGui.QImage(self.image_filename)
