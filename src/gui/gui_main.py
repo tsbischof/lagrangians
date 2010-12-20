@@ -5,6 +5,27 @@ import simulations
 import tempfile
 import os
 import ConfigParser
+import subprocess
+import re
+
+class LogWindow(QtGui.QWidget):
+    def __init__(self):
+        QtGui.QWidget.__init__(self)
+        self.setWindowTitle("Simulation Log")
+        self.resize(300, 200)
+
+        self.controlFrame = QtGui.QFrame(self)
+
+        self.textArea = QtGui.QTextBrowser(self.controlFrame)
+        self.textArea.setGeometry(QtCore.QRect(0,0,300,200))
+
+        self.contents = str()
+
+        self.textArea.setText(self.contents)
+
+    def addText(self, text):
+        self.contents += text
+        self.textArea.setText(self.contents)
 
 class ControlWindow(QtGui.QWidget):
     def __init__(self):
@@ -189,6 +210,8 @@ class LagrangiansMainWindow(QtGui.QMainWindow):
         self.actionSave = QtGui.QAction(self)
         self.actionSave.setText("Save")
         self.menuFile.addAction(self.actionSave)
+        self.connect(self.actionSave, QtCore.SIGNAL("triggered()"), \
+                     self.save_file)
 
         self.actionExit = QtGui.QAction(self)
         self.actionExit.setText("Exit")
@@ -219,9 +242,22 @@ class LagrangiansMainWindow(QtGui.QMainWindow):
         self.connect(self.controlWindow.verticalComboBox, \
                      QtCore.SIGNAL("currentIndexChanged(int)"), \
                      self.new_param_window)
+        self.connect(self.controlWindow.runButton, \
+                     QtCore.SIGNAL("clicked()"), \
+                     self.do_simulation)
+        self.connect(self.controlWindow.writeButton, \
+                     QtCore.SIGNAL("clicked()"), \
+                     self.write_to_file)
+        self.connect(self.controlWindow.submitButton, \
+                     QtCore.SIGNAL("clicked()"), \
+                     self.submit_to_queue)
 
         # Initialize settings
         self.change_system()
+
+##        # Log window
+##        self.logWindow = LogWindow()
+##        self.logWindow.show()
 
         # Help menu
         self.menuHelp = QtGui.QMenu(self.menubar)
@@ -237,9 +273,23 @@ class LagrangiansMainWindow(QtGui.QMainWindow):
         QtGui.QMessageBox.about(self, "About Lagrangians", \
                                 "Created by Thomas Bischof.\nVersion 0.1")
 
-    def save_files(self):
-        return()
-
+    def save_file(self):
+        fileDialog = QtGui.QFileDialog(self)
+        filename = str(fileDialog.getSaveFileName(self, \
+                        "Save input file", os.getcwd(), "Input Files (*.inp)"))
+        
+        if not filename:
+            return(False)
+        root, name = os.path.split(filename)
+        if root:
+            os.chdir(root)
+        if not name.endswith(".inp"):
+            self.base_filename = name
+        else:
+            self.base_filename = name[:-4]
+        self.set_names()
+        return(True)
+    
     def open_file(self):
         fileDialog = QtGui.QFileDialog(self)
         self.base_filename = str(fileDialog.getOpenFileName(self, \
@@ -254,16 +304,17 @@ class LagrangiansMainWindow(QtGui.QMainWindow):
         if os.path.isfile(self.image_filename):
             self.update_image()
 
-        self.setWindowTitle(self.base_filename)
         self.config_to_window()
             
     def set_names(self):
-        if os.path.isfile(self.base_filename + ".png"):
-            self.image_filename = self.base_filename + ".png"
-        else:
+        if os.path.isfile(self.base_filename + ".ppm"):
             self.image_filename = self.base_filename + ".ppm"
+        else:
+            self.image_filename = self.base_filename + ".png"
             
         self.input_filename = self.base_filename + ".inp"
+        self.restart_filename = self.base_filename + ".restart"
+        self.setWindowTitle(self.base_filename)
 
     def change_system(self):
         self.system = systems.systems[ \
@@ -370,6 +421,85 @@ class LagrangiansMainWindow(QtGui.QMainWindow):
     def update_image(self):
         self.image = QtGui.QImage(self.image_filename)
         self.imageView.setPixmap(QtGui.QPixmap.fromImage(self.image))
+
+    def make_input_deck(self):
+        self.input_deck = simulations.InputDeck()
+        self.input_deck.base_name = self.base_filename
+
+    
+        self.input_deck.params["system"] = \
+            self.controlWindow.systemComboBox.currentText()
+        self.input_deck.params["validator"] = \
+            self.controlWindow.validatorComboBox.currentText()
+        self.input_deck.params["rule"] = \
+            self.controlWindow.ruleComboBox.currentText()
+        
+        self.input_deck.params["t"] = ",".join(map(str, [0, \
+            float(self.controlWindow.timeStepSpin.value()), \
+            float(self.controlWindow.timeLimitSpin.value())]))
+        self.input_deck.params["plot"] = ",".join([ \
+            str(self.controlWindow.horizontalComboBox.currentText()), \
+            str(self.controlWindow.verticalComboBox.currentText())])
+
+        ranges = dict()
+        for spinner in self.paramWindow.paramSpins:
+            key = str(spinner.objectName())
+            if "Limit" in key:
+                parser = re.search("(?P<key>.+)Limit(?P<part>.+)", key)
+                key = parser.group("key")
+                part = parser.group("part")
+                if not key in ranges.keys():
+                    ranges[key] = [0,0,0]
+                if part == "Lower":
+                    ranges[key][0] = spinner.value()
+                elif part == "Step":
+                    ranges[key][1] = spinner.value()
+                else:
+                    ranges[key][2] = spinner.value()
+            else:
+                self.input_deck.params[key] = spinner.value()
+
+        for key in ranges.keys():
+            self.input_deck.params[key] = ranges[key]
+
+    def do_simulation(self):
+        if not self.write_to_file():
+            return()
+
+        if os.path.isfile(self.restart_filename):
+            os.remove(self.restart_filename)
+        else:
+            pass
+
+        subprocess.Popen(["lagrangians", self.input_filename]).wait()
+        self.set_names()
+        self.update_image()
+
+    def submit_to_queue(self):
+        if not self.write_to_file():
+            return()
+        
+        queue_file = "#!/bin/sh\n"
+        queue_file += "cd %s\n" % os.getcwd()
+        queue_file += "%s %s\n" % ("lagrangians", self.input_filename)
+        queue_file += "convert %s.ppm %s.png\n" % (self.base_filename, \
+                                                   self.base_filename)
+        queue_file += "bzip2 %s.raw %s.ppm\n" % (self.base_filename, \
+                                                   self.base_filename)
+        queue_script = open(self.base_filename + ".sh", "w")
+        queue_script.write(queue_file)
+        queue_script.close()
+
+        subprocess.Popen(["qsub", self.base_filename+".sh"]).wait()
+
+    def write_to_file(self):
+        if not self.save_file():
+            return(False)
+        self.make_input_deck()
+        f = open(self.input_filename, "w")
+        f.write(str(self.input_deck))
+        f.close()
+        return(True)
 
 def main(args):
     app = QtGui.QApplication(args)
