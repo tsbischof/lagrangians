@@ -175,7 +175,7 @@ int setup_config(Grapher *grapher, dictionary *options,
 		printf("Found valid limits for %s, %s, t.\n", 
 				grapher->parm1, grapher->parm2);
 	} else {
-		printf("Found invalid limits for either %s, %s, or t.", 
+		printf("Found invalid limits for either %s, %s, or t.\n", 
 			 grapher->parm1, grapher->parm2);
 		exit(1);
 	}
@@ -254,6 +254,9 @@ int setup_config(Grapher *grapher, dictionary *options,
 		grapher->restart = 0;
 		printf("Starting a fresh run, rather than a restart.\n");
 	}
+
+	// For videos, we need to know how often to print, and which variable
+	// to visualize
 
 	
 	// The options have been parsed, free the space.

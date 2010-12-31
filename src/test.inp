@@ -1,11 +1,15 @@
-system = harmonic_oscillator
-rule = first_turnaround
-;validate = energy
-;restart = true
-;extend_time = true
-;gpu = brook
+system = driven_damped_pendulum
+integrator = sinusoid
+rule = first_flip
 
-t=0,0.01,100
-x = -10, 0.01, 10
-v = -10, 0.01, 10
-plot = x,v
+t=0,0.01,10
+phi = -3, 0.03, 3
+omega = 1
+a = 1, 0.01, 3
+m = 1
+b = 0
+g = 9.8
+l = 1
+delta = 0
+
+plot = phi, a

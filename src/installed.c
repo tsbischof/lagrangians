@@ -11,6 +11,7 @@
 #include "systems/springy_pendulum.h"
 #include "systems/double_spring.h"
 #include "systems/platform_with_springs.h"
+#include "systems/driven_damped_pendulum.h"
 
 void (*get_dispatcher(char *integrator))(dictionary *, Grapher *grapher) {
 	if ( ! strcmp(integrator, "harmonic_oscillator") ) {
@@ -29,6 +30,8 @@ void (*get_dispatcher(char *integrator))(dictionary *, Grapher *grapher) {
 		return(&do_double_spring);
 	} else if ( ! strcmp(integrator, "platform_with_springs") ) {
 		return(&do_platform_with_springs);
+	} else if ( ! strcmp(integrator, "driven_damped_pendulum") ) {
+		return(&do_driven_damped_pendulum);
 	} else {
 		return(NULL);
 	}

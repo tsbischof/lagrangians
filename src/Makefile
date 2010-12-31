@@ -4,6 +4,8 @@ MPI = -fmpi
 USE_GPU = #-DUSE_GPU
 OPENCL = 
 BROOK = #true
+STATIC = #true
+M32 = #true
 
 CFLAGS = -Wall -O3 ${OPENMP} ${USE_GPU}
 
@@ -17,12 +19,21 @@ LD = cc
 endif
 
 LDFLAGS := -lm -liniparser 
+
+ifdef M32
+CFLAGS += -m32
+endif
+ifdef STATIC
+CFLAGS += -static -static-libgcc
+LDFLAGS += -L/home/tsbischof/src/lagrangians/iniparser/iniparser3.0b
+endif
+
 CPPFLAGS =
 OBJS :=  image_funcs.o integrators.o main.o parse_utils.o rules.o installed.o \
         grapher.o 
 SYSTEMS := harmonic_oscillator trig double_well \
 		double_pendulum dangling_stick springy_pendulum double_spring \
-		platform_with_springs
+		platform_with_springs driven_damped_pendulum
 OBJS += ${addsuffix .o, ${addprefix systems/, ${SYSTEMS}}}
 TARGET = lagrangians
 
@@ -40,10 +51,10 @@ endif
 all: ${TARGET}
 
 ${TARGET}: ${BROBJS} ${OBJS}
-	${LD} ${LDFLAGS} ${CFLAGS} ${CPPFLAGS} -o $@ ${OBJS} ${BROBJS}
+	${LD} ${LDFLAGS} ${CFLAGS} ${CPPFLAGS} -o $@ ${OBJS} ${BROBJS} ${LDFLAGS}
 
 $%.o: %.c
-	${CC} ${LDFLAGS} ${CFLAGS} ${CPPFLAGS} -c -o $@ $<
+	${CC} ${LDFLAGS} ${CFLAGS} ${CPPFLAGS} -c -o $@ $< ${LDFLAGS}
 
 ${BROBJS}: ${BRKERNS} 
 	${CC} ${LDFLAGS} ${CFLAGS} ${CPPFLAGS} -c -o $@ ${@:.o=.cpp}

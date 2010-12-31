@@ -429,8 +429,9 @@ class LagrangiansMainWindow(QtGui.QMainWindow):
     
         self.input_deck.params["system"] = \
             self.controlWindow.systemComboBox.currentText()
-        self.input_deck.params["validator"] = \
-            self.controlWindow.validatorComboBox.currentText()
+        validator = self.controlWindow.validatorComboBox.currentText()
+        if validator:
+            self.input_deck.params["validator"] = validator
         self.input_deck.params["rule"] = \
             self.controlWindow.ruleComboBox.currentText()
         

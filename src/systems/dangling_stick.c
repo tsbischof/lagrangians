@@ -28,7 +28,7 @@ void do_dangling_stick(dictionary *options, Grapher *grapher) {
 
     char *variable_order[12] = {"r", "dr", "phi1", "dphi1", "phi2", "dphi2",
 								"m1", "m2", "r0", "k", "l", "g"};
-	double variable_defaults[12] = {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 9.8};
+	double variable_defaults[12] = {1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 9.8};
     setup_config(grapher, options, &variable_order[0], &variable_defaults[0],
 				12, &functions);
 }
