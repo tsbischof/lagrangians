@@ -11,6 +11,6 @@ double get_max_pixel(Grapher *grapher);
 void restart_to_grapher(Grapher *grapher);
 void allocate_restart_file(Grapher *grapher);
 void write_restart_row(Grapher *grapher, double *myrow, int row, int mark);
-void restart_to_raw(Grapher *grapher);
+//void restart_to_raw(Grapher *grapher);
 
 #endif 

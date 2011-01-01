@@ -1,15 +1,8 @@
-system = driven_damped_pendulum
-integrator = sinusoid
-rule = first_flip
+system = harmonic_oscillator
+rule = first_turnaround
 
 t=0,0.01,10
-phi = -3, 0.03, 3
-omega = 1
-a = 1, 0.01, 3
-m = 1
-b = 0
-g = 9.8
-l = 1
-delta = 0
+x = -3, 0.01, 3
+v = -3, 0.01, 3
 
-plot = phi, a
+plot = x,v

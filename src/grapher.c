@@ -153,8 +153,6 @@ void do_image(Grapher *grapher) {
 
 	printf("Building image complete.\n");
 
-	restart_to_raw(grapher);
-
 	printf("------------------------------------\n");
 
 	raw_to_grapher(grapher);

@@ -129,7 +129,18 @@ void restart_to_grapher(Grapher *grapher) {
 					grapher->restart_filename);
 		exit(1);
 	}
-	
+
+	printf("Checking for raw data in %s.\n", grapher->raw_filename);
+
+	FILE *raw_file;
+	raw_file = fopen(grapher->raw_filename, "rb");
+	if ( raw_file == NULL ) {
+		printf("Error: could not read raw file %s.\n",
+					grapher->raw_filename);
+		exit(1);
+	}
+	fclose(raw_file);
+
 	int i;
 	for (i = 0; i < grapher->height; i++) {
 		fread(&grapher->finished_rows[i], sizeof(int), 1, restart_file);
@@ -157,12 +168,22 @@ void write_restart_row(Grapher *grapher, double *myrow, int row, int mark) {
     FILE *restart_file;
     restart_file = fopen(grapher->restart_filename, "r+b");
 
+	FILE *raw_file;
+	raw_file = fopen(grapher->raw_filename, "r+b");
+
+	if ( restart_file == NULL ) {
+		printf("Error opening %s.\n", grapher->restart_filename);
+		exit(1);
+	} 
+	if ( restart_file == NULL ) {
+		printf("Error opening %s.\n", grapher->raw_filename);
+	}
+
     // First, write the row data to file.
-    fseek(restart_file, grapher->height*sizeof(int)
-					+ row*grapher->width*sizeof(double), SEEK_SET);
+    fseek(raw_file, row*grapher->width*sizeof(double), SEEK_SET);
 	int j;
 	for (j = 0; j < grapher->width; j++) {
-		fwrite(&myrow[j], sizeof(double), 1, restart_file);
+		fwrite(&myrow[j], sizeof(double), 1, raw_file);
 	}
    
     // Next, record that we have finished writing the data.
@@ -174,6 +195,7 @@ void write_restart_row(Grapher *grapher, double *myrow, int row, int mark) {
 	}
     
 	fclose(restart_file);
+	fclose(raw_file);
 }
 
 void allocate_restart_file(Grapher *grapher) {
@@ -201,19 +223,36 @@ void allocate_restart_file(Grapher *grapher) {
 		fwrite(unfinished, sizeof(int), 1, restart_file);
 	}
 
+	FILE *raw_file;
+	raw_file = fopen(grapher->raw_filename, "r");
+	if ( raw_file != NULL ) {
+		printf("Data already exists in %s. \nThis run will overwrite the data, so move it out of the way or use:\n\trestart = true\n", grapher->raw_filename);
+		fclose(raw_file);
+		exit(1);
+	}
+
+	raw_file = fopen(grapher->raw_filename, "wb");
+	if ( raw_file == NULL ) {
+		printf("Could not open %s for writing.\n", grapher->raw_filename);
+		exit(1);
+	}
+
 	double blank_row[grapher->width];
 	for (i = 0; i < grapher->width; i++) {
 		blank_row[i] = 0;
 	}
+
 	for (i = 0; i < grapher->height; i++) {
-		fwrite(blank_row, sizeof(double), grapher->width, restart_file);
+		fwrite(blank_row, sizeof(double), grapher->width, raw_file);
 	}
 
-	printf("Successfully allocated %s on disk.\n", grapher->restart_filename);
+	printf("Successfully allocated %s and %s on disk.\n", 
+			grapher->restart_filename, grapher->raw_filename);
 	fclose(restart_file);
+	fclose(raw_file);
 }
 
-void restart_to_raw(Grapher *grapher) {
+/* void restart_to_raw(Grapher *grapher) {
 	FILE *restart_file, *raw_file;
 	restart_file = fopen(grapher->restart_filename, "rb");
 	raw_file = fopen(grapher->raw_filename, "wb");
@@ -242,4 +281,4 @@ void restart_to_raw(Grapher *grapher) {
 
 		printf("Finished writing data to %s.\n", grapher->raw_filename);
 	}
-}
+} */
