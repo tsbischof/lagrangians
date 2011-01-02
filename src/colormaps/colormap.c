@@ -6,7 +6,7 @@
 #define RGB_DEPTH 255
 
 void usage(void) {
-	printf("colormap <raw file> <resolution> <height>x<width> <n> [<RGB point>..]\n");
+	fprintf(stderr, "colormap <raw file> <resolution> <height>x<width> <n> [<RGB point>..]\n");
 }
 
 void do_pixel(int val, int max, int n, int **colormap, int *rgb) {
@@ -58,7 +58,7 @@ void raw_to_ppm(char *raw_filename, double resolution, int height, int width,
 
 	fseek(raw_file, 0, SEEK_SET);
 	
-	fprintf(stdout, "P3\n%d %d\n%d\n", height, width, RGB_DEPTH);
+	fprintf(stdout, "P3\n%d %d\n%d\n", width, height, RGB_DEPTH);
 	for ( i = 0; i < height; i++) {
 		for (j = 0; j < width; j++) {
 			fread(&raw_val, sizeof(double), 1, raw_file);
@@ -112,7 +112,7 @@ int main(int argc, char *argv[]) {
 
 	n = atoi(argv[4]); // The number of points to map on.	
 	if ( n == 0 /*|| n == NULL*/ ) {
-		fprintf(stderr, "Invalid number of points: %s.\n", argv[3]);
+		fprintf(stderr, "Invalid number of points: %s.\n", argv[4]);
 		exit(1);
 	}
 	
@@ -130,7 +130,7 @@ int main(int argc, char *argv[]) {
 
 	for (j = 5; j < 5+3*n; j++) {
 		colormap[(j-5)/3][(j-5) % 3] = atoi(argv[j]);
-		fprintf(stderr, "(%d, %d): %d\n", (j-5)/3, (j-5)%3, atoi(argv[j]));
+		//fprintf(stderr, "(%d, %d): %d\n", (j-5)/3, (j-5)%3, atoi(argv[j]));
 	}
 
 	// Now we have the parameters, time to play with the data.
