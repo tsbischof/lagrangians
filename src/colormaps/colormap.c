@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <math.h>
 
+#define RGB_DEPTH 255
+
 void usage(void) {
 	printf("colormap <raw file> <resolution> <height>x<width> <n> [<RGB point>..]\n");
 }
@@ -56,7 +58,7 @@ void raw_to_ppm(char *raw_filename, double resolution, int height, int width,
 
 	fseek(raw_file, 0, SEEK_SET);
 	
-	fprintf(stdout, "P3\n%d %d\n%d\n", height, width, max_val);
+	fprintf(stdout, "P3\n%d %d\n%d\n", height, width, RGB_DEPTH);
 	for ( i = 0; i < height; i++) {
 		for (j = 0; j < width; j++) {
 			fread(&raw_val, sizeof(double), 1, raw_file);
