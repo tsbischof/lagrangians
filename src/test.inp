@@ -1,7 +1,7 @@
 system = dangling_stick
 rule = first_flip
 
-t=0,0.01,10
+t=0,0.01,100
 phi1 = -3, 0.01, 3
 phi2 = -3, 0.01, 3
 dphi1 = 2
