@@ -1,8 +1,10 @@
-system = harmonic_oscillator
-rule = first_turnaround
+system = dangling_stick
+rule = first_flip
 
 t=0,0.01,10
-x = -3, 0.01, 3
-v = -3, 0.01, 3
+phi1 = -3, 0.01, 3
+phi2 = -3, 0.01, 3
+dphi1 = 2
+dphi2 = 2
 
-plot = x,v
+plot = phi1, phi2
