@@ -63,26 +63,14 @@ void do_image(Grapher *grapher) {
 	 * integrator and rule.
 	 */
 
-//	allocate_grapher_image(grapher); // for memory
-
 	printf("--------------------------------\nStarting the image run.\n");
 
-	if ( grapher->extend_time  && (!grapher->restart)) {
-/* For the first trial of extending time, make the restart file contain all
- * of the current data, so that we can stop things early if needed.
- */
+	if ( ! grapher->restart ) {
+		allocate_restart_file(grapher);
+	}
+
+	if ( grapher->extend_time ) {
 		raw_to_grapher(grapher);
-		allocate_restart_file(grapher);
-		int k;
-		printf("Converting the raw image to a restart file.\n");
-		for (k = 0; k < grapher->height; k++) {
-			write_restart_row(grapher, &grapher->image[k][0], k, 0);
-			grapher->finished_rows[k] = 0;
-		}
-	} else if ( grapher->restart || grapher->extend_time) {
-		restart_to_grapher(grapher);
-	} else {
-		allocate_restart_file(grapher);
 	}
 
 	if ( grapher->use_gpu ) {
@@ -178,7 +166,7 @@ void do_pixel(double *result, Grapher *grapher,
 		if ( grapher->image[i][j] < grapher->max_pixel ) {
 			return;
 		}
-	}
+	} 
 
 	r0[grapher->parm1_index] = grapher->r0[grapher->parm1_index]
 							+ i * grapher->parm1_limits[1];
