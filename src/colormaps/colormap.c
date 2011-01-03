@@ -54,7 +54,7 @@ void raw_to_ppm(char *raw_filename, double resolution, int height, int width,
 		}
 	}
 	max_val = (int)floor(raw_max_val/resolution);
-	fprintf(stderr, "Found maximum value %d.\n", max_val);
+//	fprintf(stderr, "Found maximum value %d.\n", max_val);
 
 	fseek(raw_file, 0, SEEK_SET);
 	
@@ -103,7 +103,7 @@ int main(int argc, char *argv[]) {
 	height = atoi(strtok(dim_data, "x"));
 	dim_data = strtok(NULL, "x");
 	width = atoi(dim_data);
-	fprintf(stderr, "Found dimensions %dx%d.\n", height, width);
+	//fprintf(stderr, "Found dimensions %dx%d.\n", height, width);
 	if ( height <= 0 || width <= 0 ) {
 		fprintf(stderr, 
 			"Image must have size greater than 0 in either dimension.\n");
@@ -123,13 +123,13 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}	
 
-	colormap = (int **)malloc(sizeof(int)*n);
+	colormap = (int **)malloc(sizeof(int *)*n);
 	for (j = 0; j < n; j++) {
 		colormap[j] = (int *)malloc(sizeof(int)*3);
 	}
 
 	for (j = 5; j < 5+3*n; j++) {
-		colormap[(j-5)/3][(j-5) % 3] = atoi(argv[j]);
+		colormap[(j-5)/3][(j-5)%3] = atoi(argv[j]);
 		//fprintf(stderr, "(%d, %d): %d\n", (j-5)/3, (j-5)%3, atoi(argv[j]));
 	}
 
