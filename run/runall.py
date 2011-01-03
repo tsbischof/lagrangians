@@ -31,8 +31,9 @@ if __name__ == "__main__":
     input_files = list()
     for filename in filter(lambda x: x.endswith(".inp"),
          map(lambda y: y.strip(), sys.stdin.readlines())):
-        if os.path.isfile(filename)\
-            and not os.path.isfile(re.sub("inp$", "png", filename)):
+        if os.path.isfile(filename): # and \
+#          not os.path.isfile(re.sub("inp$", "png", filename)):
             input_files.append(filename)
-
+#    print(input_files)
+#    input()
     pool.map(do_run, input_files)

@@ -49,19 +49,17 @@ def read_restart(filename, height):
         return(-1)
 
 def find_files():
-    filenames = list()
     for root, dirs, files in os.walk(os.getcwd()):
         for filename in files:
             myfile = os.path.join(root, filename)
             if myfile.endswith(".inp"):
                 base = myfile[:-4]
                 if os.path.isfile(base+".restart"):
-                    filenames.append(myfile)
+                    yield(myfile)
 #                    if os.path.isfile(base+".png"):
 #                        print("%s is finished." % myfile)
 #                    else:
 #                        filenames.append(myfile)
-    return(filenames)   
 
 if __name__ == "__main__":
     filenames = sys.argv[1:]
