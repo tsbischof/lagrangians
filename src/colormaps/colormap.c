@@ -136,5 +136,11 @@ int main(int argc, char *argv[]) {
 	// Now we have the parameters, time to play with the data.
 	raw_to_ppm(raw_filename, resolution, height, width, n, &colormap[0]);
 
+	for (j = 0; j < n; j++) {
+		free(colormap[j]);
+	}
+
+	free(colormap);
+
 	return(0);
 }
