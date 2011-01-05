@@ -13,7 +13,7 @@ extern "C" {
 
 int contains(char *list[], char *element);
 int parse_plot(char  *line, char **x, char **y);
-int parse_limits(char *line, double *limits);
+int parse_limits(char *line, double *limits, int by_increment);
 int setup_config(Grapher *grapher, dictionary *options,
 		char *variable_order[], double *variable_defaults, int n_vars, 
 		Functions *functions);

@@ -34,19 +34,46 @@ int parse_plot(char *plot, char **x, char **y) {
 	}
 }	
 
-int parse_limits(char *line, double *limits) {
+int parse_limits(char *line, double *limits, int by_increment) {
 	char *token;
 	int i;
-	
-	token = strtok(line, delims);
-	for (i = 0; i < 3; i++) {
+	int n;
+
+	if ( by_increment ) {
+		// Increment has been listed explicitly.
+		token = strtok(line, delims);
+		for (i = 0; i < 3; i++) {
+			if ( token == NULL ) {
+				return(1);
+			} else {
+				limits[i] = atof(token);
+				token = strtok(NULL, delims);
+			}
+		}
+	} else {
+		// Number of steps has been listed.
+		token = strtok(line, delims);
 		if ( token == NULL ) {
 			return(1);
-		} else {
-			limits[i] = atof(token);
-			token = strtok(NULL, delims);
 		}
-	}	
+		limits[0] = atof(token);
+		token = strtok(NULL, delims);
+		if ( token == NULL ) {
+			return(1);
+		}
+		n = atoi(token);
+		token = strtok(NULL, delims);
+		if ( token == NULL ) {
+			return(1);
+		}
+		limits[2] = atof(token);
+		if ( n == 0 ) {
+			limits[1] = limits[2]-limits[0];
+		} else {
+			limits[1] = (limits[2]-limits[0])/((double)(n-1));
+		}
+	}
+
 	return(0);
 }
 
@@ -169,9 +196,9 @@ int setup_config(Grapher *grapher, dictionary *options,
 	x_lims = iniparser_getstring(options, x_key, "");
 	y_lims = iniparser_getstring(options, y_key, "");
 
-	if ( (! parse_limits(x_lims, &grapher->parm1_limits[0])) &&
-		 (! parse_limits(y_lims, &grapher->parm2_limits[0])) &&
-		 (! parse_limits(t_lims, &grapher->t_limits[0])) ) {
+	if ( (! parse_limits(x_lims, &grapher->parm1_limits[0], 0)) &&
+		 (! parse_limits(y_lims, &grapher->parm2_limits[0], 0)) &&
+		 (! parse_limits(t_lims, &grapher->t_limits[0], 1)) ) {
 		printf("Found valid limits for %s, %s, t.\n", 
 				grapher->parm1, grapher->parm2);
 	} else {
