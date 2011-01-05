@@ -67,6 +67,8 @@ void do_image(Grapher *grapher) {
 
 	if ( ! grapher->restart ) {
 		allocate_restart_file(grapher);
+	} else {
+		restart_to_grapher(grapher);
 	}
 
 	if ( grapher->extend_time ) {

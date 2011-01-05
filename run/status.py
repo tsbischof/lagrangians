@@ -27,7 +27,7 @@ def get_t_limits(parser):
 def get_size(parser):
     plot = map(lambda x: x.strip(), parser.get("config", "plot").split(","))
     limits = map(lambda x: list(map(float, parser.get("config", x).split(","))), plot)
-    size = list(map(lambda x: math.ceil((x[2]-x[0])/x[1]+1), limits))
+    size = list(map(lambda x: int(x[1]), limits))
     return(size)
 
 def read_restart(filename, height):
