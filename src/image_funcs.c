@@ -96,7 +96,11 @@ void raw_to_grapher(Grapher *grapher) {
 	printf("Reading in grapher data from %s.\n", grapher->raw_filename);
 	for (i = 0; i < grapher->height; i++) {
 		for (j = 0; j < grapher->width; j++) {
-			fread(&grapher->image[i][j], sizeof(double), 1, raw_file);
+			if ( ! fread(&grapher->image[i][j], sizeof(double), 1, raw_file)) {
+				printf("Error while reading data from %s.\n", 
+						grapher->raw_filename);
+				exit(1);
+			}
 			if ( grapher->image[i][j] > grapher->max_pixel ) {
 				grapher->max_pixel = grapher->image[i][j];
 			}
@@ -143,7 +147,12 @@ void restart_to_grapher(Grapher *grapher) {
 
 	int i;
 	for (i = 0; i < grapher->height; i++) {
-		fread(&grapher->finished_rows[i], sizeof(int), 1, restart_file);
+		if ( ! fread(&grapher->finished_rows[i], 
+					sizeof(int), 1, restart_file)) {
+			printf("Error while reading data from %s.\n", 
+					grapher->restart_filename);
+			exit(1);
+		}
 /*		if ( grapher->finished_rows[i] ) {
 			printf("Row %d is already finished.\n", i);
 		} else {
