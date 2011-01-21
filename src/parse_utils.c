@@ -34,44 +34,45 @@ int parse_plot(char *plot, char **x, char **y) {
 	}
 }	
 
-int parse_limits(char *line, double *limits, int by_increment) {
+int parse_limits_time(char *line, double *limits) {
 	char *token;
 	int i;
-	int n;
 
-	if ( by_increment ) {
-		// Increment has been listed explicitly.
-		token = strtok(line, delims);
-		for (i = 0; i < 3; i++) {
-			if ( token == NULL ) {
-				return(1);
-			} else {
-				limits[i] = atof(token);
-				token = strtok(NULL, delims);
-			}
-		}
-	} else {
-		// Number of steps has been listed.
-		token = strtok(line, delims);
+	token = strtok(line, delims);
+	for (i = 0; i < 3; i++) {
 		if ( token == NULL ) {
 			return(1);
-		}
-		limits[0] = atof(token);
-		token = strtok(NULL, delims);
-		if ( token == NULL ) {
-			return(1);
-		}
-		n = atoi(token);
-		token = strtok(NULL, delims);
-		if ( token == NULL ) {
-			return(1);
-		}
-		limits[2] = atof(token);
-		if ( n == 0 ) {
-			limits[1] = limits[2]-limits[0];
 		} else {
-			limits[1] = (limits[2]-limits[0])/((double)(n-1));
+			limits[i] = atof(token);
+			token = strtok(NULL, delims);
 		}
+	}
+
+	return(0);
+}
+
+int parse_limits_graph(char *line, double *limits, int *dimension) {
+	char *token;
+
+	token = strtok(line, delims);
+	if ( token == NULL ) {
+		return(1);
+	}
+	limits[0] = atof(token);
+	token = strtok(NULL, delims);
+	if ( token == NULL ) {
+		return(1);
+	}
+	*dimension = atoi(token);
+	token = strtok(NULL, delims);
+	if ( token == NULL ) {
+		return(1);
+	}
+	limits[2] = atof(token);
+	if ( *dimension == 0 ) {
+		limits[1] = limits[2]-limits[0];
+	} else {
+		limits[1] = (limits[2]-limits[0])/((double)(*dimension-1));
 	}
 
 	return(0);
@@ -196,9 +197,11 @@ int setup_config(Grapher *grapher, dictionary *options,
 	x_lims = iniparser_getstring(options, x_key, "");
 	y_lims = iniparser_getstring(options, y_key, "");
 
-	if ( (! parse_limits(x_lims, &grapher->parm1_limits[0], 0)) &&
-		 (! parse_limits(y_lims, &grapher->parm2_limits[0], 0)) &&
-		 (! parse_limits(t_lims, &grapher->t_limits[0], 1)) ) {
+	if ( (! parse_limits_graph(x_lims, &grapher->parm1_limits[0], 
+                               &grapher->width)) &&
+		 (! parse_limits_graph(y_lims, &grapher->parm2_limits[0],
+                               &grapher->height)) &&
+		 (! parse_limits_time(t_lims, &grapher->t_limits[0])) ) {
 		printf("Found valid limits for %s, %s, t.\n", 
 				grapher->parm1, grapher->parm2);
 	} else {
@@ -296,9 +299,6 @@ int setup_config(Grapher *grapher, dictionary *options,
     print_limits("t", grapher->t_limits);
     print_limits(grapher->parm1, grapher->parm1_limits);
     print_limits(grapher->parm2, grapher->parm2_limits);
-
-    grapher->height = pixels(grapher->parm1_limits);
-    grapher->width = pixels(grapher->parm2_limits);
 
     if ( grapher->height <= 0 || grapher->width <= 0 ) {
         printf("Either the height or width is invalid: %d x %d.\n",
