@@ -55,23 +55,26 @@ def make_swatches(n, n_swatches=0, in_colormap=None):
                              height, width, n, mycolormap)
 
     
-    p1 = [0,0,0]
-    p4 = [255,255,255]
-##    for p2 in itertools.permutations([0,0,0,255,255,255],3):
-##        for p3 in itertools.permutations([0,0,0,255,255,255],3):
-##            mycolormap = flatten([p1, list(p2), list(p3), p4])
-    for p2 in itertools.permutations([0,0,255]):
-        for p3 in itertools.permutations([0,255,255],3):
-            for perm in itertools.permutations([p1, list(p2), list(p3), p4]):
-                mycolormap = flatten(perm)
-                out_name = out_base + "_".join(map(str, mycolormap)) + ".png"
-                if not os.path.isfile(out_name):
-                    print(out_name)
-                    colormap.do_colormap(source, out_name, resolution, \
-                                         height, width, n, mycolormap)
+##    p1 = [0,0,0]
+##    p4 = [255,255,255]
+####    for p2 in itertools.permutations([0,0,0,255,255,255],3):
+####        for p3 in itertools.permutations([0,0,0,255,255,255],3):
+####            mycolormap = flatten([p1, list(p2), list(p3), p4])
+##    for p2 in itertools.permutations([0,0,255]):
+##        for p3 in itertools.permutations([0,255,255],3):
+##            for perm in itertools.permutations([p1, list(p2), list(p3), p4]):
+##                mycolormap = flatten(perm)
+##                out_name = out_base + "_".join(map(str, mycolormap)) + ".png"
+##                if not os.path.isfile(out_name):
+##                    print(out_name)
+##                    colormap.do_colormap(source, out_name, resolution, \
+##                                         height, width, n, mycolormap)
     os.chdir("..")
 
 if __name__ == "__main__":
     n_swatches = 0
-##    for n in range(5,6):
-    make_swatches(4, n_swatches)
+    mycolormap = flatten([[0xff, 0xff, 0xff],
+                          [0x44, 0x44, 0x44],
+                          [0x00, 0x00, 0x00]])
+    n = len(mycolormap) // 3
+    make_swatches(n, n_swatches, in_colormap=mycolormap)
