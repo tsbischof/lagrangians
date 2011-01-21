@@ -139,13 +139,16 @@ class ParameterWindow(QtGui.QWidget):
 
                 position += 25
 
-                key = var + "LimitStep"
-                self.paramSpins.append(QtGui.QDoubleSpinBox(self.paramFrame))
+                key = var + "LimitPixel"
+                self.paramSpins.append(QtGui.QSpinBox(self.paramFrame))
                 self.paramSpins[-1].setObjectName(key)
-                self.paramSpins[-1].setDecimals(8)
-                self.paramSpins[-1].setMinimum(0.0001)
-                self.paramSpins[-1].setSingleStep(0.01)
-                self.paramSpins[-1].setRange(-1000,1000)
+##                self.paramSpins[-1].setDecimals(8)
+##                self.paramSpins[-1].setMinimum(0.0001)
+##                self.paramSpins[-1].setSingleStep(0.01)
+##                self.paramSpins[-1].setRange(-1000,1000)
+                self.paramSpins[-1].setMinimum(1)
+                self.paramSpins[-1].setSingleStep(5)
+                self.paramSpins[-1].setRange(1,100000)
                 if key in current_vals.keys():
                     self.paramSpins[-1].setValue(current_vals[key])
                 else:
@@ -314,6 +317,7 @@ class LagrangiansMainWindow(QtGui.QMainWindow):
             
         self.input_filename = self.base_filename + ".inp"
         self.restart_filename = self.base_filename + ".restart"
+        self.raw_filename = self.base_filename + ".raw"
         self.setWindowTitle(self.base_filename)
 
     def change_system(self):
@@ -384,16 +388,13 @@ class LagrangiansMainWindow(QtGui.QMainWindow):
                 except:
                     pass
             else:
-                if name.endswith("Step"):
-                    vals = list(map(float, parser.get("config", \
-                                                  name[:-9]).split(",")))
-                else:
-                    vals = list(map(float, parser.get("config", \
-                                                  name[:-10]).split(",")))
+                vals = list(map(float, parser.get("config", \
+                                              name[:-10]).split(",")))
+                vals[1] = int(vals[1])
                 
                 if name.endswith("Lower"):
                     spinner.setValue(vals[0])
-                elif name.endswith("Step"):
+                elif name.endswith("Pixels"):
                     spinner.setValue(vals[1])
                 else:
                     spinner.setValue(vals[2])
@@ -453,7 +454,7 @@ class LagrangiansMainWindow(QtGui.QMainWindow):
                     ranges[key] = [0,0,0]
                 if part == "Lower":
                     ranges[key][0] = spinner.value()
-                elif part == "Step":
+                elif part == "Pixel":
                     ranges[key][1] = spinner.value()
                 else:
                     ranges[key][2] = spinner.value()
@@ -469,6 +470,7 @@ class LagrangiansMainWindow(QtGui.QMainWindow):
 
         if os.path.isfile(self.restart_filename):
             os.remove(self.restart_filename)
+            os.remove(self.raw_filename)
         else:
             pass
 
