@@ -11,7 +11,10 @@ class ChoiceWindow(QtGui.QMainWindow):
 
         self.resize(1000, 1000)
         
-        self.images = filter(lambda x: x.endswith(".png"), \
+        self.images = filter(lambda x: x.lower().endswith(".png") \
+                             or x.lower().endswith(".jpg") \
+                             or x.lower().endswith(".jpeg") or \
+                             x.lower().endswith(".gif"), \
                              sorted(os.listdir(os.getcwd())))
         
         self.like_dir = "like"
