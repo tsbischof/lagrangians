@@ -1,7 +1,6 @@
 from collections import OrderedDict
-import ctypes
 
-lagrangians = ctypes.cdll.LoadLibrary("./lagrangians.so")
+from c_libraries import lagrangians
 
 class System(object):
     def __init__(self, name=None, params=None, rules=None, integrators=None, \
@@ -27,7 +26,6 @@ class Rule(object):
             self.validators = [Validator(None, lagrangians.validate_all)]
         else:
             self.validators.append(Validator(None, lagrangians.validate_all))
-            
 
 class Validator(object):
     def __init__(self, name=None, function=None):

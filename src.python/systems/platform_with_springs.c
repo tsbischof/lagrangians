@@ -15,8 +15,8 @@
  * phi3: angle of the block, relative to vertical
  */
 
-enum { R1, DR1, R10, K1, M1, PHI1, DPHI1, 
-		R2, DR2, R20, K2, M2, PHI2, DPHI2,
+enum { R1, DR1, R1_0, K1, M1, PHI1, DPHI1, 
+		R2, DR2, R2_0, K2, M2, PHI2, DPHI2,
 		B, H, X0, Y0, M3, PHI3, DPHI3, G};
 
 void platform_with_springs_derivs(double *r, double *drdt) {
@@ -27,7 +27,7 @@ void platform_with_springs_integrate(double *r, double dt) {
 }
 
 double platform_with_springs_U(double *r) {
-	return(r[G]*sin(r[PHI3])*r[M3]*(pow(r[X0],2)+pow(r[Y0],2))+r[G]*(1-cos(r[PHI1]))*r[M1]*r[R1]+(r[K1]*pow(-r[R10]+r[R1],2))/2.+r[G]*(1-cos(r[PHI2]))*r[M2]*r[R2]+(r[K2]*pow(-r[R20]+r[R2],2))/2.);
+	return(r[G]*sin(r[PHI3])*r[M3]*(pow(r[X0],2)+pow(r[Y0],2))+r[G]*(1-cos(r[PHI1]))*r[M1]*r[R1]+(r[K1]*pow(-r[R1_0]+r[R1],2))/2.+r[G]*(1-cos(r[PHI2]))*r[M2]*r[R2]+(r[K2]*pow(-r[R2_0]+r[R2],2))/2.);
 }
 
 double platform_with_springs_T(double *r) {

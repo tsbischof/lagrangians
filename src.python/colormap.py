@@ -1,7 +1,5 @@
 import subprocess
-import ctypes
-
-colormapper = ctypes.cdll.LoadLibrary("./colormap.so")
+from c_libraries import colormapper
 
 def do_colormap(raw_filename, ppm_filename, height, width, \
                 time_resolution, colormap):

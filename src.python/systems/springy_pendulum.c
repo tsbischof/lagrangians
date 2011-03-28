@@ -12,16 +12,16 @@
  * A `d' in front of the variable indicates a time derivative.
  */
 
-enum { R, DR, PHI1, DPHI1, PHI2, DPHI2, M1, M2, R0, K, L, G };
+enum { R, DR, PHI1, DPHI1, PHI2, DPHI2, M1, M2, R_0, K, L, G };
 
 void springy_pendulum_derivs(double *r, double *drdt) {
-	drdt[DR] = -r[G]+(r[K]*r[R0])/r[M2]+r[G]*cos(r[PHI2])+r[L]*cos(r[PHI1]-r[PHI2])*r[DPHI1]*r[DPHI2]+r[R]*(-(r[K]/r[M2])+pow(r[DPHI2],2));
+	drdt[DR] = -r[G]+(r[K]*r[R_0])/r[M2]+r[G]*cos(r[PHI2])+r[L]*cos(r[PHI1]-r[PHI2])*r[DPHI1]*r[DPHI2]+r[R]*(-(r[K]/r[M2])+pow(r[DPHI2],2));
 	drdt[DPHI1] = (r[L]*r[M2]*pow(cos(r[PHI1]-r[PHI2]),2)*r[DR]*r[DPHI1]-r[M2]*pow(r[R],2)*sin(r[PHI1]-r[PHI2])*pow(r[DPHI2],2)-(r[R]*(2*r[G]*r[M1]*sin(r[PHI1])+r[G]*r[M2]*sin(r[PHI1])+r[G]*r[M2]*sin(r[PHI1]-2*r[PHI2])+r[L]*r[M2]*sin(2*(r[PHI1]-r[PHI2]))*pow(r[DPHI1],2)-2*r[M2]*cos(r[PHI1]-r[PHI2])*r[DR]*r[DPHI2]))/2.)/(r[L]*(r[M1]+r[M2]-r[M2]*pow(cos(r[PHI1]-r[PHI2]),2))*r[R]);
 	drdt[DPHI2] = (-2*r[L]*(r[M1]+r[M2])*cos(r[PHI1]-r[PHI2])*r[DR]*r[DPHI1]+r[M2]*pow(r[R],2)*sin(2*(r[PHI1]-r[PHI2]))*pow(r[DPHI2],2)+r[R]*(2*r[G]*(r[M1]+r[M2])*cos(r[PHI1])*sin(r[PHI1]-r[PHI2])+2*r[L]*(r[M1]+r[M2])*sin(r[PHI1]-r[PHI2])*pow(r[DPHI1],2)-(4*r[M1]+3*r[M2]-r[M2]*cos(2*(r[PHI1]-r[PHI2])))*r[DR]*r[DPHI2]))/(2.*(r[M1]+r[M2]-r[M2]*pow(cos(r[PHI1]-r[PHI2]),2))*pow(r[R],2));
 	drdt[R] = r[DR];
 	drdt[PHI1] = r[DPHI1];
 	drdt[PHI2] = r[DPHI2];
-	drdt[R0] = 0;
+	drdt[R_0] = 0;
 	drdt[G] = 0;
 	drdt[K] = 0;
 	drdt[L] = 0;
@@ -34,7 +34,7 @@ void springy_pendulum_integrate(double *r, double dt) {
 }
 
 double springy_pendulum_U(double *r) {
-	return(r[G]*r[L]*(r[M1]+r[M2])*(1-cos(r[PHI1]))+r[G]*r[M2]*(1-cos(r[PHI2]))*r[R]+(r[K]*pow(-r[R0]+r[R],2))/2.);
+	return(r[G]*r[L]*(r[M1]+r[M2])*(1-cos(r[PHI1]))+r[G]*r[M2]*(1-cos(r[PHI2]))*r[R]+(r[K]*pow(-r[R_0]+r[R],2))/2.);
 }
 
 double springy_pendulum_T(double *r) {
@@ -52,9 +52,9 @@ int springy_pendulum_lower_flip_energy(double *r) {
     r_min[M2] = r[M2];
 
     r_min[K] = r[K];
-    r_min[R] = r[R0];
+    r_min[R] = r[R_0];
     r_min[DR] = 0;
-    r_min[R0] = r[R0];
+    r_min[R_0] = r[R_0];
 
 	r_min[L] = r[L];
     r_min[G] = r[G];
@@ -79,9 +79,9 @@ int springy_pendulum_upper_flip_energy(double *r) {
     r_min[M2] = r[M2];
 
     r_min[K] = r[K];
-    r_min[R] = r[R0];
+    r_min[R] = r[R_0];
     r_min[DR] = 0;
-    r_min[R0] = r[R0];
+    r_min[R_0] = r[R_0];
 
 	r_min[L] = r[L];
     r_min[G] = r[G];

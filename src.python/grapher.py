@@ -9,20 +9,9 @@ import copy
 import datetime
 
 import colormap
+import parse
 import systems
-
-def xrange(lower, upper, inc=1):
-    current = lower
-    while current < upper:
-        yield(current)
-        current += inc
-
-def dict_iter(my_dict, key):
-    the_dict = copy.deepcopy(my_dict)
-    vals = my_dict[key]
-    for val in xrange(vals[0], vals[2], vals[1]):
-        the_dict[key] = val
-        yield(the_dict)
+from c_libraries import lagrangians
 
 class Grapher(object):
     def __init__(self, filename):
@@ -40,60 +29,49 @@ class Grapher(object):
     def filename(self, suffix):
         return("{0}.{1}".format(self.filename_base, suffix))
 
-    def load(self):
+    def load(self, filename):
         """Load options to the grapher from an options object."""
         self.options = parse.Options(filename)
         self.options.load()
+        self.run = self.options.run
 
 # The meat of the program. These routines allow us to start all of the work
 # for the input file, or just some of it.
-    def get_work(self):
-        """For all unfinished rows, return a tuple with the row number and an
-iterator which produces the appropriate values for each variable for each
-element of the row."""
-        # To do: specify the horizontal and vertical rules as a line in phase
-        # space, allowing multiple parameters to be varied at once.
-        parameters = copy.deepcopy(self.params)
-        for row_number, finished in enumerate(self.status):
-            if not finished:
-                y = self.params[self.plot[1]]
-                parameters[self.plot[1]] = y[0] +\
-                                           row_number*(y[2]-y[0])/self.height
-
-                yield(row_number, dict_iter(parameters, self.plot[0]))
-
-    def run(self):
-        # Are we restarting? If not, allocate the necessary files.
-        if self.restart:
-            pass
-        else:
-            pass
-            self.allocate_restart()
-            self.allocate_raw()     
-        for row in self.get_work():
-            self.do_row(row)
-
-    def do_row(self, row):
-        """Perform the sweep over the variable represented by the given row."""
-        row_number, parameters_stream = row
-        print("%s: working on row %d." % \
-              (datetime.datetime.today().strftime("%Y.%m.%d %H:%M"), \
-               row_number))
-
-        result = list()
-        for parameters in parmameters_stream:
-            pass
+    def do_run(self):
+        # Fix this eventually to do videos as well; perhaps we want to make
+        # snapshots of the trajectory for some number of variables.
+        self.do_image()
         
-        # Do this by keeping alive a thread which can be fed a stream of
-        # input parameters and spits out a stream of results.
-##        out = subprocess.PIPE()
-##        subprocess.Popen(["blargh"], stdin=row, stdout=out)
+    def do_image(self):
+        # Are we restarting? If not, allocate the necessary files.
+        if self.run.restart:
+            self.status_from_restart()
+        else:
+            self.allocate_restart()
+            self.allocate_raw()
 
-##        result = out.stdout # Basically, have the result piped into an object
-        # we can use to write the results to file.
+        n_variables = len(self.run.horizontal.left)
+        r_left = (ctypes.c_double*n_variables)()
+        r_right = (ctypes.c_double*n_variables)()
+        t_limits = (ctypes.c_double*3)()
+        height = (ctypes.c_int)()
+        width = (ctypes.c_int)()
+        integrator = self.run.integrator
+        rule = self.run.rule
+        result = (ctypes.c_double * self.run.width)()
+        result_pointer = ctypes.cast(result, ctypes.POINTER(ctypes.c_double))
+        for row_number, row in enumerate(self.run.vertical):
+            print("{0}: Working on row {1}.".format(\
+                    datetime.date.strftime(datetime.datetime.today(), \
+                                           "%Y.%m.%d %H:%M"),\
+                    row_number))
+            lagrangians.do_row(r_left, r_right, n_variables, t_limits,
+                    height, width, integrator, rule, result_pointer)
 
-##        self.write_row(result)
+            print(result.value)
 
+    def do_video(self):
+        pass
 
 # Routines to allocate and write to the necessary files.
     def allocate_restart(self):
@@ -104,7 +82,7 @@ element of the row."""
             return(False)
         else:
             with open(self.filename("restart"), "wb") as f:
-                for i in range(self.height):
+                for i in range(self.run.height):
                     f.write(self.restart_type(0))
 
     def allocate_raw(self):
@@ -115,8 +93,8 @@ element of the row."""
             return(False)
         else:
             with open(self.filename("raw"), "wb") as f:
-                for row in range(self.height):
-                    for column in range(self.width):
+                for row in range(self.run.height):
+                    for column in range(self.run.width):
                         f.write(self.raw_type(0))
 
     def write_row(self, row_number, row):
@@ -167,7 +145,5 @@ aesthetically pleasing."""
                                                                     src, dst))
 
 if __name__ == "__main__":
-    import parse
-    options = parse.Options("test.inp")
-    grapher = Grapher(options)
-    grapher.run()
+    grapher = Grapher("test.inp")
+    grapher.do_run()
