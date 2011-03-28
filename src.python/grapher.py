@@ -7,6 +7,7 @@ from collections import OrderedDict
 import math
 import copy
 import datetime
+import struct
 
 import colormap
 import parse
@@ -57,6 +58,7 @@ class Grapher(object):
         if self.run.restart:
             self.status_from_restart()
         else:
+            self.status = [False for i in range(self.run.height)]
             self.allocate_restart()
             self.allocate_raw()
 
@@ -70,21 +72,27 @@ class Grapher(object):
         integrator = self.run.integrator.function
         rule = self.run.rule.function
         
-        result = (ctypes.c_double * self.run.width)()
-        result_pointer = ctypes.cast(result, ctypes.POINTER(ctypes.c_double))
-        
+        result = list_to_array(self.raw_type, list(range(self.run.width)))
+       
         for row_number in range(self.run.height):
-            print("{0}: Working on row {1} of {2}.".format(\
-                    datetime.date.strftime(datetime.datetime.today(), \
-                                           "%Y.%m.%d %H:%M"),\
-                    row_number, self.run.height-1))
-            lagrangians.do_row(r_left, r_right, n_variables, t_limits,
-                    height, width, integrator, rule, result_pointer)
-            
+            if self.status[row_number]:
+                print("Found finished row {0}".row_number)
+            else:
+                print("{0}: Working on row {1} of {2}.".format(\
+                        datetime.date.strftime(datetime.datetime.today(), \
+                                               "%Y.%m.%d %H:%M"),\
+                        row_number, self.run.height-1))
+
+##                print(r_left[0],r_left[1],r_left[2],r_left[3])
+##                print(r_right[0],r_right[1],r_right[2],r_right[3])
+
+                lagrangians.do_row(r_left, r_right, n_variables, t_limits,
+                        width, integrator, rule, result)
+
+                self.write_row(row_number, result)
+                
             increment_array(r_left, self.run.vertical.dr)
             increment_array(r_right, self.run.vertical.dr)
-
-            print(result)
 
     def do_video(self):
         pass
@@ -114,14 +122,17 @@ class Grapher(object):
                         f.write(self.raw_type(0))
 
     def write_row(self, row_number, row):
-        with open(self.filename("raw"), "wb") as f:
-            f.seek(ctypes.sizeof(self.raw_type)*self.run.width*row_number)
+        with open(self.filename("raw"), "r+b") as raw_file:
+            raw_file.seek(ctypes.sizeof(self.raw_type)*self.run.width*row_number)
             for i in range(self.run.width):
-                f.write(row[i])
-                    
-        with open(self.filename("restart"), "wb") as f:
-            f.seek(ctypes.sizeof(self.restart_type)*row_number)
-            f.write(self.restart_type(1))
+                raw_file.write(struct.pack("d", row[i]))
+            raw_file.flush()
+
+        with open(self.filename("restart"), "r+b") as restart_file:
+            restart_file.seek(ctypes.sizeof(self.restart_type)*row_number)
+            restart_file.write(self.restart_type(1))
+
+        self.status[row_number] = True
 
     def status_from_restart(self):
         src = self.filename("restart")
@@ -131,7 +142,7 @@ class Grapher(object):
                 try:
                     for i in range(self.height):
                         self.status.append(\
-                            int(f.read(ctypes.sizeof(self.restart_type))))
+                            bool(f.read(ctypes.sizeof(self.restart_type))))
                 except:
                     print("Could not read all rows from %s, failed at row %d."%\
                           (src, i))
@@ -153,13 +164,14 @@ aesthetically pleasing."""
         """Converts the image to png, using ImageMagick."""
         src = self.filename("ppm")
         dst = self.filename("png")
-        if os.path.isfile(src):
-            print("Converting {0} to {1}.".format(src, dst))
-            subprocess.Popen(["convert", src, dst]).wait()
-        else:
-            print("Could not find source file {0} to convert to {1}.".format(\
-                                                                    src, dst))
-
+        if not os.path.isfile(src):
+            self.to_ppm()
+        print("Converting {0} to {1}.".format(src, dst))
+        subprocess.Popen(["convert", src, dst]).wait()
+        
 if __name__ == "__main__":
     grapher = Grapher("test.inp")
     grapher.do_run()
+    grapher.to_ppm()
+    grapher.to_png()
+

@@ -1,4 +1,5 @@
 #include "rules.h"
+#include <stdio.h>
 #include <math.h>
 
 int sign(double x) {
@@ -11,6 +12,7 @@ int sign(double x) {
 
 double first_turnaround(double *r, double *r0, double t, double *values, 
 		int done) {
+//	printf("%lf: %lf, %lf\n", t, r[1], r0[1]);
 	if ( ! done ) {
 		return( (r[1] == 0) || (sign(r[1]) == -1*sign(r0[1])) );
 	} else {

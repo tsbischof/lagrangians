@@ -104,10 +104,12 @@ void do_row(double *r_left, double *r_right, int n_variables, double *t_limits,
 	vector_div_int(dr, width, n_variables);	
 
 	vector_copy(r, r_left, n_variables);
+	vector_copy(r_scratch, r_left, n_variables);
 
 	for (i = 0; i < width; i++) {
 		result[i] = do_single_run_with_rule(r_scratch, r, n_variables, 
 											t_limits, integrate, rule);
+
 		vector_add(r, dr, n_variables);
 		vector_copy(r_scratch, r, n_variables);
 	}

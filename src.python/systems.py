@@ -69,13 +69,13 @@ A `d' in front of the variable indicates a time derivative.
 
 
 double_well = System("double_well", \
-    OrderedDict({"x": 0, "v": 0, "m": 1, "k1": 1, "k2": 1}), \
+    OrderedDict([("x", 0), ("v", 0), ("m", 1), ("k1", 1), ("k2", 1)]), \
     [Rule("first_turnaround", lagrangians.double_well_first_turnaround),\
      Rule("speed", lagrangians.double_well_speed)], \
     [Integrator("double_well", lagrangians.double_well_integrate)])
 
 harmonic_oscillator = System("harmonic_oscillator", \
-    OrderedDict({"x": 0, "v": 0, "m": 1, "k": 1}), \
+    OrderedDict([("x", 0), ("v", 0), ("m", 1), ("k", 1)]), \
     [Rule("first_turnaround", lagrangians.harmonic_oscillator_first_turnaround), \
      Rule("speed", lagrangians.harmonic_oscillator_speed)],\
     [Integrator("harmonic_oscillator", \

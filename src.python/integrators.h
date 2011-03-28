@@ -13,6 +13,7 @@ void do_row(double *r_left, double *r_right, int n_variables, double *t_limits,
 	int width, void (*integrate)(double *, double),
 	double (*rule)(double *, double *, double, double *, int),
 	double *result);
+
 double do_single_run_with_rule(double *r, double *r0, int n_variables, 
 	double *t_limits, void (*integrate)(double *, double),
 	double (*rule)(double *, double *, double, double *, int) );

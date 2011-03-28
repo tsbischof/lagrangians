@@ -1,6 +1,7 @@
 import subprocess
 import sys
 import ctypes
+import os
 
 from c_libraries import colormapper
 
@@ -10,20 +11,16 @@ def do_colormap(raw_filename, ppm_filename, height, width, \
                 time_resolution, colormap):
     n_points = len(colormap)
 
-    my_colormap = ((ctypes.c_int*3)*n_points)()
+    my_colormap = (ctypes.POINTER(ctypes.c_int)*n_points)()
     for i in range(n_points):
+        my_colormap[i] = (ctypes.c_int*3)()
         for j in range(3):
             my_colormap[i][j] = colormap[i][j]
-    print(my_colormap)
 
-    with open(ppm_filename, "w") as ppm_file:
-        with open(raw_filename, "rb") as raw_file:
-            # systematically add these parameters, particularly the array and
-            # the files, until the segfaults stop. Obnoxious, but it should
-            # work.
-            colormapper.raw_to_ppm(raw_file.fileno(), ppm_file.fileno(),\
-                    ctypes.c_double(time_resolution), ctypes.c_int(height), \
-                    ctypes.c_int(width), ctypes.c_int(n_points), my_colormap)
+    colormapper.raw_to_ppm_filenames(ctypes.create_string_buffer(raw_filename),\
+            ctypes.create_string_buffer(ppm_filename),  \
+            ctypes.c_double(time_resolution), ctypes.c_int(height), \
+            ctypes.c_int(width), ctypes.c_int(n_points), my_colormap)
 
 if __name__ == "__main__":
     import grapher
