@@ -13,6 +13,16 @@ import parse
 import systems
 from c_libraries import lagrangians
 
+def list_to_array(c_type, L):
+    result = (c_type*len(L))()
+    for i in range(len(L)):
+        result[i] = L[i]
+    return(result)
+
+def increment_array(array, dr):
+    for index, elem in enumerate(dr):
+        array[index] += elem
+
 class Grapher(object):
     def __init__(self, filename):
         # Use an ordered dictionary to ensure the parameters are
@@ -51,24 +61,30 @@ class Grapher(object):
             self.allocate_raw()
 
         n_variables = len(self.run.horizontal.left)
-        r_left = (ctypes.c_double*n_variables)()
-        r_right = (ctypes.c_double*n_variables)()
-        t_limits = (ctypes.c_double*3)()
-        height = (ctypes.c_int)()
-        width = (ctypes.c_int)()
-        integrator = self.run.integrator
-        rule = self.run.rule
+        r_left = list_to_array(self.raw_type, self.run.horizontal.left)
+        r_right = list_to_array(self.raw_type, self.run.horizontal.right)
+        t_limits = (ctypes.c_double*3)(self.run.t[0], self.run.t[1],\
+                                       self.run.t[2])
+        height = (ctypes.c_int)(self.run.height)
+        width = (ctypes.c_int)(self.run.width)
+        integrator = self.run.integrator.function
+        rule = self.run.rule.function
+        
         result = (ctypes.c_double * self.run.width)()
         result_pointer = ctypes.cast(result, ctypes.POINTER(ctypes.c_double))
-        for row_number, row in enumerate(self.run.vertical):
-            print("{0}: Working on row {1}.".format(\
+        
+        for row_number in range(self.run.height):
+            print("{0}: Working on row {1} of {2}.".format(\
                     datetime.date.strftime(datetime.datetime.today(), \
                                            "%Y.%m.%d %H:%M"),\
-                    row_number))
+                    row_number, self.run.height-1))
             lagrangians.do_row(r_left, r_right, n_variables, t_limits,
                     height, width, integrator, rule, result_pointer)
+            
+            increment_array(r_left, self.run.vertical.dr)
+            increment_array(r_right, self.run.vertical.dr)
 
-            print(result.value)
+            print(result)
 
     def do_video(self):
         pass
@@ -99,15 +115,15 @@ class Grapher(object):
 
     def write_row(self, row_number, row):
         with open(self.filename("raw"), "wb") as f:
-            f.seek(ctypes.sizeof(self.raw_type)*self.width*row_number)
-            for elem in row:
-                f.write(self.raw_type(elem))
-
+            f.seek(ctypes.sizeof(self.raw_type)*self.run.width*row_number)
+            for i in range(self.run.width):
+                f.write(row[i])
+                    
         with open(self.filename("restart"), "wb") as f:
             f.seek(ctypes.sizeof(self.restart_type)*row_number)
             f.write(self.restart_type(1))
 
-    def do_restart(self):
+    def status_from_restart(self):
         src = self.filename("restart")
         try:
             with open(src, "rb") as f:
@@ -115,23 +131,23 @@ class Grapher(object):
                 try:
                     for i in range(self.height):
                         self.status.append(\
-                            f.read(ctypes.sizeof(self.restart_type)))
+                            int(f.read(ctypes.sizeof(self.restart_type))))
                 except:
                     print("Could not read all rows from %s, failed at row %d."%\
                           (src, i))
         except OSError:
             print("Could not open %s for reading." % src)            
 
-    def to_ppm(self):
+    def to_ppm(self, my_colormap=[[0, 0, 0], [255, 0, 0], \
+                                  [255, 255, 0],  [255, 255, 255]]):
         """Uses the colormap routine to convert the raw image to something more
 aesthetically pleasing."""
-        my_colormap = [[0, 0, 0], [255, 0, 0],  [255, 255, 0],  [255, 255, 255]]
         src = self.filename("raw")
         dst = self.filename("ppm")
-        time_resolution = self.params["t"][1]
+        time_resolution = self.run.t[1]
         print("Converting %s to %s." % (src, dst))
-        colormap.do_colormap(src, dst, self.height, self.width, \
-                             time_resolution, colormap)
+        colormap.do_colormap(src, dst, self.run.height, self.run.width, \
+                             time_resolution, my_colormap)
 
     def to_png(self):
         """Converts the image to png, using ImageMagick."""

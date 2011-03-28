@@ -23,6 +23,8 @@ class Line(object):
 variables, taken from the configuration file. For those which are not directly
 specified, the values are taken from defaults. Anything not specified in the
 input file gets taken from params, which are set externally."""
+        # To do: check that the two axes do not conflict; they should not
+        # include the same variables
         left = list()
         right = list()
    

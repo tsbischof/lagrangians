@@ -13,6 +13,7 @@ void do_pixel(int val, int max, int n, int **colormap, int *rgb) {
 
 	for (i = 0; i < 3; i++) {
 		if ( segment < (n-1) ) {
+
 			rgb[i] = colormap[segment][i];
 			length = colormap[segment+1][i] - colormap[segment][i];
 			remainder = val % (max / (n-1));
@@ -26,8 +27,8 @@ void do_pixel(int val, int max, int n, int **colormap, int *rgb) {
 	}
 }
 
-void raw_to_ppm(FILE *raw_file, FILE *ppm_file, 
-		double resolution, int height, int width, int n, int **colormap) {
+void raw_to_ppm(FILE *raw_file, FILE *ppm_file, double resolution, 
+		int height, int width, int n_points, int **colormap) {
 	double raw_max_val = 0.0;
 	int max_val;
 	double raw_min_val = 0.0;
@@ -61,7 +62,7 @@ void raw_to_ppm(FILE *raw_file, FILE *ppm_file,
 		for (j = 0; j < width; j++) {
 			fread(&raw_val, sizeof(double), 1, raw_file);
 			val = (int)floor(raw_val/resolution) - min_val;
-			do_pixel(val, max_val-min_val, n, colormap, &rgb[0]);
+			do_pixel(val, max_val-min_val, n_points, colormap, &rgb[0]);
 			fprintf(ppm_file, "%d %d %d  ", rgb[0], rgb[1], rgb[2]);
 		}
 		fprintf(ppm_file, "\n");
