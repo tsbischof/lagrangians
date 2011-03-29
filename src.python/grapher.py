@@ -112,7 +112,8 @@ class Grapher(object):
         with open(self.filename("raw"), "r+b") as raw_file:
             raw_file.seek(ctypes.sizeof(self.raw_type)*self.run.width*row_number)
             for i in range(self.run.width):
-                raw_file.write(struct.pack("d", row[i]))
+##                raw_file.write(struct.pack("d", row[i]))
+                raw_file.write(self.raw_type(row[i]))
 
         with open(self.filename("restart"), "r+b") as restart_file:
             restart_file.seek(ctypes.sizeof(self.restart_type)*row_number)
