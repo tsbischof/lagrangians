@@ -5,6 +5,8 @@ void verlet(double (*force)(double *), double *, double dt);
 void runge_kutta_4(void (*derivs)(double *, double *),
 		double *r, double dt, int vec_length);
 
+void vector_add_mul(double *v1, double *v2, double *dv, int n, int length);
+void vector_add(double *v1, double *v2, int length);
 void vector_sub(double *v1, double *v2, int length);
 void vector_copy(double *v1, double *v2, int length);
 void vector_div_int(double *v1, int div, int length);
@@ -14,8 +16,9 @@ void do_row(double *r_left, double *r_right, int n_variables, double *t_limits,
 	double (*rule)(double *, double *, double, double *, int),
 	double *result);
 
-double do_single_run_with_rule(double *r, double *r0, int n_variables, 
-	double *t_limits, void (*integrate)(double *, double),
+double do_single_run_with_rule(int index, double *r_left, double *r, 
+	double *r0, double *dr,
+	int n_variables, double *t_limits, void (*integrate)(double *, double),
 	double (*rule)(double *, double *, double, double *, int) );
 
 void advance_image(double ***r, int width, int height, double dt,

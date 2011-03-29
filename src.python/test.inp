@@ -8,10 +8,9 @@ t = 0, 0.01, 100
 
 [defaults]
 m = 1
-k = 1
 
 [horizontal]
-x = -3, 3
+x = -5, 5
 
 [vertical]
-v = -3, 3
+v = -5, 5

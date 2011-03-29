@@ -197,7 +197,8 @@ class Options(object):
         if result == None:
             print("{0} {1} is not available.".format(name.capitalize(), chosen))
         else:
-            print("{0}: {1}.".format(name.capitalize(), chosen))
+            pass
+##            print("{0}: {1}.".format(name.capitalize(), chosen))
             
         return(result)
 
@@ -206,7 +207,8 @@ class Options(object):
             print("{0} must be greater than zero. Tried: {1}".format(\
                 dimension, width))
         else:
-            print("{0}: {1}.".format(dimension.capitalize(), size))
+            pass
+##            print("{0}: {1}.".format(dimension.capitalize(), size))
 
         return(size)
         
@@ -226,7 +228,7 @@ class Options(object):
                 self.options.config.validator, self.run.rule.validators)
 
         self.run.restart = self.options.config.restart
-        print("Restart: {0}".format(self.run.restart))
+##        print("Restart: {0}".format(self.run.restart))
 
         try:
             # We need to check that the time increment will actually run in the
@@ -237,7 +239,8 @@ class Options(object):
             if sign(t_limit-t) != sign(dt):
                 raise(ValueError)
             else:
-                print("Time steps: {0}.".format(self.run.t))
+                pass
+##                print("Time steps: {0}.".format(self.run.t))
         except:
             print("Invalid time steps: {0}.".format(self.options.config.t))
 

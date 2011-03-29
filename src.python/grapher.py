@@ -1,5 +1,4 @@
 import subprocess
-import multiprocessing
 import os
 import ctypes
 import configparser
@@ -8,12 +7,13 @@ import math
 import copy
 import datetime
 import struct
+import functools
 
 import colormap
 import parse
 import systems
 from c_libraries import lagrangians
-
+     
 class Grapher(object):
     def __init__(self, filename):
         # Use an ordered dictionary to ensure the parameters are
@@ -25,10 +25,13 @@ class Grapher(object):
         self.load(filename)
       
         self.raw_type = ctypes.c_double
-        self.restart_type = ctypes.c_byte
+        self.restart_type = ctypes.c_int
 
-    def filename(self, suffix):
-        return("{0}.{1}".format(self.filename_base, suffix))
+    def filename(self, suffix=False):
+        if not suffix:
+            return(self.filename_base)
+        else:
+            return("{0}.{1}".format(self.filename_base, suffix))
 
     def load(self, filename):
         """Load options to the grapher from an options object."""
@@ -38,11 +41,6 @@ class Grapher(object):
 
 # The meat of the program. These routines allow us to start all of the work
 # for the input file, or just some of it.
-    def do_run(self):
-        # Fix this eventually to do videos as well; perhaps we want to make
-        # snapshots of the trajectory for some number of variables.
-        self.do_image()
-
     def get_work(self):
         n_variables = self.run.points.n_variables
         t_limits = (ctypes.c_double*3)(self.run.t[0], self.run.t[1],\
@@ -57,7 +55,7 @@ class Grapher(object):
         for row_number, r_left, r_right in self.run.points:
             if not self.status[row_number]:
                 yield((row_number, r_left, r_right, n_variables, \
-                    t_limits, width, integrator, rule, result))
+                    t_limits, width, height, integrator, rule, result))
         
     def do_image(self):
         # Are we restarting? If not, allocate the necessary files.
@@ -68,26 +66,21 @@ class Grapher(object):
             self.allocate_restart()
             self.allocate_raw()
 
-        pool = multiprocessing.Pool()
         for params in self.get_work():
             self.do_row(params)
 
-    def do_row(self, params):
-        row_number, r_left, r_right, n_variables, t_limits, width, \
+    def do_row(self, params):    
+        row_number, r_left, r_right, n_variables, t_limits, width, height,\
             integrator, rule, result = params
-
         print("{0}: Working on row {1} of {2}.".format(\
-                        datetime.date.strftime(datetime.datetime.today(), \
-                                               "%Y.%m.%d %H:%M:%S"),\
-                        row_number, self.run.height-1))
-
-##        print(r_left[0], r_left[1], r_left[2], r_left[3])
-##        print(r_right[0], r_right[1], r_right[2], r_right[3])
+                    datetime.date.strftime(datetime.datetime.today(), \
+                                           "%Y.%m.%d %H:%M:%S"),\
+                    row_number, height.value-1))
 
         lagrangians.do_row(r_left, r_right, n_variables, t_limits,
                         width, integrator, rule, result)
         self.write_row(row_number, result)
-
+        
     def do_video(self):
         pass
 
@@ -120,7 +113,6 @@ class Grapher(object):
             raw_file.seek(ctypes.sizeof(self.raw_type)*self.run.width*row_number)
             for i in range(self.run.width):
                 raw_file.write(struct.pack("d", row[i]))
-            raw_file.flush()
 
         with open(self.filename("restart"), "r+b") as restart_file:
             restart_file.seek(ctypes.sizeof(self.restart_type)*row_number)
@@ -128,14 +120,24 @@ class Grapher(object):
 
         self.status[row_number] = True
 
+    def get_status(self):
+        self.status_from_restart()
+        print("{0}: Finished {1} of {2} rows.".format(\
+            self.filename(), \
+            len(list(filter(lambda x: x, self.status))), \
+            self.run.height))
+
     def status_from_restart(self):
         src = self.filename("restart")
         try:
             with open(src, "rb") as f:
                 self.status = list()
                 for i in range(self.run.height):
-                    self.status.append(\
-                        bool(f.read(ctypes.sizeof(self.restart_type))))
+                    val = f.read(ctypes.sizeof(self.restart_type))
+                    if val != 0:
+                        self.status.append(True)
+                    else:
+                        self.status.append(False)
         except OSError:
             print("Could not open %s for reading." % src)            
 
@@ -146,7 +148,7 @@ aesthetically pleasing."""
         src = self.filename("raw")
         dst = self.filename("ppm")
         time_resolution = self.run.t[1]
-        print("Converting %s to %s." % (src, dst))
+##        print("Converting {0} to {1}.".format(src, dst))
         colormap.do_colormap(src, dst, self.run.height, self.run.width, \
                              time_resolution, my_colormap)
 
@@ -156,12 +158,12 @@ aesthetically pleasing."""
         dst = self.filename("png")
         if not os.path.isfile(src):
             self.to_ppm()
-        print("Converting {0} to {1}.".format(src, dst))
+##        print("Converting {0} to {1}.".format(src, dst))
         subprocess.Popen(["convert", src, dst]).wait()
         
 if __name__ == "__main__":
     grapher = Grapher("test.inp")
-    grapher.do_run()
+    grapher.do_image()
     grapher.to_ppm()
     grapher.to_png()
 

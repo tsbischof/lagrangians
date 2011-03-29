@@ -1,4 +1,5 @@
 #include <math.h>
+#include <omp.h>
 #include <stdlib.h>
 #include "integrators.h"
 
@@ -58,6 +59,14 @@ void runge_kutta_4(void (*derivs)(double *, double *),
     }
 }
 
+void vector_add_mul(double *v1, double *v2, double *dv, int n, int length) {
+/* Do v2+n*dv, store as v1 */
+	int i;
+	for (i = 0; i < length; i++) {
+		v1[i] = v2[i] + n*dv[i];
+	}
+}
+
 void vector_add(double *v1, double *v2, int length) {
 /* Adds v1 to v2, and stores the result in v1. */
 	int i; 
@@ -93,9 +102,8 @@ void do_row(double *r_left, double *r_right, int n_variables, double *t_limits,
 		int width, void (*integrate)(double *, double),
 		double (*rule)(double *, double *, double, double *, int), 
 		double *result) {
-	double *r = (double *)malloc(n_variables*sizeof(double));
-	double *r_scratch = (double *)malloc(n_variables*sizeof(double));
-	double *dr = (double *)malloc(n_variables*sizeof(double));
+	double *r0, *r_scratch;
+	double *dr = (double *)calloc(n_variables, sizeof(double));
 
 	int i;
 
@@ -103,24 +111,26 @@ void do_row(double *r_left, double *r_right, int n_variables, double *t_limits,
 	vector_sub(dr, r_left, n_variables);
 	vector_div_int(dr, width, n_variables);	
 
-	vector_copy(r, r_left, n_variables);
-	vector_copy(r_scratch, r_left, n_variables);
-
-	for (i = 0; i < width; i++) {
-		result[i] = do_single_run_with_rule(r_scratch, r, n_variables, 
-											t_limits, integrate, rule);
-
-		vector_add(r, dr, n_variables);
-		vector_copy(r_scratch, r, n_variables);
+// this is imperfect; we may have to call this function many times, and each
+// time it has to reallocate the memory. 
+#pragma omp parallel private(r_scratch, r0)
+	{
+		r_scratch = (double *)calloc(n_variables, sizeof(double));
+		r0 = (double *)calloc(n_variables, sizeof(double));
+#pragma omp for
+		for (i = 0; i < width; i++) {
+			result[i] = do_single_run_with_rule(i, r_left, r_scratch, r0, dr, 
+				n_variables, t_limits, integrate, rule);
+		}
+		free(r_scratch);
+		free(r0);
 	}
-
-	free(r);
-	free(r_scratch);
 	free(dr);
 }
 
-double do_single_run_with_rule(double *r, double *r0, int n_variables, 
-		double *t_limits, void (*integrate)(double *, double),
+double do_single_run_with_rule(int index, double *r_left, double *r, 
+		double *r0, double *dr,
+		int n_variables, double *t_limits, void (*integrate)(double *, double),
     	double (*rule)(double *, double *, double, double *, int) ) {
 	double t, dt, t_limit;
 	double scratch[SCRATCH_SIZE];
@@ -129,6 +139,9 @@ double do_single_run_with_rule(double *r, double *r0, int n_variables,
 	t = t_limits[0];
 	dt = t_limits[1];
 	t_limit = t_limits[2];
+
+	vector_add_mul(r, r_left, dr, index, n_variables);
+	vector_add_mul(r0, r_left, dr, index, n_variables);	
 
 	while (t < t_limit) {
 		if ( rule(r, r0, t, &scratch[0], NOT_DONE) ) {
