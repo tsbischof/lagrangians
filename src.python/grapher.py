@@ -7,13 +7,13 @@ import math
 import copy
 import datetime
 import struct
-import functools
 
 import colormap
 import parse
 import systems
 from c_libraries import lagrangians
-     
+
+# The actual worker. All hail the great serpent in the silicon.
 class Grapher(object):
     def __init__(self, filename):
         # Use an ordered dictionary to ensure the parameters are
@@ -112,7 +112,6 @@ class Grapher(object):
         with open(self.filename("raw"), "r+b") as raw_file:
             raw_file.seek(ctypes.sizeof(self.raw_type)*self.run.width*row_number)
             for i in range(self.run.width):
-##                raw_file.write(struct.pack("d", row[i]))
                 raw_file.write(self.raw_type(row[i]))
 
         with open(self.filename("restart"), "r+b") as restart_file:

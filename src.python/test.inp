@@ -1,8 +1,8 @@
 [config]
 system = harmonic_oscillator
 rule = first_turnaround
-width = 100
-height = 100
+width = 1000
+height = 1000
 restart = False
 t = 0, 0.01, 100
 
