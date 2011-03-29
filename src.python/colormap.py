@@ -24,7 +24,7 @@ def do_colormap(raw_filename, ppm_filename, height, width, \
 
 if __name__ == "__main__":
     import grapher
-    for filename in ["harmonic_oscillator.inp"]:
+    for filename in ["test.inp"]:
         my_grapher = grapher.Grapher(filename)
         my_grapher.to_ppm()
         my_grapher.to_png()

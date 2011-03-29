@@ -1,64 +1,99 @@
 import configparser
+import ctypes
 import os
 import tempfile
 from collections import OrderedDict
 
 import systems
 
+def list_to_array(array, L):
+    for i in range(len(L)):
+        result[i] = L[i]
+    return(result)
+
 def sign(x):
     return(x/abs(x))
 
+def increment_array(array, dr):
+    for index, elem in enumerate(dr):
+        array[index] += elem
+
 class Line(object):
-    def __init__(self, variables=dict(), defaults=dict(), params=dict(),\
-                 n_points=100):
-        self.left, self.right = self.from_config(variables, defaults, params)
-        self.n_points = n_points
+    def __init__(self, horizontal=None, vertical=None, defaults=None, \
+                 params=None, size=100):
+        self.n_points = size
+        self.left, self.right, self.dr = self.from_config(horizontal, vertical, \
+                                                 defaults, params, size)
+        self.n = -1
+        self.n_variables = len(params.keys())
 
-        self.r = None
-        self.dr = list(map(lambda x: (x[1]-x[0])/float(n_points-1), \
-                        zip(self.left, self.right)))
-
-    def from_config(self, variables, defaults, params):
+    def from_config(self, horizontal, vertical, defaults, params, size):
         """Fill the beginning and end of the line with the values from
 variables, taken from the configuration file. For those which are not directly
 specified, the values are taken from defaults. Anything not specified in the
 input file gets taken from params, which are set externally."""
-        # To do: check that the two axes do not conflict; they should not
-        # include the same variables
-        left = list()
-        right = list()
-   
-        for key in params.keys():
-            if key in variables.keys():
-                my_left, my_right = list(map(float, variables[key].split(",")))
-            elif key in defaults.keys():
-                value = float(defaults[key])
-                my_left = value
-                my_right = value
-            else:
-                value = float(params[key])
-                my_left = value
-                my_right = value
-            left.append(my_left)
-            right.append(my_right)
+        n_variables = len(params.keys())
+        left = (ctypes.c_double*n_variables)()
+        right = (ctypes.c_double*n_variables)()
+        upper = (ctypes.c_double*n_variables)()
+        dr = (ctypes.c_double*n_variables)()
 
-        return((left, right))
+        for key in horizontal.keys():
+            if key in vertical.keys():
+                print("Cannot specify the same variable on both axes: {0}.".\
+                      format(key))
+            if key in defaults.keys():
+                print(\
+  "Cannot specify the same variable on an axis and a default: {0}.".format(key))
+
+        # First, build the values which actually vary. 
+        for index, key in enumerate(params.keys()):
+            if key in horizontal.keys():
+                left[index], right[index] = list(map(float, \
+                                                horizontal[key].split(",")))
+                upper[index] = left[index]
+            elif key in vertical.keys():
+                left[index], upper[index] = list(map(float, \
+                                                vertical[key].split(",")))
+                right[index] = left[index]
+            else:
+                pass
+            
+        # Next, add all of the defaults
+        for index, key in enumerate(params.keys()):
+            if not key in vertical.keys() and not key in horizontal.keys():
+                if key in defaults.keys():
+                    value = float(defaults[key])
+                else: # not specified explicitly, so use default values
+                    value = float(params[key])
+                left[index] = value
+                right[index] = value
+                upper[index] = value
+            else:
+                pass
+
+        for index in range(len(params.keys())):
+            dr[index] = (upper[index]-left[index])/self.n_points
+
+        return((left, right, dr))
 
     def __iter__(self):
         return(self)
 
     def __next__(self):
-        if self.r == None:
-            self.point_number = 0
-            self.r = self.left
+        if self.n < 0:
+            pass
         else:
-            self.point_number += 1
-            self.r = list(map(lambda x: x[0]+x[1], zip(self.r, self.dr)))
+            increment_array(self.left, self.dr)
+            increment_array(self.right, self.dr)
+
+        self.n += 1
         
-        if self.point_number >= self.n_points:
+        if self.n >= self.n_points:
             raise StopIteration
 
-        return(self.r)
+        return((self.n, self.left, self.right))
+    
         
 
 class Parsed(object):
@@ -83,8 +118,7 @@ class Installed(object):
         self.system = str()
         self.integrator = None
         self.rule = None
-        self.horizontal = None
-        self.vertical = None
+        self.points = None
 
 class Options(object):
     def __init__(self, filename=None):
@@ -99,9 +133,9 @@ class Options(object):
         except:
             return(None)
 
-    def getbool(self, section, key):
+    def getboolean(self, section, key):
         try:
-            return(self.parser.getbool(section, key))
+            return(self.parser.getboolean(section, key))
         except:
             return(False)
 
@@ -139,8 +173,8 @@ class Options(object):
             self.options.config.integrator = self.options.config.system
             
         self.options.config.t = self.get("config", "t")
-        self.options.config.restart = self.getbool("config", "restart")
-        self.options.config.extend_time = self.getbool("config", "extend_time")
+        self.options.config.restart = self.getboolean("config", "restart")
+        self.options.config.extend_time = self.getboolean("config", "extend_time")
         self.options.config.width = self.getint("config", "width")
         self.options.config.height = self.getint("config", "height")
 
@@ -192,6 +226,7 @@ class Options(object):
                 self.options.config.validator, self.run.rule.validators)
 
         self.run.restart = self.options.config.restart
+        print("Restart: {0}".format(self.run.restart))
 
         try:
             # We need to check that the time increment will actually run in the
@@ -217,12 +252,9 @@ class Options(object):
         # with them, so we should silently use the default values. However,
         # if a value is specified but not used (e.g. dphi12 when
         # dphi1 was meant), we should at least notify the user.
-        self.run.horizontal = Line(self.options.horizontal, \
-                                self.options.defaults, self.run.system.params,\
-                                self.run.width)
-        self.run.vertical = Line(self.options.vertical, \
-                                self.options.defaults, self.run.system.params,\
-                                self.run.height)
+        self.run.points = Line(self.options.horizontal, self.options.vertical,
+                            self.options.defaults, self.run.system.params,\
+                            self.run.height)
 
         # Now, everything should be ready to go. All values and functions
         # that are needed for the run are stored in self.run, and we can begin

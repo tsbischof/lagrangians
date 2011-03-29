@@ -14,16 +14,6 @@ import parse
 import systems
 from c_libraries import lagrangians
 
-def list_to_array(c_type, L):
-    result = (c_type*len(L))()
-    for i in range(len(L)):
-        result[i] = L[i]
-    return(result)
-
-def increment_array(array, dr):
-    for index, elem in enumerate(dr):
-        array[index] += elem
-
 class Grapher(object):
     def __init__(self, filename):
         # Use an ordered dictionary to ensure the parameters are
@@ -52,6 +42,22 @@ class Grapher(object):
         # Fix this eventually to do videos as well; perhaps we want to make
         # snapshots of the trajectory for some number of variables.
         self.do_image()
+
+    def get_work(self):
+        n_variables = self.run.points.n_variables
+        t_limits = (ctypes.c_double*3)(self.run.t[0], self.run.t[1],\
+                                       self.run.t[2])
+        height = (ctypes.c_int)(self.run.height)
+        width = (ctypes.c_int)(self.run.width)
+        integrator = self.run.integrator.function
+        rule = self.run.rule.function
+        
+        result = (self.raw_type*self.run.width)()
+
+        for row_number, r_left, r_right in self.run.points:
+            if not self.status[row_number]:
+                yield((row_number, r_left, r_right, n_variables, \
+                    t_limits, width, integrator, rule, result))
         
     def do_image(self):
         # Are we restarting? If not, allocate the necessary files.
@@ -62,37 +68,25 @@ class Grapher(object):
             self.allocate_restart()
             self.allocate_raw()
 
-        n_variables = len(self.run.horizontal.left)
-        r_left = list_to_array(self.raw_type, self.run.horizontal.left)
-        r_right = list_to_array(self.raw_type, self.run.horizontal.right)
-        t_limits = (ctypes.c_double*3)(self.run.t[0], self.run.t[1],\
-                                       self.run.t[2])
-        height = (ctypes.c_int)(self.run.height)
-        width = (ctypes.c_int)(self.run.width)
-        integrator = self.run.integrator.function
-        rule = self.run.rule.function
-        
-        result = list_to_array(self.raw_type, list(range(self.run.width)))
-       
-        for row_number in range(self.run.height):
-            if self.status[row_number]:
-                print("Found finished row {0}".row_number)
-            else:
-                print("{0}: Working on row {1} of {2}.".format(\
+        pool = multiprocessing.Pool()
+        for params in self.get_work():
+            self.do_row(params)
+
+    def do_row(self, params):
+        row_number, r_left, r_right, n_variables, t_limits, width, \
+            integrator, rule, result = params
+
+        print("{0}: Working on row {1} of {2}.".format(\
                         datetime.date.strftime(datetime.datetime.today(), \
-                                               "%Y.%m.%d %H:%M"),\
+                                               "%Y.%m.%d %H:%M:%S"),\
                         row_number, self.run.height-1))
 
-##                print(r_left[0],r_left[1],r_left[2],r_left[3])
-##                print(r_right[0],r_right[1],r_right[2],r_right[3])
+##        print(r_left[0], r_left[1], r_left[2], r_left[3])
+##        print(r_right[0], r_right[1], r_right[2], r_right[3])
 
-                lagrangians.do_row(r_left, r_right, n_variables, t_limits,
+        lagrangians.do_row(r_left, r_right, n_variables, t_limits,
                         width, integrator, rule, result)
-
-                self.write_row(row_number, result)
-                
-            increment_array(r_left, self.run.vertical.dr)
-            increment_array(r_right, self.run.vertical.dr)
+        self.write_row(row_number, result)
 
     def do_video(self):
         pass
@@ -139,13 +133,9 @@ class Grapher(object):
         try:
             with open(src, "rb") as f:
                 self.status = list()
-                try:
-                    for i in range(self.height):
-                        self.status.append(\
-                            bool(f.read(ctypes.sizeof(self.restart_type))))
-                except:
-                    print("Could not read all rows from %s, failed at row %d."%\
-                          (src, i))
+                for i in range(self.run.height):
+                    self.status.append(\
+                        bool(f.read(ctypes.sizeof(self.restart_type))))
         except OSError:
             print("Could not open %s for reading." % src)            
 

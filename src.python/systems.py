@@ -46,8 +46,8 @@ class Validator(object):
 # One-dimensional walkers, these are the fastest to run and are mainly used
 # to test the system.
 driven_damped_pendulum = System("driven_damped_pendulum", \
-    OrderedDict({"phi": 0, "dphi": 0, "m": 1, "b": 0, "g": 9.8, "l": 1,\
-                 "a": 1, "omega": 1, "delta": 1}),\
+    OrderedDict([("phi", 0), ("dphi", 0), ("m", 1), ("b", 0), ("g", 9.8),\
+                 ("l", 1), ("a", 1), ("omega", 1), ("delta", 1)]),\
     [Rule("first_flip", lagrangians.driven_damped_pendulum_first_flip)], \
     [Integrator("sinusoid", \
                 lagrangians.driven_damped_pendulum_sinusoid_integrate),\
@@ -83,8 +83,8 @@ harmonic_oscillator = System("harmonic_oscillator", \
 
 # A second pendulum makes things interesting
 double_pendulum = System("double_pendulum", \
-    OrderedDict({"phi1": 0, "dphi1": 0, "phi2": 0, "dphi2": 0, "m1": 1, \
-                 "m2": 1, "l1": 1, "l2": 1, "g": 9.8}), \
+    OrderedDict([("phi1", 0), ("dphi1", 0), ("phi2", 0), ("dphi2", 0),\
+                 ("m1", 1), ("m2", 1), ("l1", 1), ("l2", 1), ("g", 9.8)]), \
     [Rule("lower_flip", lagrangians.double_pendulum_lower_flip, \
       [Validator("energy", lagrangians.double_pendulum_lower_flip_energy)])],\
     [Integrator("double_pendulum", lagrangians.double_pendulum_integrate)], \
@@ -96,9 +96,9 @@ angular velocity of the two angles.""")
 
 # Throwing in a spring cranks up the insanity
 dangling_stick = System("dangling_stick", \
-    OrderedDict({"r": 1, "dr": 0, "phi1": 0, "dphi1": 0, \
-                 "phi2": 0, "dphi2": 0, "m1": 1, "m2": 1, \
-                 "r0": 1, "k": 1, "l": 1, "g": 9.8}), \
+    OrderedDict([("r", 1), ("dr", 0), ("phi1", 0), ("dphi1", 0), \
+                 ("phi2", 0), ("dphi2", 0), ("m1", 1), ("m2", 1), \
+                 ("r0", 1), ("k", 1), ("l", 1), ("g", 9.8)]), \
     [Rule("lower_flip", lagrangians.dangling_stick_lower_flip, \
       [Validator("energy", lagrangians.dangling_stick_lower_flip_energy)])],\
     [Integrator("dangling_stick", lagrangians.dangling_stick_integrate)], \
@@ -114,11 +114,11 @@ l: length of the stick
 A `d' in front of the variable indicates a time derivative.""")
 
 double_spring = System("double_spring",
-    OrderedDict({"phi1": 0, "dphi1": 0, "phi2": 0, "dphi2": 0, \
-                 "m1": 1, "m2": 1, \
-                 "k1": 1, "r1": 1, "dr1": 1, "r1_0": 1, \
-                 "k2": 1, "r2": 1, "dr2": 1, "r2_0": 1, \
-                 "g": 9.8}),\
+    OrderedDict([("phi1", 0), ("dphi1", 0), ("phi2", 0), ("dphi2", 0), \
+                 ("m1", 1), ("m2", 1), \
+                 ("k1", 1), ("r1", 1), ("dr1", 1), ("r1_0", 1), \
+                 ("k2", 1), ("r2", 1), ("dr2", 1), ("r2_0", 1), \
+                 ("g", 9.8)]),\
     [Rule("lower_flip", lagrangians.double_spring_lower_flip, \
           [Validator("energy", lagrangians.double_spring_lower_flip_energy)]), \
      Rule("upper_flip", lagrangians.double_spring_upper_flip, \
@@ -128,13 +128,13 @@ double_spring = System("double_spring",
 double pendulum.""")
 
 platform_with_springs = System("platform_with_springs", \
-    OrderedDict({"r1": 1, "dr1": 0, "r1_0": 1, "k1": 1, \
-                 "m1": 1, "phi1": 0, "dphi1": 0, \
-                 "r2": 1, "dr2": 0, "r2_0": 1, "k2": 1, \
-                 "m2": 1, "phi2": 0, "dphi2": 0, \
-                 "b": 4, "h": 1, "x0": 0, "y0": 0, \
-                 "m3": 1, "phi3": 0, "dphi3": 0, \
-                 "g": 9.8}), \
+    OrderedDict([("r1", 1),("dr1", 0), ("r1_0", 1), ("k1", 1), \
+                 ("m1", 1), ("phi1", 0), ("dphi1", 0), \
+                 ("r2", 1), ("dr2", 0), ("r2_0", 1), ("k2", 1), \
+                 ("m2", 1), ("phi2", 0), ("dphi2", 0), \
+                 ("b", 4), ("h", 1), ("x0", 0), ("y0", 0), \
+                 ("m3", 1), ("phi3", 0), ("dphi3", 0), \
+                 ("g", 9.8)]), \
     [Rule("left_flip", lagrangians.platform_with_springs_left_flip), \
      Rule("right_flip", lagrangians.platform_with_springs_right_flip), \
      Rule("platform_flip", lagrangians.platform_with_springs_platform_flip)],\
@@ -157,9 +157,9 @@ phi3: angle of the block, relative to vertical
 """)
 
 springy_pendulum = System("springy_pendulum", \
-    OrderedDict({"r": 1, "dr": 0, "phi1": 0, "dphi1": 0, \
-                 "phi2": 0, "dphi2": 0, "m1": 1, "m2": 1, \
-                 "r0": 1, "k": 1, "l": 1, "g": 9.8}),\
+    OrderedDict([("r", 1), ("dr", 0), ("phi1", 0), ("dphi1", 0), \
+                 ("phi2", 0), ("dphi2", 0), ("m1", 1), ("m2", 1), \
+                 ("r0", 1), ("k", 1), ("l", 1), ("g", 9.8)]),\
     [Rule("lower_flip", lagrangians.springy_pendulum_lower_flip, \
         [Validator("energy", lagrangians.springy_pendulum_lower_flip_energy)]),\
      Rule("upper_flip", lagrangians.springy_pendulum_upper_flip, \
@@ -177,9 +177,9 @@ l: length of the stick
 A `d' in front of the variable indicates a time derivative.""")
 
 trig = System("trig", \
-    OrderedDict({"x": 0, "v": 0, "m": 1, \
-                 "k1": 4, "k2": 4, "k3": 0.01, "k4": 0.01, \
-                 "k5": 0.01, "k6": 0.01}),\
+    OrderedDict([("x", 0), ("v", 0), ("m", 1), \
+                 ("k1", 4), ("k2", 4), ("k3", 0.01), ("k4", 0.01), \
+                 ("k5", 0.01), ("k6", 0.01)]),\
     [Rule("first_turnaround", lagrangians.trig_first_turnaround), \
      Rule("speed", lagrangians.trig_speed)], \
     [Integrator("trig", lagrangians.trig_integrate)])
