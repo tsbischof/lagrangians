@@ -3,16 +3,16 @@ system = harmonic_oscillator
 ;rule = first_turnaround
 video = x, v
 write_every = 10
-width = 101
-height = 101
-t = 0, 0.01, 1
+width = 200
+height = 200
+t = 0, 0.01, 10
 
 [defaults]
 m = 1
 k = 1
 
 [horizontal]
-x = -5, 5
+x = -3, 3
 
 [vertical]
-v = -5, 5
+v = -3, 3

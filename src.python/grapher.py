@@ -8,11 +8,25 @@ import copy
 import datetime
 import struct
 import re
+import bz2
+import shutil
 
 import colormap
 import parse
 import systems
 from c_libraries import lagrangians
+
+def compress(filename):
+    with open(filename, "rb") as in_file:
+        with bz2.BZ2File(filename + ".bz2", "wb") as out_file:
+            out_file.writelines(in_file)
+    os.remove(filename)
+
+def decompress(filename):
+    with bz2.BZ2File(filename, "rb") as in_file:
+        with open(filename[:-4], "wb") as out_file:
+            out_file.writelines(in_file)
+    os.remove(filename)
 
 class Grapher(object):
     def __init__(self, filename):
@@ -71,6 +85,8 @@ class Grapher(object):
 
         self.to_ppm()
         self.to_png()
+        compress(self.filename("raw"))
+        os.remove(self.filename("ppm"))
 
     def do_row(self, params):    
         row_number, r_left, r_right, n_variables, t_limits, width, height,\
@@ -145,7 +161,7 @@ class Grapher(object):
                     else:
                         self.status.append(False)
         except OSError:
-            print("Could not open %s for reading." % src)            
+            print("Could not open %s for reading." % src)          
 
     def to_ppm(self, my_colormap=[[0, 0, 0], [255, 0, 0], \
                                   [255, 255, 0],  [255, 255, 255]]):
@@ -236,8 +252,13 @@ for each pixel."""
             step += 1
             t += dt 
             if step % self.run.write_every == 0:
-                print("Time: {0}".format(t))
+                print("{0}: {1}/{2}".format(\
+                    datetime.date.strftime(datetime.datetime.today(), \
+                                           "%Y.%m.%d %H:%M:%S"),
+                    t, t_limit))
                 self.write_variable_images(image, t)
+
+        self.make_movie()
         
     def write_variable_images(self, image, t):
         for variable, variable_index in self.run.video:
@@ -257,33 +278,76 @@ for each pixel."""
         self.raw_to_png(raw_filename)
 
     def convert_images(self):
-        raw_files = filter(lambda x: x.endswith(".raw"), \
+        raw_files = filter(lambda x: x.endswith(".raw.bz2"), \
                            os.listdir(self.folder))
 
         variables = dict()
-        for filename in raw_files:
+        for raw_filename in raw_files:
+            variable, value = raw_filename.split("-")
+            if not variable in variables.keys():
+                variables[variable] = list()
+            variables[variable].append(os.path.join(self.folder, raw_filename))
+            
+        for variable in variables.keys():
+            for raw_filename in sorted(variables[variable]):
+                print(raw_filename)
+                self.raw_to_png(raw_filename)
+
+    def raw_to_png(self, raw_filename):
+        if raw_filename.endswith(".bz2"):
+            decompress(raw_filename)
+            raw_filename = re.sub("\.bz2$", "", raw_filename)
+        ppm_filename = re.sub("raw$", "ppm", raw_filename)
+        png_filename = re.sub("raw$", "png", raw_filename)
+       
+        self.raw_to_ppm(raw_filename, ppm_filename)
+        self.ppm_to_png(ppm_filename, png_filename)
+        compress(raw_filename)
+        os.remove(ppm_filename)
+        
+    def raw_to_ppm(self, raw_filename, ppm_filename):
+        colormap.do_phase_to_image(raw_filename, ppm_filename, \
+               self.run.height, self.run.width, \
+               [[0, 0, 0], [255, 0, 0], [255, 255, 0], [255, 255, 255], \
+                [0, 255, 255], [0, 0, 255], [0, 0, 0]])
+
+    def ppm_to_png(self, ppm_filename, png_filename):
+        subprocess.Popen(["convert", ppm_filename, png_filename]).wait()
+
+    def make_movie(self):
+        png_files = filter(lambda x: x.endswith(".png"), \
+                           os.listdir(self.folder))
+        sort_by_float = lambda x: float(re.search(".-([0-9.]+)\.png", \
+                                                  x).groups()[0])
+
+        variables = dict()
+        for filename in png_files:
             variable, value = filename.split("-")
             if not variable in variables.keys():
                 variables[variable] = list()
             variables[variable].append(filename)
+
+        for variable in sorted(variables.keys()):
+            scratch_folder = "{0}_scratch".format(variable)
+            if not os.path.isdir(os.path.join(self.folder, scratch_folder)):
+                os.mkdir(os.path.join(self.folder, scratch_folder))
+            out_format = "%010d.png"
+            video_file = "{0}_{1}.avi".format(self.folder, variable)
             
-        for variable in variables.keys():
-            for filename in sorted(variables[variable]):
-                self.raw_to_png(filename)
-
-    def raw_to_png(self, raw_filename):
-        self.raw_to_ppm(raw_filename)
-        self.ppm_to_png(re.sub("raw$", "ppm", raw_filename))
-                
-    def raw_to_ppm(self, raw_filename):
-        colormap.do_phase_to_image(raw_filename, \
-                                   self.run.height, self.run.width)
-
-    def ppm_to_png(self, ppm_filename):
-        subprocess.Popen(["convert", ppm_filename, \
-                          re.sub("ppm$", "png", ppm_filename)]).wait()
-        
+            for number, filename in enumerate(sorted(variables[variable], \
+                                                     key=sort_by_float)):
+                shutil.copy(os.path.join(self.folder, filename), \
+                            os.path.join(self.folder, \
+                                         scratch_folder, \
+                                         out_format % number))
+            subprocess.Popen(["ffmpeg", "-y", "-i", \
+                              os.path.join(self.folder, \
+                                           scratch_folder,\
+                                           "%010d.png"), \
+                              video_file]).wait()
+            shutil.rmtree(os.path.join(self.folder, scratch_folder))
+       
 if __name__ == "__main__":
     grapher = VideoGrapher("test.inp")
-    grapher.do_run()
-
+    grapher.convert_images()
+    grapher.make_movie()
