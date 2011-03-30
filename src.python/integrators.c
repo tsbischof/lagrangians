@@ -111,8 +111,6 @@ void do_row(double *r_left, double *r_right, int n_variables, double *t_limits,
 	vector_sub(dr, r_left, n_variables);
 	vector_div_int(dr, width, n_variables);	
 
-// this is imperfect; we may have to call this function many times, and each
-// time it has to reallocate the memory. 
 #pragma omp parallel private(r_scratch, r0)
 	{
 		r_scratch = (double *)calloc(n_variables, sizeof(double));
@@ -159,6 +157,7 @@ void advance_image(double ***r, int height, int width, double dt,
 		void (*integrate)(double *, double) ) {
 	int i, j;
 
+#pragma omp parallel for private(i, j) 
 	for (i = 0; i < height; i++) {
 		for (j = 0; j < width; j++) {
 			integrate(&r[i][j][0], dt);

@@ -238,55 +238,50 @@ for each pixel."""
             if step % self.run.write_every == 0:
                 print("Time: {0}".format(t))
                 self.write_variable_images(image, t)
-
-        self.convert_images()
         
     def write_variable_images(self, image, t):
         for variable, variable_index in self.run.video:
             self.write_file(variable, variable_index, image, t)
 
     def write_file(self, variable, variable_index, image, t):
-        """Write the raw data to file for the specified variable index."""         
-        with open(os.path.join(self.folder, \
-                               "{0}-{1}.raw".format(variable, t)), "wb") \
+        """Write the raw data to file for the specified variable index."""
+        raw_filename = os.path.join(self.folder, \
+                                    "{0}-{1}.raw".format(variable, t))
+        with open(raw_filename, "wb") \
              as raw_file:
             for i in range(self.run.height):
                 for j in range(self.run.width):
                     raw_file.write(\
                         struct.pack("d", image[i][j][variable_index]))
 
-    def convert_images(self):
-        self.raw_to_ppm()
-        self.ppm_to_png()
+        self.raw_to_png(raw_filename)
 
-    def raw_to_ppm(self):
-##        ppm_files = []
-##        ppm_files = list(filter(lambda x: x.endswith(".ppm"), \
-##                                os.listdir(self.folder)))
-##        raw_files = filter(lambda x: x.endswith(".raw") and \
-##                                    not re.sub("raw$", "ppm", x) in ppm_files, \
-##                           os.listdir(self.folder))
+    def convert_images(self):
         raw_files = filter(lambda x: x.endswith(".raw"), \
                            os.listdir(self.folder))
+
         variables = dict()
         for filename in raw_files:
             variable, value = filename.split("-")
             if not variable in variables.keys():
                 variables[variable] = list()
             variables[variable].append(filename)
-
+            
         for variable in variables.keys():
-            for raw_filename in sorted(variables[variable]):
-                colormap.do_phase_to_image(\
-                    os.path.join(self.folder, raw_filename), \
-                    self.run.height, self.run.width)
+            for filename in sorted(variables[variable]):
+                self.raw_to_png(filename)
 
-    def ppm_to_png(self):
-        ppm_files = filter(lambda x: x.endswith(".ppm"), \
-                          os.listdir(self.folder))
-        for ppm_file in ppm_files:
-            subprocess.Popen(["convert", os.path.join(self.folder, ppm_file), \
-             os.path.join(self.folder, re.sub("ppm$", "png", ppm_file))]).wait()
+    def raw_to_png(self, raw_filename):
+        self.raw_to_ppm(raw_filename)
+        self.ppm_to_png(re.sub("raw$", "ppm", raw_filename))
+                
+    def raw_to_ppm(self, raw_filename):
+        colormap.do_phase_to_image(raw_filename, \
+                                   self.run.height, self.run.width)
+
+    def ppm_to_png(self, ppm_filename):
+        subprocess.Popen(["convert", ppm_filename, \
+                          re.sub("ppm$", "png", ppm_filename)]).wait()
         
 if __name__ == "__main__":
     grapher = VideoGrapher("test.inp")
