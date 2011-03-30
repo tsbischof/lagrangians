@@ -31,7 +31,7 @@ def do_phase_to_image(raw_filename, ppm_filename, height, width, colormap):
     colormapper.raw_to_ppm( \
             ctypes.create_string_buffer(raw_filename), \
             ctypes.create_string_buffer(ppm_filename), \
-            ctypes.c_double(0.01), \
+            ctypes.c_double(0.001), \
             ctypes.c_double(2*math.pi),\
             ctypes.c_int(height), ctypes.c_int(width), 
             n_points, my_colormap)

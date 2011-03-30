@@ -18,6 +18,11 @@ def increment_array(array, dr):
     for index, elem in enumerate(dr):
         array[index] += elem
 
+def is_video(filename):
+    parser = configparser.SafeConfigParser()
+    parser.read(filename)
+    return(parser.has_option("config", "video"))
+
 class Points(object):
     def __init__(self, horizontal=None, vertical=None, defaults=None, \
                  params=None, size=100):

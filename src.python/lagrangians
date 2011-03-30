@@ -4,22 +4,25 @@ import os
 import sys
 
 import grapher
+import parse
 
 def do_image(filenames):
     for filename in filenames:
         my_grapher = grapher.Grapher(filename)
-        my_grapher.do_run()
+    my_grapher.do_run()
 
-def do_video(filenames):
-    for filename in filenames:
-        my_grapher = grapher.VideoGrapher(filename)
-        my_grapher.do_run()
+def do_video(filename):
+    my_grapher = grapher.VideoGrapher(filename)
+    my_grapher.do_run()
 
 if __name__ == "__main__":
     if len(sys.argv) == 1:
-        print("Usage: lagrangians [--video] <input_files>")
+        print("Usage: lagrangians <input_files>")
     else:
-        if sys.argv[1] == "--video":
-            do_video(sys.argv[2:])
-        else:
-            do_image(sys.argv[1:])
+        for filename in sys.argv[1:]:
+            if parse.is_video(filename):
+                my_grapher = grapher.VideoGrapher(filename)
+            else:
+                my_grapher = grapher.Grapher(filename)
+
+            my_grapher.do_run()
