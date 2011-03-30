@@ -18,7 +18,7 @@ def increment_array(array, dr):
     for index, elem in enumerate(dr):
         array[index] += elem
 
-class Line(object):
+class Points(object):
     def __init__(self, horizontal=None, vertical=None, defaults=None, \
                  params=None, size=100):
         self.n_points = size
@@ -73,7 +73,7 @@ input file gets taken from params, which are set externally."""
                 pass
 
         for index in range(len(params.keys())):
-            dr[index] = (upper[index]-left[index])/self.n_points
+            dr[index] = (upper[index]-left[index])/(self.n_points-1)
 
         return((left, right, dr))
 
@@ -93,8 +93,33 @@ input file gets taken from params, which are set externally."""
             raise StopIteration
 
         return((self.n, self.left, self.right))
-    
+
+class Line(object):
+    def __init__(self, left=None, right=None, n_variables=0, n_points=100):
+        self.left = left
+        self.r = left
+        self.right = right
+        self.dr = (ctypes.c_double*n_variables)()
+        for i in range(n_variables):
+            self.dr[i] = (right[i]-left[i])/(n_points-1)
+        self.n_points = n_points
+        self.n = -1
+
+    def __iter__(self):
+        return(self)
+
+    def __next__(self):
+        if self.n < 0:
+            pass
+        else:
+            increment_array(self.r, self.dr)
+
+        self.n += 1
         
+        if self.n >= self.n_points:
+            raise StopIteration
+
+        return((self.n, self.r))
 
 class Parsed(object):
     def __init__(self):
@@ -109,6 +134,8 @@ class Config(object):
         self.integrator = str()
         self.validator = str()
         self.rule = str()
+        self.video = str()
+        self.write_every = str()
         self.restart = bool()
         self.extend_time = bool()
         self.t = str()
@@ -119,6 +146,8 @@ class Installed(object):
         self.integrator = None
         self.rule = None
         self.points = None
+        self.video = list()
+        self.write_every = None
 
 class Options(object):
     def __init__(self, filename=None):
@@ -171,6 +200,10 @@ class Options(object):
         self.options.config.integrator = self.get("config", "integrator")
         if self.options.config.integrator == None:
             self.options.config.integrator = self.options.config.system
+
+        # For videos, we need to know how often we will be printing (integer)
+        self.options.config.video = self.get("config", "video")
+        self.options.config.write_every = self.get("config", "write_every")
             
         self.options.config.t = self.get("config", "t")
         self.options.config.restart = self.getboolean("config", "restart")
@@ -221,12 +254,29 @@ class Options(object):
         self.run.integrator = self.validate_config("integrator", \
                 self.options.config.system, self.run.system.integrators)
 
-        self.run.rule = self.validate_config("rule", \
-                self.options.config.rule, self.run.system.rules)
+        if self.options.config.video == None:
+            self.run.rule = self.validate_config("rule", \
+                    self.options.config.rule, self.run.system.rules)
+            self.run.validator = self.validate_config("validator", \
+                    self.options.config.validator, self.run.rule.validators)
+        else:
+            video = list(map(lambda x: x.strip(), \
+                             self.options.config.video.split(",")))
+            if video == []:
+                print("Must specify at least one variable to display.")
 
-        self.run.validator = self.validate_config("validator", \
-                self.options.config.validator, self.run.rule.validators)
+            keys = list(self.run.system.params.keys())
+            for variable in video:
+                if not variable in self.run.system.params.keys():
+                    print("Invalid video variable {0} found.".format(variable))
+                else:
+                    self.run.video.append((variable, keys.index(variable)))
 
+            self.run.write_every = int(self.options.config.write_every)
+            if self.run.write_every <= 0:
+                print("write_every must be a positive integer.")
+
+        self.run.n_variables = len(self.run.system.params.keys())
         self.run.restart = self.options.config.restart
 ##        print("Restart: {0}".format(self.run.restart))
 
@@ -255,9 +305,11 @@ class Options(object):
         # with them, so we should silently use the default values. However,
         # if a value is specified but not used (e.g. dphi12 when
         # dphi1 was meant), we should at least notify the user.
-        self.run.points = Line(self.options.horizontal, self.options.vertical,
-                            self.options.defaults, self.run.system.params,\
-                            self.run.height)
+        self.run.points = Points(self.options.horizontal, \
+                                 self.options.vertical, \
+                                 self.options.defaults, \
+                                 self.run.system.params, \
+                                 self.run.height)
 
         # Now, everything should be ready to go. All values and functions
         # that are needed for the run are stored in self.run, and we can begin

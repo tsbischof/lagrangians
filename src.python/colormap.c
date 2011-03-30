@@ -1,6 +1,6 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "colormap.h"
 
 #define RGB_DEPTH 255
 
@@ -108,4 +108,71 @@ int raw_to_ppm_filenames(char *raw_filename, char *ppm_filename,
 	return(status);
 }
 
+void phase_to_rgb(double val, int *rgb) {
+    int section;
+    int pair[2];
+    int mag;
+    rgb[0] = 0;
+    rgb[1] = 0;
+    rgb[2] = 0;
+
+	double my_val = fmod(val, 2*M_PI);
+	if ( my_val < 0 ) {
+		my_val += 2*M_PI;
+	}
+
+    if ( my_val < 2*M_PI/3 ) {
+        section = 0;
+        pair[0] = 0;
+        pair[1] = 1;
+    } else if ( my_val < 4*M_PI/3 ) {
+        section = 1;
+        pair[0] = 1;
+        pair[1] = 2;
+    } else {
+        section = 2;
+        pair[0] = 2;
+        pair[1] = 0;
+    }
+
+    mag = (int)floor(RGB_DEPTH*(3*my_val/(2*M_PI) - section));
+    rgb[pair[0]] = mag;
+    rgb[pair[1]] = RGB_DEPTH-mag;
+}
+
+int phase_to_ppm(char *raw_filename, char *ppm_filename, 
+		int height, int width) {
+	int i, j;
+	FILE *raw_file;
+	FILE *ppm_file;
+	int rgb[3];
+	double val;
+
+	raw_file = fopen(raw_filename, "rb");
+	ppm_file = fopen(ppm_filename, "w");
+	if ( raw_file == NULL ) {
+		fprintf(stderr, "Could not open %s for reading.\n", raw_filename);
+		return(-1);
+	} else if ( ppm_file == NULL ) {
+		fprintf(stderr, "Could not open %s for writing.\n", ppm_filename);
+		return(-1);
+	} else {
+		fprintf(ppm_file, "P3\n%d %d\n%d\n", width, height, RGB_DEPTH);
+		for (i = 0; i < height; i++) {
+			for (j = 0; j < width; j++) {
+				if ( ! fread(&val, sizeof(double), 1, raw_file) ) {
+					fprintf(stderr, "Failed while reading raw file.\n");
+					return(-1);
+				}
+				phase_to_rgb(val, &rgb[0]);
+				fprintf(ppm_file, "%d %d %d  ", rgb[0], rgb[1], rgb[2]);
+			 }
+			fprintf(ppm_file, "\n");
+		}
+	}
+
+	fclose(ppm_file);
+	fclose(raw_file);
+	return(0);
+}
 

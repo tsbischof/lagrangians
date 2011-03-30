@@ -8,5 +8,8 @@ int raw_to_ppm(FILE *raw_file, FILE *ppm_file, double resolution,
 		int height, int width, int n_points, int **colormap);
 int raw_to_ppm_filenames(char *raw_filename, char *ppm_filename, 
 		double resolution, int height, int width, int n_points, int **colormap);
+void phase_to_rgb(double val, int *rgb);
+int phase_to_ppm(char *raw_filename, char *ppm_filename, 
+		int height, int width);
 
 #endif

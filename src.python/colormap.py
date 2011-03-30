@@ -2,6 +2,7 @@ import subprocess
 import sys
 import ctypes
 import os
+import re
 
 from c_libraries import colormapper
 
@@ -17,14 +18,21 @@ def do_colormap(raw_filename, ppm_filename, height, width, \
         for j in range(3):
             my_colormap[i][j] = colormap[i][j]
 
-    colormapper.raw_to_ppm_filenames(ctypes.create_string_buffer(raw_filename),\
-            ctypes.create_string_buffer(ppm_filename),  \
+    colormapper.raw_to_ppm_filenames( \
+#            ctypes.create_string_buffer(raw_filename.decode()),\
+#            ctypes.create_string_buffer(ppm_filename.decode()),  \
+            ctypes.create_string_buffer(raw_filename), \
+            ctypes.create_string_buffer(ppm_filename), \
             ctypes.c_double(time_resolution), ctypes.c_int(height), \
             ctypes.c_int(width), ctypes.c_int(n_points), my_colormap)
 
+def do_phase_to_image(raw_filename, height, width):
+    colormapper.phase_to_ppm( \
+            ctypes.create_string_buffer(raw_filename), \
+            ctypes.create_string_buffer(re.sub("raw$", "ppm", raw_filename)), \
+            ctypes.c_int(height), ctypes.c_int(width))
+
 if __name__ == "__main__":
     import grapher
-    for filename in ["test.inp"]:
-        my_grapher = grapher.Grapher(filename)
-        my_grapher.to_ppm()
-        my_grapher.to_png()
+    my_grapher = grapher.Grapher("test.inp")
+    do_phase_to_image("test_video/x-0.0.raw", 100, 100)

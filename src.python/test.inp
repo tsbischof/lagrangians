@@ -1,13 +1,15 @@
 [config]
 system = harmonic_oscillator
-rule = first_turnaround
-width = 1000
-height = 1000
-restart = False
-t = 0, 0.01, 100
+;rule = first_turnaround
+video = x, v
+write_every = 10
+width = 101
+height = 101
+t = 0, 0.01, 1
 
 [defaults]
 m = 1
+k = 1
 
 [horizontal]
 x = -5, 5

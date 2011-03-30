@@ -155,7 +155,7 @@ double do_single_run_with_rule(int index, double *r_left, double *r,
 	return(result); 
 }
 
-void advance_image(double ***r, int width, int height, double dt,
+void advance_image(double ***r, int height, int width, double dt,
 		void (*integrate)(double *, double) ) {
 	int i, j;
 

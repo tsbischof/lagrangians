@@ -5,15 +5,21 @@ import sys
 
 import grapher
 
-def main(filenames):
+def do_image(filenames):
     for filename in filenames:
         my_grapher = grapher.Grapher(filename)
-        my_grapher.do_image()
-        my_grapher.to_ppm()
-        my_grapher.to_png()
+        my_grapher.do_run()
+
+def do_video(filenames):
+    for filename in filenames:
+        my_grapher = grapher.VideoGrapher(filename)
+        my_grapher.do_run()
 
 if __name__ == "__main__":
     if len(sys.argv) == 1:
-        print("Usage: lagrangians <input_files>")
+        print("Usage: lagrangians [--video] <input_files>")
     else:
-        main(sys.argv[1:])
+        if sys.argv[1] == "--video":
+            do_video(sys.argv[2:])
+        else:
+            do_image(sys.argv[1:])

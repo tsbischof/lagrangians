@@ -21,7 +21,7 @@ double do_single_run_with_rule(int index, double *r_left, double *r,
 	int n_variables, double *t_limits, void (*integrate)(double *, double),
 	double (*rule)(double *, double *, double, double *, int) );
 
-void advance_image(double ***r, int width, int height, double dt,
+void advance_image(double ***r, int height, int width, double dt,
 	void (*integrate)(double *, double) );
 
 #endif 

@@ -7,13 +7,13 @@ import math
 import copy
 import datetime
 import struct
+import re
 
 import colormap
 import parse
 import systems
 from c_libraries import lagrangians
 
-# The actual worker. All hail the great serpent in the silicon.
 class Grapher(object):
     def __init__(self, filename):
         # Use an ordered dictionary to ensure the parameters are
@@ -57,17 +57,20 @@ class Grapher(object):
                 yield((row_number, r_left, r_right, n_variables, \
                     t_limits, width, height, integrator, rule, result))
         
-    def do_image(self):
+    def do_run(self):
         # Are we restarting? If not, allocate the necessary files.
         if self.run.restart:
             self.status_from_restart()
         else:
             self.status = [False for i in range(self.run.height)]
-            self.allocate_restart()
-            self.allocate_raw()
+            if not self.allocate_restart() or not self.allocate_raw():
+                return(False)
 
         for params in self.get_work():
             self.do_row(params)
+
+        self.to_ppm()
+        self.to_png()
 
     def do_row(self, params):    
         row_number, r_left, r_right, n_variables, t_limits, width, height,\
@@ -95,6 +98,7 @@ class Grapher(object):
             with open(self.filename("restart"), "wb") as f:
                 for i in range(self.run.height):
                     f.write(self.restart_type(0))
+            return(True)
 
     def allocate_raw(self):
         dst = self.filename("raw")
@@ -107,6 +111,7 @@ class Grapher(object):
                 for row in range(self.run.height):
                     for column in range(self.run.width):
                         f.write(self.raw_type(0))
+            return(True)
 
     def write_row(self, row_number, row):
         with open(self.filename("raw"), "r+b") as raw_file:
@@ -133,7 +138,8 @@ class Grapher(object):
             with open(src, "rb") as f:
                 self.status = list()
                 for i in range(self.run.height):
-                    val = f.read(ctypes.sizeof(self.restart_type))
+                    val = struct.unpack("<L", \
+                            f.read(ctypes.sizeof(self.restart_type)))[0]
                     if val != 0:
                         self.status.append(True)
                     else:
@@ -160,10 +166,129 @@ aesthetically pleasing."""
             self.to_ppm()
 ##        print("Converting {0} to {1}.".format(src, dst))
         subprocess.Popen(["convert", src, dst]).wait()
+
+class VideoGrapher(object):
+    def __init__(self, filename):
+        # Use an ordered dictionary to ensure the parameters are
+        # passed to the C routines correctly.
+        self.filename_base = filename
+        if self.filename_base.endswith(".inp"):
+            self.filename_base = self.filename_base[:-4]
+
+        self.load(filename)
+
+        self.folder = "{0}_video".format(self.filename_base)
+        if not os.path.isdir(self.folder):
+            os.mkdir(self.folder)
+      
+        self.raw_type = ctypes.c_double
+        self.restart_type = ctypes.c_int
+
+    def filename(self, suffix=False):
+        if not suffix:
+            return(self.filename_base)
+        else:
+            return("{0}.{1}".format(self.filename_base, suffix))
+
+    def load(self, filename):
+        """Load options to the grapher from an options object."""
+        self.options = parse.Options(filename)
+        self.options.load()
+        self.run = self.options.run
+
+    def get_points(self):
+        """Allocate and fill the C array representing the initial conditions
+for each pixel."""
+        points = (ctypes.POINTER(\
+                        ctypes.POINTER(self.raw_type))
+                  *self.run.height)()
+
+        for row_number, left, right in self.run.points:
+            points[row_number] = \
+                    (ctypes.POINTER(self.raw_type)*self.run.width)()
+            for column_number, r in parse.Line(copy.deepcopy(left), \
+                                               copy.deepcopy(right), \
+                                               self.run.n_variables, \
+                                               self.run.width):
+                points[row_number][column_number] = \
+                     (self.raw_type*self.run.n_variables)()
+                for k in range(self.run.n_variables):
+                    points[row_number][column_number][k] = r[k]
+
+        return(points)
+
+    def do_run(self):          
+        t = self.run.t[0]
+        dt = self.run.t[1]
+        t_limit = self.run.t[2]
+
+        height = ctypes.c_int(self.run.height)
+        width = ctypes.c_int(self.run.width)
+        dt_c = ctypes.c_double(dt)
+        integrator = self.run.integrator.function
+
+        image = self.get_points()
+        step = 0
+        self.write_variable_images(image, t)
+
+        while t < t_limit:
+            lagrangians.advance_image(image, height, width, dt_c, integrator)
+            step += 1
+            t += dt 
+            if step % self.run.write_every == 0:
+                print("Time: {0}".format(t))
+                self.write_variable_images(image, t)
+
+        self.convert_images()
+        
+    def write_variable_images(self, image, t):
+        for variable, variable_index in self.run.video:
+            self.write_file(variable, variable_index, image, t)
+
+    def write_file(self, variable, variable_index, image, t):
+        """Write the raw data to file for the specified variable index."""         
+        with open(os.path.join(self.folder, \
+                               "{0}-{1}.raw".format(variable, t)), "wb") \
+             as raw_file:
+            for i in range(self.run.height):
+                for j in range(self.run.width):
+                    raw_file.write(\
+                        struct.pack("d", image[i][j][variable_index]))
+
+    def convert_images(self):
+        self.raw_to_ppm()
+        self.ppm_to_png()
+
+    def raw_to_ppm(self):
+##        ppm_files = []
+##        ppm_files = list(filter(lambda x: x.endswith(".ppm"), \
+##                                os.listdir(self.folder)))
+##        raw_files = filter(lambda x: x.endswith(".raw") and \
+##                                    not re.sub("raw$", "ppm", x) in ppm_files, \
+##                           os.listdir(self.folder))
+        raw_files = filter(lambda x: x.endswith(".raw"), \
+                           os.listdir(self.folder))
+        variables = dict()
+        for filename in raw_files:
+            variable, value = filename.split("-")
+            if not variable in variables.keys():
+                variables[variable] = list()
+            variables[variable].append(filename)
+
+        for variable in variables.keys():
+            for raw_filename in sorted(variables[variable]):
+                colormap.do_phase_to_image(\
+                    os.path.join(self.folder, raw_filename), \
+                    self.run.height, self.run.width)
+
+    def ppm_to_png(self):
+        ppm_files = filter(lambda x: x.endswith(".ppm"), \
+                          os.listdir(self.folder))
+        for ppm_file in ppm_files:
+            subprocess.Popen(["convert", os.path.join(self.folder, ppm_file), \
+             os.path.join(self.folder, re.sub("ppm$", "png", ppm_file))]).wait()
         
 if __name__ == "__main__":
-    grapher = Grapher("test.inp")
-    grapher.do_image()
-    grapher.to_ppm()
-    grapher.to_png()
+    grapher = VideoGrapher("test.inp")
+    grapher.do_run()
 
