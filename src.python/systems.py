@@ -98,7 +98,7 @@ angular velocity of the two angles.""")
 dangling_stick = System("dangling_stick", \
     OrderedDict([("r", 1), ("dr", 0), ("phi1", 0), ("dphi1", 0), \
                  ("phi2", 0), ("dphi2", 0), ("m1", 1), ("m2", 1), \
-                 ("r0", 1), ("k", 1), ("l", 1), ("g", 9.8)]), \
+                 ("r_0", 1), ("k", 1), ("l", 1), ("g", 9.8)]), \
     [Rule("lower_flip", lagrangians.dangling_stick_lower_flip, \
       [Validator("energy", lagrangians.dangling_stick_lower_flip_energy)])],\
     [Integrator("dangling_stick", lagrangians.dangling_stick_integrate)], \
@@ -159,7 +159,7 @@ phi3: angle of the block, relative to vertical
 springy_pendulum = System("springy_pendulum", \
     OrderedDict([("r", 1), ("dr", 0), ("phi1", 0), ("dphi1", 0), \
                  ("phi2", 0), ("dphi2", 0), ("m1", 1), ("m2", 1), \
-                 ("r0", 1), ("k", 1), ("l", 1), ("g", 9.8)]),\
+                 ("r_0", 1), ("k", 1), ("l", 1), ("g", 9.8)]),\
     [Rule("lower_flip", lagrangians.springy_pendulum_lower_flip, \
         [Validator("energy", lagrangians.springy_pendulum_lower_flip_energy)]),\
      Rule("upper_flip", lagrangians.springy_pendulum_upper_flip, \
