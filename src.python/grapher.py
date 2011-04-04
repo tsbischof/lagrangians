@@ -278,7 +278,8 @@ for each pixel."""
         self.raw_to_png(raw_filename)
 
     def convert_images(self):
-        raw_files = filter(lambda x: x.endswith(".raw.bz2"), \
+        raw_files = filter(lambda x: x.endswith(".raw.bz2") \
+                                     or x.endswith(".raw"), \
                            os.listdir(self.folder))
 
         variables = dict()
@@ -288,7 +289,7 @@ for each pixel."""
                 variables[variable] = list()
             variables[variable].append(os.path.join(self.folder, raw_filename))
             
-        for variable in variables.keys():
+        for variable in sorted(variables.keys()):
             for raw_filename in sorted(variables[variable]):
                 print(raw_filename)
                 self.raw_to_png(raw_filename)
@@ -302,7 +303,7 @@ for each pixel."""
        
         self.raw_to_ppm(raw_filename, ppm_filename)
         self.ppm_to_png(ppm_filename, png_filename)
-        compress(raw_filename)
+#        compress(raw_filename)
         os.remove(ppm_filename)
         
     def raw_to_ppm(self, raw_filename, ppm_filename):
@@ -312,6 +313,7 @@ for each pixel."""
                 [0, 255, 255], [0, 0, 255], [0, 0, 0]])
 
     def ppm_to_png(self, ppm_filename, png_filename):
+        # Need to find a way to keep the first image from being just black, ImageMagick convert it to 1-bit, which screws up ffmpeg
         subprocess.Popen(["convert", ppm_filename, png_filename]).wait()
 
     def make_movie(self):
@@ -344,6 +346,7 @@ for each pixel."""
                               os.path.join(self.folder, \
                                            scratch_folder,\
                                            "%010d.png"), \
+                              "-sameq", \
                               video_file]).wait()
             shutil.rmtree(os.path.join(self.folder, scratch_folder))
        

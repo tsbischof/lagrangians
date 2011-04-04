@@ -76,6 +76,9 @@ int do_colormap(FILE *raw_file, FILE *ppm_file, double resolution,
 				fprintf(stderr, "Failed while reading raw file.\n");
 				return(-1);
 			}
+			if ( ! isfinite(raw_val) ) {
+				raw_val = 0;
+			}
 /* If working with a modulus (phase, etc.), we want to be able to apply it 
  * safely and get out a number in [0, modulus). Otherwise, leave things be.
  */

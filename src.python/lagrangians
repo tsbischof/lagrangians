@@ -22,6 +22,7 @@ if __name__ == "__main__":
         for filename in sys.argv[1:]:
             if parse.is_video(filename):
                 my_grapher = grapher.VideoGrapher(filename)
+#                my_grapher.make_movie()
             else:
                 my_grapher = grapher.Grapher(filename)
 
