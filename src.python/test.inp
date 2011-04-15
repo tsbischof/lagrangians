@@ -3,8 +3,8 @@ system = harmonic_oscillator
 rule = first_turnaround
 ;video = x, v
 ;write_every = 10
-width = 200
-height = 200
+width = 10000
+height = 10000
 t = 0, 0.01, 10
 
 [defaults]

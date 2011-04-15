@@ -257,7 +257,7 @@ class Options(object):
                 self.options.config.system, systems.installed)
 
         self.run.integrator = self.validate_config("integrator", \
-                self.options.config.system, self.run.system.integrators)
+                self.options.config.integrator, self.run.system.integrators)
 
         if self.options.config.video == None:
             self.run.rule = self.validate_config("rule", \

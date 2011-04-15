@@ -1,9 +1,6 @@
 import subprocess
 import os
 import ctypes
-import configparser
-from collections import OrderedDict
-import math
 import copy
 import datetime
 import struct
@@ -18,20 +15,18 @@ from c_libraries import lagrangians
 
 def compress(filename):
     with open(filename, "rb") as in_file:
-        with bz2.BZ2File(filename + ".bz2", "wb") as out_file:
+        with BZ2File(filename + ".bz2", "wb") as out_file:
             out_file.writelines(in_file)
     os.remove(filename)
 
 def decompress(filename):
-    with bz2.BZ2File(filename, "rb") as in_file:
+    with BZ2File(filename, "rb") as in_file:
         with open(filename[:-4], "wb") as out_file:
             out_file.writelines(in_file)
     os.remove(filename)
 
 class Grapher(object):
     def __init__(self, filename):
-        # Use an ordered dictionary to ensure the parameters are
-        # passed to the C routines correctly.
         self.filename_base = filename
         if self.filename_base.endswith(".inp"):
             self.filename_base = self.filename_base[:-4]
@@ -215,6 +210,7 @@ class VideoGrapher(object):
     def get_points(self):
         """Allocate and fill the C array representing the initial conditions
 for each pixel."""
+
         points = (ctypes.POINTER(\
                         ctypes.POINTER(self.raw_type))
                   *self.run.height)()
@@ -222,6 +218,7 @@ for each pixel."""
         for row_number, left, right in self.run.points:
             points[row_number] = \
                     (ctypes.POINTER(self.raw_type)*self.run.width)()
+##            input()
             for column_number, r in parse.Line(copy.deepcopy(left), \
                                                copy.deepcopy(right), \
                                                self.run.n_variables, \
@@ -349,8 +346,3 @@ for each pixel."""
                               "-sameq", \
                               video_file]).wait()
             shutil.rmtree(os.path.join(self.folder, scratch_folder))
-       
-if __name__ == "__main__":
-    grapher = VideoGrapher("test.inp")
-    grapher.convert_images()
-    grapher.make_movie()
