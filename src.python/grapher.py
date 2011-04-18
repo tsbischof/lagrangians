@@ -15,12 +15,12 @@ from c_libraries import lagrangians
 
 def compress(filename):
     with open(filename, "rb") as in_file:
-        with BZ2File(filename + ".bz2", "wb") as out_file:
+        with bz2.BZ2File(filename + ".bz2", "wb") as out_file:
             out_file.writelines(in_file)
     os.remove(filename)
 
 def decompress(filename):
-    with BZ2File(filename, "rb") as in_file:
+    with bz2.BZ2File(filename, "rb") as in_file:
         with open(filename[:-4], "wb") as out_file:
             out_file.writelines(in_file)
     os.remove(filename)
@@ -94,9 +94,6 @@ class Grapher(object):
         lagrangians.do_row(r_left, r_right, n_variables, t_limits,
                         width, integrator, rule, result)
         self.write_row(row_number, result)
-        
-    def do_video(self):
-        pass
 
 # Routines to allocate and write to the necessary files.
     def allocate_restart(self):
@@ -166,7 +163,6 @@ aesthetically pleasing."""
         src = self.filename("raw")
         dst = self.filename("ppm")
         time_resolution = self.options.t[1]
-##        print("Converting {0} to {1}.".format(src, dst))
         colormap.do_colormap(src, dst, self.options.height, self.options.width, \
                              time_resolution, my_colormap)
 
@@ -176,8 +172,12 @@ aesthetically pleasing."""
         dst = self.filename("png")
         if not os.path.isfile(src):
             self.to_ppm()
-##        print("Converting {0} to {1}.".format(src, dst))
         subprocess.Popen(["convert", src, dst]).wait()
+
+
+
+
+
 
 class VideoGrapher(object):
     def __init__(self, filename):
@@ -219,11 +219,10 @@ for each pixel."""
         for row_number, left, right in self.options.points:
             points[row_number] = \
                     (ctypes.POINTER(self.raw_type)*self.options.width)()
-##            input()
-            for column_number, r in parse.Line(copy.deepcopy(left), \
+            for column_number, r in enumerate(parse.Line(copy.deepcopy(left), \
                                                copy.deepcopy(right), \
                                                self.options.n_variables, \
-                                               self.options.width):
+                                               self.options.width)):
                 points[row_number][column_number] = \
                      (self.raw_type*self.options.n_variables)()
                 for k in range(self.options.n_variables):
@@ -298,23 +297,20 @@ for each pixel."""
             raw_filename = re.sub("\.bz2$", "", raw_filename)
         ppm_filename = re.sub("raw$", "ppm", raw_filename)
         png_filename = re.sub("raw$", "png", raw_filename)
-       
-        self.raw_to_ppm(raw_filename, ppm_filename)
-        self.ppm_to_png(ppm_filename, png_filename)
-#        compress(raw_filename)
-        os.remove(ppm_filename)
-        os.remove(raw_filename)
-        
-    def raw_to_ppm(self, raw_filename, ppm_filename):
+
+        # raw to ppm
         colormap.do_phase_to_image(raw_filename, ppm_filename, \
                self.options.height, self.options.width, \
                [[0, 0, 0], [255, 0, 0], [255, 255, 0], [255, 255, 255], \
                 [0, 255, 255], [0, 0, 255], [0, 0, 0]])
 
-    def ppm_to_png(self, ppm_filename, png_filename):
-        # Need to find a way to keep the first image from being just black, ImageMagick convert it to 1-bit, which screws up ffmpeg
+        # ppm to png
         subprocess.Popen(["convert", ppm_filename, png_filename]).wait()
 
+        # remove the raw and ppm files to save space
+        os.remove(ppm_filename)
+        os.remove(raw_filename)
+        
     def make_movie(self):
         png_files = filter(lambda x: x.endswith(".png"), \
                            os.listdir(self.folder))

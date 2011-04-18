@@ -6,10 +6,10 @@ from collections import OrderedDict
 
 import systems
 
-def list_to_array(array, L):
-    for i in range(len(L)):
-        result[i] = L[i]
-    return(result)
+##def list_to_array(array, L):
+##    for i in range(len(L)):
+##        result[i] = L[i]
+##    return(result)
 
 def sign(x):
     return(x/abs(x))
