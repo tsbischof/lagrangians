@@ -157,6 +157,7 @@ class Options(object):
         self.write_every = None
 
         # placeholders for internal stuff
+        self.n_variables = None
         self.points = None
 
         self.load()
@@ -261,13 +262,14 @@ class Options(object):
         
         self.restart = self.getboolean("config", "restart")
         
-        self.video = self.get("config", "video")
-        video_run = (self.video != None)
+        video = self.get("config", "video")
+        video_run = (video != None)
         if video_run:
             # We have found a video line, so parse it to make sure the variables
             # requested are actually available
+            self.video = list()
             video = list(map(lambda x: x.strip(), \
-                             self.video.split(",")))
+                             video.split(",")))
             if video == []:
                 raise(\
                     ValueError(\
@@ -293,7 +295,8 @@ class Options(object):
             self.validator = self.validate_config("config", "validator", \
                                     self.rule.validators, optional=True)
             self.extend_time = self.getboolean("config", "extend_time")
-                                                         
+
+        self.n_variables = len(self.system.params.keys())                                            
         self.points = Points(self.get_section("horizontal"), \
                              self.get_section("vertical"), \
                              self.get_section("defaults"), \

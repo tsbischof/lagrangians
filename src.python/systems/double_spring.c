@@ -25,7 +25,7 @@ void double_spring_derivs(double *r, double *drdt) {
 	drdt[M2] = 0;
 }
 
-void double_spring_integrate(double *r, double dt) {
+void double_spring_integrate(double *r, double t, double dt) {
 	runge_kutta_4(double_spring_derivs, r, dt, 15);
 }
 

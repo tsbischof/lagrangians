@@ -25,7 +25,7 @@ void driven_damped_pendulum_derivs(double *r, double *drdt) {
 	drdt[G] = 0;
 	drdt[A] = 0;
 	drdt[L] = 0;
-	drdt[DELTA] = 0;
+	drdt[OMEGA] = 0;
 }
 
 void driven_damped_pendulum_sinusoid_derivs(double *r, double *drdt) {

@@ -31,7 +31,7 @@ void double_pendulum_derivs(double *r, double *drdt) {
 	drdt[G] = 0;
 }
 
-void double_pendulum_integrate(double *r, double dt) {
+void double_pendulum_integrate(double *r, double t, double dt) {
 	runge_kutta_4(double_pendulum_derivs, r, dt, 9);
 }
 

@@ -31,7 +31,7 @@ class Grapher(object):
         if self.filename_base.endswith(".inp"):
             self.filename_base = self.filename_base[:-4]
 
-        self.load(filename)
+        self.options = parse.Options(filename)
       
         self.raw_type = ctypes.c_double
         self.restart_type = ctypes.c_int
@@ -41,11 +41,6 @@ class Grapher(object):
             return(self.filename_base)
         else:
             return("{0}.{1}".format(self.filename_base, suffix))
-
-    def load(self, filename):
-        """Load options to the grapher from an options object."""
-        self.options = parse.Options(filename)
-        self.options.load()
 
 # The meat of the program. These routines allow us to start all of the work
 # for the input file, or just some of it.
@@ -187,7 +182,7 @@ class VideoGrapher(object):
         if self.filename_base.endswith(".inp"):
             self.filename_base = self.filename_base[:-4]
 
-        self.load(filename)
+        self.options = parse.Options(filename)
 
         self.folder = "{0}_video".format(self.filename_base)
         if not os.path.isdir(self.folder):
@@ -202,12 +197,6 @@ class VideoGrapher(object):
         else:
             return("{0}.{1}".format(self.filename_base, suffix))
 
-    def load(self, filename):
-        """Load options to the grapher from an options object."""
-        self.options = parse.Options(filename)
-        self.options.load()
-        self.run = self.options.run
-
     def get_points(self):
         """Allocate and fill the C array representing the initial conditions
 for each pixel."""
@@ -216,7 +205,8 @@ for each pixel."""
                         ctypes.POINTER(self.raw_type))
                   *self.options.height)()
 
-        for row_number, left, right in self.options.points:
+        for row_number, point in enumerate(self.options.points):
+            left, right = point
             points[row_number] = \
                     (ctypes.POINTER(self.raw_type)*self.options.width)()
             for column_number, r in enumerate(parse.Line(copy.deepcopy(left), \

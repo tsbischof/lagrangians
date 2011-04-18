@@ -29,7 +29,7 @@ void dangling_stick_derivs(double *r, double *drdt) {
 	drdt[M2] = 0;
 }
 
-void dangling_stick_integrate(double *r, double dt) {
+void dangling_stick_integrate(double *r, double t, double dt) {
 	runge_kutta_4(dangling_stick_derivs, r, dt, 12);
 }
 
