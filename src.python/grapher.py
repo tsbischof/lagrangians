@@ -46,32 +46,32 @@ class Grapher(object):
         """Load options to the grapher from an options object."""
         self.options = parse.Options(filename)
         self.options.load()
-        self.run = self.options.run
 
 # The meat of the program. These routines allow us to start all of the work
 # for the input file, or just some of it.
     def get_work(self):
-        n_variables = self.run.points.n_variables
-        t_limits = (ctypes.c_double*3)(self.run.t[0], self.run.t[1],\
-                                       self.run.t[2])
-        height = (ctypes.c_int)(self.run.height)
-        width = (ctypes.c_int)(self.run.width)
-        integrator = self.run.integrator.function
-        rule = self.run.rule.function
+        n_variables = self.options.points.n_variables
+        t_limits = (ctypes.c_double*3)(self.options.t[0], self.options.t[1],\
+                                       self.options.t[2])
+        height = (ctypes.c_int)(self.options.height)
+        width = (ctypes.c_int)(self.options.width)
+        integrator = self.options.integrator.function
+        rule = self.options.rule.function
         
-        result = (self.raw_type*self.run.width)()
+        result = (self.raw_type*self.options.width)()
 
-        for row_number, r_left, r_right in self.run.points:
+        for row_number, points in enumerate(self.options.points):
+            r_left, r_right = points
             if not self.status[row_number]:
                 yield((row_number, r_left, r_right, n_variables, \
                     t_limits, width, height, integrator, rule, result))
         
     def do_run(self):
         # Are we restarting? If not, allocate the necessary files.
-        if self.run.restart:
+        if self.options.restart:
             self.status_from_restart()
         else:
-            self.status = [False for i in range(self.run.height)]
+            self.status = [False for i in range(self.options.height)]
             if not self.allocate_restart() or not self.allocate_raw():
                 return(False)
 
@@ -107,7 +107,7 @@ class Grapher(object):
             return(False)
         else:
             with open(self.filename("restart"), "wb") as f:
-                for i in range(self.run.height):
+                for i in range(self.options.height):
                     f.write(self.restart_type(0))
             return(True)
 
@@ -119,15 +119,16 @@ class Grapher(object):
             return(False)
         else:
             with open(self.filename("raw"), "wb") as f:
-                for row in range(self.run.height):
-                    for column in range(self.run.width):
+                for row in range(self.options.height):
+                    for column in range(self.options.width):
                         f.write(self.raw_type(0))
             return(True)
 
     def write_row(self, row_number, row):
         with open(self.filename("raw"), "r+b") as raw_file:
-            raw_file.seek(ctypes.sizeof(self.raw_type)*self.run.width*row_number)
-            for i in range(self.run.width):
+            raw_file.seek(ctypes.sizeof(self.raw_type)\
+                          *self.options.width*row_number)
+            for i in range(self.options.width):
                 raw_file.write(self.raw_type(row[i]))
 
         with open(self.filename("restart"), "r+b") as restart_file:
@@ -141,14 +142,14 @@ class Grapher(object):
         print("{0}: Finished {1} of {2} rows.".format(\
             self.filename(), \
             len(list(filter(lambda x: x, self.status))), \
-            self.run.height))
+            self.options.height))
 
     def status_from_restart(self):
         src = self.filename("restart")
         try:
             with open(src, "rb") as f:
                 self.status = list()
-                for i in range(self.run.height):
+                for i in range(self.options.height):
                     val = struct.unpack("<L", \
                             f.read(ctypes.sizeof(self.restart_type)))[0]
                     if val != 0:
@@ -164,9 +165,9 @@ class Grapher(object):
 aesthetically pleasing."""
         src = self.filename("raw")
         dst = self.filename("ppm")
-        time_resolution = self.run.t[1]
+        time_resolution = self.options.t[1]
 ##        print("Converting {0} to {1}.".format(src, dst))
-        colormap.do_colormap(src, dst, self.run.height, self.run.width, \
+        colormap.do_colormap(src, dst, self.options.height, self.options.width, \
                              time_resolution, my_colormap)
 
     def to_png(self):
@@ -213,32 +214,32 @@ for each pixel."""
 
         points = (ctypes.POINTER(\
                         ctypes.POINTER(self.raw_type))
-                  *self.run.height)()
+                  *self.options.height)()
 
-        for row_number, left, right in self.run.points:
+        for row_number, left, right in self.options.points:
             points[row_number] = \
-                    (ctypes.POINTER(self.raw_type)*self.run.width)()
+                    (ctypes.POINTER(self.raw_type)*self.options.width)()
 ##            input()
             for column_number, r in parse.Line(copy.deepcopy(left), \
                                                copy.deepcopy(right), \
-                                               self.run.n_variables, \
-                                               self.run.width):
+                                               self.options.n_variables, \
+                                               self.options.width):
                 points[row_number][column_number] = \
-                     (self.raw_type*self.run.n_variables)()
-                for k in range(self.run.n_variables):
+                     (self.raw_type*self.options.n_variables)()
+                for k in range(self.options.n_variables):
                     points[row_number][column_number][k] = r[k]
 
         return(points)
 
     def do_run(self):          
-        t = self.run.t[0]
-        dt = self.run.t[1]
-        t_limit = self.run.t[2]
+        t = self.options.t[0]
+        dt = self.options.t[1]
+        t_limit = self.options.t[2]
 
-        height = ctypes.c_int(self.run.height)
-        width = ctypes.c_int(self.run.width)
+        height = ctypes.c_int(self.options.height)
+        width = ctypes.c_int(self.options.width)
         dt_c = ctypes.c_double(dt)
-        integrator = self.run.integrator.function
+        integrator = self.options.integrator.function
 
         image = self.get_points()
         step = 0
@@ -248,7 +249,7 @@ for each pixel."""
             lagrangians.advance_image(image, height, width, dt_c, integrator)
             step += 1
             t += dt 
-            if step % self.run.write_every == 0:
+            if step % self.options.write_every == 0:
                 print("{0}: {1}/{2}".format(\
                     datetime.date.strftime(datetime.datetime.today(), \
                                            "%Y.%m.%d %H:%M:%S"),
@@ -258,7 +259,7 @@ for each pixel."""
         self.make_movie()
         
     def write_variable_images(self, image, t):
-        for variable, variable_index in self.run.video:
+        for variable, variable_index in self.options.video:
             self.write_file(variable, variable_index, image, t)
 
     def write_file(self, variable, variable_index, image, t):
@@ -267,8 +268,8 @@ for each pixel."""
                                     "{0}-{1}.raw".format(variable, t))
         with open(raw_filename, "wb") \
              as raw_file:
-            for i in range(self.run.height):
-                for j in range(self.run.width):
+            for i in range(self.options.height):
+                for j in range(self.options.width):
                     raw_file.write(\
                         struct.pack("d", image[i][j][variable_index]))
 
@@ -302,10 +303,11 @@ for each pixel."""
         self.ppm_to_png(ppm_filename, png_filename)
 #        compress(raw_filename)
         os.remove(ppm_filename)
+        os.remove(raw_filename)
         
     def raw_to_ppm(self, raw_filename, ppm_filename):
         colormap.do_phase_to_image(raw_filename, ppm_filename, \
-               self.run.height, self.run.width, \
+               self.options.height, self.options.width, \
                [[0, 0, 0], [255, 0, 0], [255, 255, 0], [255, 255, 255], \
                 [0, 255, 255], [0, 0, 255], [0, 0, 0]])
 
@@ -346,3 +348,7 @@ for each pixel."""
                               "-sameq", \
                               video_file]).wait()
             shutil.rmtree(os.path.join(self.folder, scratch_folder))
+
+if __name__ == "__main__":
+    grapher = Grapher("test.inp")
+    grapher.do_run()

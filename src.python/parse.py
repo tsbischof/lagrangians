@@ -25,10 +25,13 @@ def is_video(filename):
 
 class Points(object):
     def __init__(self, horizontal=None, vertical=None, defaults=None, \
-                 params=None, size=100):
-        self.n_points = size
-        self.left, self.right, self.dr = self.from_config(horizontal, vertical, \
-                                                 defaults, params, size)
+                 params=None, height=100, width=100):
+        self.height = height
+        self.width = width
+
+        self.left, self.right, self.vertical_dr = \
+                   self.from_config(horizontal, vertical, \
+                                    defaults, params, height)
         self.n = -1
         self.n_variables = len(params.keys())
 
@@ -41,7 +44,7 @@ input file gets taken from params, which are set externally."""
         left = (ctypes.c_double*n_variables)()
         right = (ctypes.c_double*n_variables)()
         upper = (ctypes.c_double*n_variables)()
-        dr = (ctypes.c_double*n_variables)()
+        vertical_dr = (ctypes.c_double*n_variables)()
 
         for key in horizontal.keys():
             if key in vertical.keys():
@@ -49,7 +52,8 @@ input file gets taken from params, which are set externally."""
                       format(key))
             if key in defaults.keys():
                 print(\
-  "Cannot specify the same variable on an axis and a default: {0}.".format(key))
+            "Cannot specify the same variable on an axis and a default: {0}.".\
+            format(key))
 
         # First, build the values which actually vary. 
         for index, key in enumerate(params.keys()):
@@ -78,9 +82,9 @@ input file gets taken from params, which are set externally."""
                 pass
 
         for index in range(len(params.keys())):
-            dr[index] = (upper[index]-left[index])/(self.n_points-1)
+            vertical_dr[index] = (upper[index]-left[index])/(self.height-1)
 
-        return((left, right, dr))
+        return((left, right, vertical_dr))
 
     def __iter__(self):
         return(self)
@@ -89,15 +93,15 @@ input file gets taken from params, which are set externally."""
         if self.n < 0:
             pass
         else:
-            increment_array(self.left, self.dr)
-            increment_array(self.right, self.dr)
+            increment_array(self.left, self.vertical_dr)
+            increment_array(self.right, self.vertical_dr)
 
         self.n += 1
         
-        if self.n >= self.n_points:
+        if self.n >= self.height:
             raise StopIteration
 
-        return((self.n, self.left, self.right))
+        return((self.left, self.right))
 
 class Line(object):
     def __init__(self, left=None, right=None, n_variables=0, n_points=100):
@@ -124,42 +128,38 @@ class Line(object):
         if self.n >= self.n_points:
             raise StopIteration
 
-        return((self.n, self.r))
-
-class Parsed(object):
-    def __init__(self):
-        self.config = Config()
-        self.defaults = dict()
-        self.horizontal = dict()
-        self.vertical = dict()
-
-class Config(object):
-    def __init__(self):
-        self.system = str()
-        self.integrator = str()
-        self.validator = str()
-        self.rule = str()
-        self.video = str()
-        self.write_every = str()
-        self.restart = bool()
-        self.extend_time = bool()
-        self.t = str()
-
-class Installed(object):
-    def __init__(self):
-        self.system = str()
-        self.integrator = None
-        self.rule = None
-        self.points = None
-        self.video = list()
-        self.write_every = None
+        return((self.r))
 
 class Options(object):
     def __init__(self, filename=None):
         self.filename = filename
         self.parser = configparser.SafeConfigParser()
-        self.options = Parsed()
-        self.run = Installed()
+
+        # Required for all runs
+        self.system = None
+        self.integrator = None
+        self.t = None
+        self.height = None
+        self.width = None
+
+        # optional in all runs
+        self.restart = None
+
+        # required for images
+        self.rule = None
+        
+        # optional for images
+        self.validator = None   
+        self.extend_time = None
+
+        # required for videos
+        self.video = None
+        self.write_every = None
+
+        # placeholders for internal stuff
+        self.points = None
+
+        self.load()
 
     def get(self, section, key):
         try:
@@ -185,9 +185,41 @@ class Options(object):
             for key, value in self.parser.items(section):
                 result[key] = value
         except:
-            pass
+            raise(\
+                ValueError(\
+                    "Section {0} required but not found.".\
+                    format(section)))
 
         return(result)
+
+    def validate_config(self, section, name, available, optional=False):
+        # For a configuration option name with specified value chosen, check
+        # the available options and return the correct one. If we can accept
+        # a null result, return the default value, but otherwise throw an
+        # error and let the user know something is wrong.
+        chosen = self.get(section, name)
+        result = None
+        for elem in available:
+            if elem.name == chosen:
+                result = elem
+                break
+        if optional:
+            return(result)
+        else:
+            if result == None:
+                raise(ValueError("{0} {1} is not available.".\
+                                 format(name.capitalize(), chosen)))
+            else:
+                return(result)
+
+    def validate_size(self, section, key):
+        size = self.getint(section, key)
+        if size <= 0:
+            raise(ValueError(\
+                "{0} must be greater than zero. Tried: {1}".\
+                format(key, size)))
+        
+        return(size)
 
     def load(self):
         """Load options to the grapher from an options object."""
@@ -197,130 +229,77 @@ class Options(object):
             print("Could not open %s for reading." % self.filename)
             return(False)
 
-        self.options.config.system = self.get("config", "system")
-        self.options.config.rule = self.get("config", "rule")
-        self.options.config.validator = self.get("config", "validator")
+        self.system = self.validate_config("config", "system", \
+                                               systems.installed)
 
-        # If no integrator is specified, use the default one
-        self.options.config.integrator = self.get("config", "integrator")
-        if self.options.config.integrator == None:
-            self.options.config.integrator = self.options.config.system
-
-        # For videos, we need to know how often we will be printing (integer)
-        self.options.config.video = self.get("config", "video")
-        self.options.config.write_every = self.get("config", "write_every")
-            
-        self.options.config.t = self.get("config", "t")
-        self.options.config.restart = self.getboolean("config", "restart")
-        self.options.config.extend_time = self.getboolean("config", "extend_time")
-        self.options.config.width = self.getint("config", "width")
-        self.options.config.height = self.getint("config", "height")
-
-        self.options.defaults = self.get_section("defaults")
-        self.options.horizontal = self.get_section("horizontal")
-        self.options.vertical = self.get_section("vertical")
-
-        self.validate()
-
-    def validate_config(self, name, chosen, available):
-        # For a configuration option name with specified value chosen, check
-        # the available options and return the correct one. If we can accept
-        # a null result, return the default value, but otherwise throw an
-        # error and let the user know something is wrong.
-        result = None
-        for elem in available:
-            if elem.name == chosen:
-                result = elem
-                break
-        if result == None:
-            print("{0} {1} is not available.".format(name.capitalize(), chosen))
+        if self.get("config", "integrator") == None:
+            # The default integrator has the same name as the system
+            self.integrator = self.validate_config("config", "system", \
+                                                self.system.integrators)
         else:
-            pass
-##            print("{0}: {1}.".format(name.capitalize(), chosen))
-            
-        return(result)
-
-    def validate_size(self, dimension, size):
-        if size <= 0:
-            print("{0} must be greater than zero. Tried: {1}".format(\
-                dimension, width))
-        else:
-            pass
-##            print("{0}: {1}.".format(dimension.capitalize(), size))
-
-        return(size)
-        
-    def validate(self):
-        # Go through all of the options and see that they make sense; things
-        # should be installed, variables exist, etc.
-        self.run.system = self.validate_config("system", \
-                self.options.config.system, systems.installed)
-
-        self.run.integrator = self.validate_config("integrator", \
-                self.options.config.integrator, self.run.system.integrators)
-
-        if self.options.config.video == None:
-            self.run.rule = self.validate_config("rule", \
-                    self.options.config.rule, self.run.system.rules)
-            self.run.validator = self.validate_config("validator", \
-                    self.options.config.validator, self.run.rule.validators)
-        else:
-            video = list(map(lambda x: x.strip(), \
-                             self.options.config.video.split(",")))
-            if video == []:
-                print("Must specify at least one variable to display.")
-
-            keys = list(self.run.system.params.keys())
-            for variable in video:
-                if not variable in self.run.system.params.keys():
-                    print("Invalid video variable {0} found.".format(variable))
-                else:
-                    self.run.video.append((variable, keys.index(variable)))
-
-            self.run.write_every = int(self.options.config.write_every)
-            if self.run.write_every <= 0:
-                print("write_every must be a positive integer.")
-
-        self.run.n_variables = len(self.run.system.params.keys())
-        self.run.restart = self.options.config.restart
-##        print("Restart: {0}".format(self.run.restart))
-
+            self.integrator = self.validate_config("config", "integrator", \
+                                                self.system.integrators)
+       
         try:
             # We need to check that the time increment will actually run in the
             # same direction as the upper limit.
-            self.run.t = list(map(float, self.options.config.t.split(",")))
-            t, dt, t_limit = self.run.t
+            self.t = list(map(float, self.get("config", "t").split(",")))
+            t, dt, t_limit = self.t
 
             if sign(t_limit-t) != sign(dt):
-                raise(ValueError)
+                raise(ValueError("Chosen time step will never complete."))
             else:
                 pass
-##                print("Time steps: {0}.".format(self.run.t))
         except:
-            print("Invalid time steps: {0}.".format(self.options.config.t))
+            raise(\
+                ValueError(\
+                    "Invalid time steps: {0}.".\
+                    format(self.get("config", "t"))))
 
-        self.run.width = self.validate_size("width", \
-                                            self.options.config.width)
-        self.run.height = self.validate_size("height", \
-                                             self.options.config.height)
+        self.height = self.validate_size("config", "height")
+        self.width = self.validate_size("config", "width")
+        
+        self.restart = self.getboolean("config", "restart")
+        
+        self.video = self.get("config", "video")
+        video_run = (self.video != None)
+        if video_run:
+            # We have found a video line, so parse it to make sure the variables
+            # requested are actually available
+            video = list(map(lambda x: x.strip(), \
+                             self.video.split(",")))
+            if video == []:
+                raise(\
+                    ValueError(\
+                        "Must specify at least one variable to display."))
 
-        # We have now validated the important options that are required for
-        # any run. The rest are sort of softer: variables which are not
-        # specified explicitly will still have some default values associated
-        # with them, so we should silently use the default values. However,
-        # if a value is specified but not used (e.g. dphi12 when
-        # dphi1 was meant), we should at least notify the user.
-        self.run.points = Points(self.options.horizontal, \
-                                 self.options.vertical, \
-                                 self.options.defaults, \
-                                 self.run.system.params, \
-                                 self.run.height)
+            keys = list(self.system.params.keys())
+            for variable in video:
+                if not variable in self.system.params.keys():
+                    raise(\
+                        ValueError(\
+                            "Invalid video variable {0} found.".\
+                            format(variable)))
+                else:
+                    self.video.append((variable, keys.index(variable)))
 
-        # Now, everything should be ready to go. All values and functions
-        # that are needed for the run are stored in self.run, and we can begin
-        # doing the number-crunching.
+            self.write_every = self.getint("config", "write_every")
+            if self.write_every <= 0:
+                raise(ValueError("write_every must be a positive integer."))
+        else:
+            # doing an image run, go from there.
+            self.rule = self.validate_config("config", "rule", \
+                                             self.system.rules)
+            self.validator = self.validate_config("config", "validator", \
+                                    self.rule.validators, optional=True)
+            self.extend_time = self.getboolean("config", "extend_time")
+                                                         
+        self.points = Points(self.get_section("horizontal"), \
+                             self.get_section("vertical"), \
+                             self.get_section("defaults"), \
+                             self.system.params, \
+                             self.height, \
+                             self.width)
                   
 if __name__ == "__main__":
     options = Options("test.inp")
-    options.load()
-    
