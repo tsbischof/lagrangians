@@ -22,11 +22,12 @@ def do_run(filename):
     queue_script.write(queue_file)
     queue_script.close()
 
-    subprocess.Popen(["qsub", base+".sh"]).wait()
+#    subprocess.Popen(["qsub", base+".sh"]).wait()
+    subprocess.Popen(["sh", base+".sh"]).wait()
 
 if __name__ == "__main__":
     os.nice(19)
-    pool = Pool(1)
+#    pool = Pool(1)
 
     input_files = list()
     for filename in filter(lambda x: x.endswith(".inp"),
@@ -36,4 +37,6 @@ if __name__ == "__main__":
             input_files.append(filename)
 #    print(input_files)
 #    input()
-    pool.map(do_run, input_files)
+#   pool.map(do_run, input_files)
+    for filename in input_files:
+        do_run(filename)
