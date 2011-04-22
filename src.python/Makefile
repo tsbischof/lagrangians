@@ -25,5 +25,9 @@ ${LAGRANGIAN}: ${LAGRANGIANOBJS}
 $%.o: %.c
 	${CC} ${CFLAGS} -c -o $@ $< ${LDFLAGS}
 
+install: ${COLORMAP} ${LAGRANGIAN}
+	cp ${COLORMAP} ~tsbischof/lib
+	cp ${LAGRANGIAN} ~tsbischof/lib
+
 clean:
 	rm -f ${TARGETS} ${COLORMAPOBJS} ${LAGRANGIANOBJS} *.pyc

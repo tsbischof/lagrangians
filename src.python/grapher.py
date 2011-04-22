@@ -5,25 +5,13 @@ import copy
 import datetime
 import struct
 import re
-import bz2
 import shutil
 
 import colormap
 import parse
 import systems
+import utils
 from c_libraries import lagrangians
-
-def compress(filename):
-    with open(filename, "rb") as in_file:
-        with bz2.BZ2File(filename + ".bz2", "wb") as out_file:
-            out_file.writelines(in_file)
-    os.remove(filename)
-
-def decompress(filename):
-    with bz2.BZ2File(filename, "rb") as in_file:
-        with open(filename[:-4], "wb") as out_file:
-            out_file.writelines(in_file)
-    os.remove(filename)
 
 class Grapher(object):
     def __init__(self, filename):
@@ -73,9 +61,8 @@ class Grapher(object):
         for params in self.get_work():
             self.do_row(params)
 
-        self.to_ppm()
         self.to_png()
-        compress(self.filename("raw"))
+        utils.compress(self.filename("raw"))
         os.remove(self.filename("ppm"))
 
     def do_row(self, params):    
@@ -152,21 +139,30 @@ class Grapher(object):
             print("Could not open %s for reading." % src)          
 
     def to_ppm(self, my_colormap=[[0, 0, 0], [255, 0, 0], \
-                                  [255, 255, 0],  [255, 255, 255]]):
+                                  [255, 255, 0],  [255, 255, 255]], \
+               src=None, dst=None):
         """Uses the colormap routine to convert the raw image to something more
 aesthetically pleasing."""
-        src = self.filename("raw")
-        dst = self.filename("ppm")
+        if src == None:
+            src = self.filename("raw")
+        if dst == None:
+            dst = self.filename("ppm")
         time_resolution = self.options.t[1]
         colormap.do_colormap(src, dst, self.options.height, self.options.width, \
                              time_resolution, my_colormap)
 
-    def to_png(self):
+    def to_png(self, my_colormap=[[0, 0, 0], [255, 0, 0], \
+                                  [255, 255, 0],  [255, 255, 255]],
+               src=None, dst=None):
         """Converts the image to png, using ImageMagick."""
-        src = self.filename("ppm")
-        dst = self.filename("png")
+        if src == None:
+            src = self.filename("ppm")
+
+        if dst == None:    
+            dst = self.filename("png")
+
         if not os.path.isfile(src):
-            self.to_ppm()
+            self.to_ppm(my_colormap, src, dst)
         subprocess.Popen(["convert", src, dst]).wait()
 
 
@@ -200,7 +196,6 @@ class VideoGrapher(object):
     def get_points(self):
         """Allocate and fill the C array representing the initial conditions
 for each pixel."""
-
         points = (ctypes.POINTER(\
                         ctypes.POINTER(self.raw_type))
                   *self.options.height)()
@@ -263,23 +258,6 @@ for each pixel."""
                         struct.pack("d", image[i][j][variable_index]))
 
         self.raw_to_png(raw_filename)
-
-    def convert_images(self):
-        raw_files = filter(lambda x: x.endswith(".raw.bz2") \
-                                     or x.endswith(".raw"), \
-                           os.listdir(self.folder))
-
-        variables = dict()
-        for raw_filename in raw_files:
-            variable, value = raw_filename.split("-")
-            if not variable in variables.keys():
-                variables[variable] = list()
-            variables[variable].append(os.path.join(self.folder, raw_filename))
-            
-        for variable in sorted(variables.keys()):
-            for raw_filename in sorted(variables[variable]):
-                print(raw_filename)
-                self.raw_to_png(raw_filename)
 
     def raw_to_png(self, raw_filename):
         if raw_filename.endswith(".bz2"):
