@@ -29,7 +29,7 @@ void dangling_stick_derivs(double *r, double *drdt) {
 	drdt[M2] = 0;
 }
 
-void dangling_stick_integrate(double *r, double t, double dt) {
+void dangling_stick_integrate(double *r, double dt) {
 	runge_kutta_4(dangling_stick_derivs, r, dt, 12);
 }
 
@@ -42,8 +42,7 @@ double dangling_stick_T(double *r) {
 }
 
 int dangling_stick_lower_flip_energy(double *r) {
-	return(1==1);
-	double r_min[11];
+	double r_min[12];
 	r_min[R] = r[R_0];
 	r_min[DR] = 0;
 	r_min[PHI1] = 0;
@@ -55,17 +54,37 @@ int dangling_stick_lower_flip_energy(double *r) {
 	r_min[R_0] = r[R_0];
 	r_min[K] = r[K];
 	r_min[L] = r[L];
+	r_min[G] = r[G];
 
 	return( dangling_stick_U(r) + dangling_stick_U(r) 
 			> dangling_stick_U(&r_min[0]) );
 } 
 
 double dangling_stick_lower_flip(double *r, double *r0, 
-		double t, double *values,
-		int done) {
-	if ( ! done ) {
-		return( (r[PHI2] > 2*M_PI) || (r[PHI2] < -2*M_PI) );
-	} else {
-		return(t);
-	}	
+		double t, double *values, int done) {
+	return(flipped(r[PHI2], t, done));
+}
+
+int dangling_stick_upper_flip_energy(double *r) {
+	double r_min[12];
+	r_min[R] = r[R_0];
+	r_min[DR] = 0;
+	r_min[PHI1] = M_PI;
+	r_min[DPHI1] = 0;
+	r_min[PHI2] = 0;
+	r_min[DPHI2] = 0;
+	r_min[M1] = r[M1];
+	r_min[M2] = r[M2];
+	r_min[R_0] = r[R_0];
+	r_min[K] = r[K];
+	r_min[L] = r[L];
+	r_min[G] = r[G];
+
+	return( dangling_stick_U(r) + dangling_stick_U(r) 
+			> dangling_stick_U(&r_min[0]) );
+} 
+
+double dangling_stick_upper_flip(double *r, double *r0, 
+		double t, double *values, int done) {
+	return(flipped(r[PHI1], t, done));
 }
