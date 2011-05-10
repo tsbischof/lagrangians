@@ -83,6 +83,8 @@ double first_flip_dangling_stick(double *r, double *r0,
 		double t, double *values,
 		int done) {
 	if ( ! done ) {
+/*		printf("%f, %f, %d, %d\n", r[PHI2], 2*M_PI, r[PHI2] < -2*M_PI, 
+									r[PHI2] > 2*M_PI);*/
 		return( (r[PHI2] > 2*M_PI) || (r[PHI2] < -2*M_PI) );
 	} else {
 		return(t);

@@ -113,9 +113,14 @@ def do_variety(files=None, depth=255, colormaps=None, n=4, overwrite=False):
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
-        colormaps = [[[255,255,255], [0,0,0], [255,0,0],[255,255,0]], \
-                     [[0,0,0], [255,0,0], [255,255,0], [255,255,255]]]
+##        colormaps = [[[255,255,255], [0,0,0], [255,0,0],[255,255,0]]]
+##        colormaps = get_swatches()
+        colormaps = [[[0, 0, 0], [255, 0, 0], [255, 255, 0], [255, 255, 255]]]
+                     #[[255, 255, 255], [0, 0, 0]],
+                     #[[0, 0, 0], [255, 0, 0], [255, 255, 0], [255, 255, 255]],
+                     #[[-146, -98, 29], [217, 217, -192]],
+                     #[[255, 255, 255], [0, 0, 0], [255, 0, 0],[255, 255, 0]]]
         do_variety(files=sys.argv[1:], colormaps=colormaps, overwrite=False)
     else:
         my_grapher = grapher.Grapher("test.inp")
-        my_grapher.do_run()
+        my_grapher.to_png()

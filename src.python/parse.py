@@ -303,6 +303,9 @@ class Options(object):
                              self.system.params, \
                              self.height, \
                              self.width)
+
+    def to_file(self):
+        pass
                   
 if __name__ == "__main__":
     options = Options("test.inp")

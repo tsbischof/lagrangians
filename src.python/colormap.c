@@ -108,11 +108,11 @@ int raw_to_ppm(char *raw_filename, char *ppm_filename,
 	raw_file = fopen(raw_filename, "rb");
 	ppm_file = fopen(ppm_filename, "wb");
 	if ( raw_file == NULL ) {
-		fprintf(stderr, "Could not open %s.\n", raw_filename);
+		fprintf(stderr, "Could not open %s for reading.\n", raw_filename);
 		return(-1);
 	}
 	if ( ppm_file == NULL ) {
-		fprintf(stderr, "Could not open %s.\n", ppm_filename);
+		fprintf(stderr, "Could not open %s for writing.\n", ppm_filename);
 		return(-1);
 	}
 

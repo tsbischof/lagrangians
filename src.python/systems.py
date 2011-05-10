@@ -100,7 +100,9 @@ dangling_stick = System("dangling_stick", \
                  ("phi2", 0), ("dphi2", 0), ("m1", 1), ("m2", 1), \
                  ("r_0", 1), ("k", 1), ("l", 1), ("g", 9.8)]), \
     [Rule("lower_flip", lagrangians.dangling_stick_lower_flip, \
-      [Validator("energy", lagrangians.dangling_stick_lower_flip_energy)])],\
+      [Validator("energy", lagrangians.dangling_stick_lower_flip_energy)]), \
+     Rule("upper_flip", lagrangians.dangling_stick_upper_flip, \
+      [Validator("energy", lagrangians.dangling_stick_upper_flip_energy)])], \
     [Integrator("dangling_stick", lagrangians.dangling_stick_integrate)], \
     """Simulates the motion of a massless stick with a mass on either end,
 attached to a spring. Descriptions of parameters:

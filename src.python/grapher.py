@@ -162,7 +162,7 @@ aesthetically pleasing."""
             dst = self.filename("png")
 
         if not os.path.isfile(src):
-            self.to_ppm(my_colormap, src, dst)
+            self.to_ppm(my_colormap, self.filename("raw"), self.filename("ppm"))
         subprocess.Popen(["convert", src, dst]).wait()
 
 

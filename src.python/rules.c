@@ -34,7 +34,7 @@ double speed(double *r, double *r0, double t, double *values, int done) {
 
 double flipped(double val, double t, int done) {
 	if ( ! done ) {
-		return( (val > 2*M_PI) || (val < -2*M_PI) );
+		return( (val > 2*M_PI) || (val < -2*M_PI) || (! isfinite(val)) );
 	} else {
 		return(t);
 	}
