@@ -1,4 +1,9 @@
 import ctypes
+import os
 
-lagrangians = ctypes.cdll.LoadLibrary("/home/tsbischof/lib/liblagrangians.so")
-colormapper = ctypes.cdll.LoadLibrary("/home/tsbischof/lib/libcolormap.so")
+lib_dir = "/home/tsbischof/lib"
+
+lagrangians = ctypes.cdll.LoadLibrary(os.path.join(
+    lib_dir, "liblagrangians.so"))
+colormapper = ctypes.cdll.LoadLibrary(os.path.join(
+    lib_dir, "libcolormap.so"))

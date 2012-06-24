@@ -4,7 +4,7 @@
 #include "includes.h"
 
 void double_spring_derivs(double *r, double *drdt);
-void double_spring_integrate(double *r, double t, double dt);
+void double_spring_integrate(double *r, double dt);
 double double_spring_U(double *);
 double double_spring_T(double *);
 int double_spring_lower_flip_energy(double *);

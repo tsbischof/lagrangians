@@ -115,11 +115,11 @@ k: spring constant for the spring
 l: length of the stick
 A `d' in front of the variable indicates a time derivative.""")
 
-double_spring = System("double_spring",
+double_spring = System("double_spring", \
     OrderedDict([("phi1", 0), ("dphi1", 0), ("phi2", 0), ("dphi2", 0), \
                  ("m1", 1), ("m2", 1), \
-                 ("k1", 1), ("r1", 1), ("dr1", 1), ("r1_0", 1), \
-                 ("k2", 1), ("r2", 1), ("dr2", 1), ("r2_0", 1), \
+                 ("k1", 1), ("r1", 1), ("dr1", 0), ("r1_0", 1), \
+                 ("k2", 1), ("r2", 1), ("dr2", 0), ("r2_0", 1), \
                  ("g", 9.8)]),\
     [Rule("lower_flip", lagrangians.double_spring_lower_flip, \
           [Validator("energy", lagrangians.double_spring_lower_flip_energy)]), \

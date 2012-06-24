@@ -6,6 +6,7 @@ import os
 import sys
 import random
 import shutil
+import re
 
 import utils
 import grapher
@@ -74,7 +75,8 @@ def get_swatches(swatch_dir="/home/tsbischof/src/lagrangians/run/swatches"):
                 colormaps.append(list_to_colormap(colormap))
     return(colormaps)
 
-def do_variety(files=None, depth=255, colormaps=None, n=4, overwrite=False):
+def do_variety(files=None, depth=255, colormaps=None, n=4, overwrite=False,
+               width=1000):
     if not colormaps:
         # Did not specify colormaps, get some number of them and use those.
         colormaps = iter(random_colormap(n, depth) for i in range(50))
@@ -107,20 +109,26 @@ def do_variety(files=None, depth=255, colormaps=None, n=4, overwrite=False):
                 print(out_base)
                 my_grapher.to_ppm(colormap, my_grapher.filename("raw"),\
                                   out_base+".ppm")
-                my_grapher.to_png(colormap, out_base+".ppm", out_base+".png")
+                my_grapher.to_png(colormap, out_base+".ppm", out_base+".png", \
+                                  width=width)
                 os.remove(out_base+".ppm")
         
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
+    if True or len(sys.argv) > 1:
+##        colormaps = [[[0,0,0], [255,0,0], [255,255,0],[255,255,255]]]
 ##        colormaps = [[[255,255,255], [0,0,0], [255,0,0],[255,255,0]]]
-##        colormaps = get_swatches()
-        colormaps = [[[0, 0, 0], [255, 0, 0], [255, 255, 0], [255, 255, 255]]]
-                     #[[255, 255, 255], [0, 0, 0]],
-                     #[[0, 0, 0], [255, 0, 0], [255, 255, 0], [255, 255, 255]],
-                     #[[-146, -98, 29], [217, 217, -192]],
-                     #[[255, 255, 255], [0, 0, 0], [255, 0, 0],[255, 255, 0]]]
-        do_variety(files=sys.argv[1:], colormaps=colormaps, overwrite=False)
+        colormaps = get_swatches()
+##        colormaps.append([[0,0,0],[0,0,255],[0,255,255],[255,255,255],
+##                          [255,255,0],[255,0,0],[0,0,0]])
+
+#        colormaps = [[[0, 0, 0], [255, 0, 0], [255, 255, 0], [255, 255, 255]],
+#                     [[255, 255, 255], [0, 0, 0]],
+#                     [[-146, -98, 29], [217, 217, -192]],
+#                     [[255, 255, 255], [0, 0, 0], [255, 0, 0],[255, 255, 0]]]
+##        print(len(colormaps))
+        do_variety(files=sys.argv[1:], width=2000,
+            colormaps=colormaps, overwrite=False)
     else:
         my_grapher = grapher.Grapher("test.inp")
         my_grapher.to_png()

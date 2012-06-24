@@ -10,10 +10,28 @@ enum {PHI1, DPHI1, PHI2, DPHI2, M1, M2, K1, R1, DR1, R1_0,
 										K2, R2, DR2, R2_0, G};
 
 void double_spring_derivs(double *r, double *drdt) {
-	drdt[DR1] = (-(r[G]*r[M1])-r[G]*r[M2]+r[G]*r[M1]*cos(r[PHI1])+r[G]*r[M2]*cos(r[PHI1]-r[PHI2])+r[K1]*(r[R1_0]-r[R1])-cos(r[PHI1]-r[PHI2])*r[K2]*(r[R2_0]-r[R2])+r[M1]*r[R1]*pow(r[DPHI1],2))/r[M1];
-	drdt[DR2] = (-(r[M2]*cos(r[PHI1]-r[PHI2])*r[K1]*(r[R1_0]-r[R1]))+(r[M1]+r[M2])*r[K2]*(r[R2_0]-r[R2])+r[M2]*(-2*r[G]*(r[M1]+r[M2])*pow(sin((r[PHI1]-r[PHI2])/2.),2)+r[M1]*r[R2]*pow(r[DPHI2],2)))/(r[M1]*r[M2]);
-	drdt[DPHI1] = (-(r[G]*(r[M1]*sin(r[PHI1])+r[M2]*sin(r[PHI1]-r[PHI2])))+sin(r[PHI1]-r[PHI2])*r[K2]*(r[R2_0]-r[R2])-2*r[M1]*r[DR1]*r[DPHI1])/(r[M1]*r[R1]);
-	drdt[DPHI2] = (r[G]*(r[M1]+r[M2])*sin(r[PHI1]-r[PHI2])-sin(r[PHI1]-r[PHI2])*r[K1]*(r[R1_0]-r[R1])-2*r[M1]*r[DR2]*r[DPHI2])/(r[M1]*r[R2]);
+	drdt[DR1] = (-(r[G]*r[M1])
+				-r[G]*r[M2]
+				+r[G]*r[M1]*cos(r[PHI1])
+				+r[G]*r[M2]*cos(r[PHI1]-r[PHI2])
+				+r[K1]*(r[R1_0]-r[R1])
+				-cos(r[PHI1]-r[PHI2])*r[K2]*(r[R2_0]-r[R2])
+				+r[M1]*r[R1]*pow(r[DPHI1],2))/r[M1];
+	drdt[DR2] = (
+				-(r[M2]*cos(r[PHI1]-r[PHI2])*r[K1]*(r[R1_0]-r[R1]))
+				+(r[M1]+r[M2])*r[K2]*(r[R2_0]-r[R2])
+				+r[M2]*(-2*r[G]*(r[M1]+r[M2])*pow(sin((r[PHI1]-r[PHI2])/2.),2)
+				+r[M1]*r[R2]*pow(r[DPHI2],2)))
+			/(r[M1]*r[M2]);
+	drdt[DPHI1] = (-(r[G]*(r[M1]*sin(r[PHI1])
+				+r[M2]*sin(r[PHI1]-r[PHI2])))
+				+sin(r[PHI1]-r[PHI2])*r[K2]*(r[R2_0]-r[R2])
+				-2*r[M1]*r[DR1]*r[DPHI1])
+			/(r[M1]*r[R1]);
+	drdt[DPHI2] = (r[G]*(r[M1]+r[M2])*sin(r[PHI1]-r[PHI2])
+				-sin(r[PHI1]-r[PHI2])*r[K1]*(r[R1_0]-r[R1])
+				-2*r[M1]*r[DR2]*r[DPHI2])
+			/(r[M1]*r[R2]);
 	drdt[R1] = r[DR1];
 	drdt[R2] = r[DR2];
 	drdt[PHI1] = r[DPHI1];
@@ -23,18 +41,55 @@ void double_spring_derivs(double *r, double *drdt) {
 	drdt[K1] = 0;
 	drdt[M1] = 0;
 	drdt[M2] = 0;
+	drdt[R1_0] = 0;
+	drdt[R2_0] = 0;
+
+//	printf("%f, %f\n", r[R1], r[R2]);
+/*	printf("%f,%f,%f,%f,%f,%f,%f,%f\n",
+		r[DR1],
+		r[DR2],
+		r[DPHI1],
+		r[DPHI2],
+		r[R1],
+		r[R2],
+		r[PHI1],
+		r[PHI2]);
+	printf("%f,%f,%f,%f,%f,%f,%f,%f\n",
+		drdt[DR1],
+		drdt[DR2],
+		drdt[DPHI1],
+		drdt[DPHI2],
+		drdt[R1],
+		drdt[R2],
+		drdt[PHI1],
+		drdt[PHI2]);*/
 }
 
-void double_spring_integrate(double *r, double t, double dt) {
+void double_spring_integrate(double *r, double dt) {
 	runge_kutta_4(double_spring_derivs, r, dt, 15);
 }
 
 double double_spring_T(double *r) {
-	return((r[M1]*(pow(-(sin(r[PHI1])*r[DR1])-cos(r[PHI1])*r[R1]*r[DPHI1],2)+pow(cos(r[PHI1])*r[DR1]-sin(r[PHI1])*r[R1]*r[DPHI1],2)))/2.+(r[M2]*(pow(-(sin(r[PHI1])*r[DR1])-sin(r[PHI2])*r[DR2]-cos(r[PHI1])*r[R1]*r[DPHI1]-cos(r[PHI2])*r[R2]*r[DPHI2],2)+pow(cos(r[PHI1])*r[DR1]+cos(r[PHI2])*r[DR2]-sin(r[PHI1])*r[R1]*r[DPHI1]-sin(r[PHI2])*r[R2]*r[DPHI2],2)))/2.);
+	return(
+		(r[M1]*(pow(-(sin(r[PHI1])*r[DR1])-cos(r[PHI1])*r[R1]*r[DPHI1],2)
+			+pow(cos(r[PHI1])*r[DR1]-sin(r[PHI1])*r[R1]*r[DPHI1],2)))
+			/2.
+		+(r[M2]*(pow(-(sin(r[PHI1])*r[DR1])
+					-sin(r[PHI2])*r[DR2]
+					-cos(r[PHI1])*r[R1]*r[DPHI1]
+					-cos(r[PHI2])*r[R2]*r[DPHI2],2)
+				+pow(cos(r[PHI1])*r[DR1]
+				+cos(r[PHI2])*r[DR2]
+				-sin(r[PHI1])*r[R1]*r[DPHI1]
+				-sin(r[PHI2])*r[R2]*r[DPHI2],2)))
+		/2.);
 }
 
 double double_spring_U(double *r) {
-	return(r[G]*(r[M1]+r[M2])*(1-cos(r[PHI1]))*r[R1]+(r[K1]*pow(-r[R1_0]+r[R1],2))/2.+r[G]*r[M2]*(1-cos(r[PHI2]))*r[R2]+(r[K2]*pow(-r[R2_0]+r[R2],2))/2.);
+	return(r[G]*(r[M1]+r[M2])*(1-cos(r[PHI1]))*r[R1]
+		+(r[K1]*pow(-r[R1_0]+r[R1],2))/2.
+		+r[G]*r[M2]*(1-cos(r[PHI2]))*r[R2]
+		+(r[K2]*pow(-r[R2_0]+r[R2],2))/2.);
 }
 
 double double_spring_lower_flip(double *r, double *r0,

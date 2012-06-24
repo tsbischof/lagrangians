@@ -36,27 +36,15 @@ double platform_with_springs_T(double *r) {
 
 double platform_with_springs_left_flip(double *r, double *r0, 
 		double t, double *values, int done) {
-	if ( ! done ) {
-		return( (r[PHI1] > 2*M_PI) || (r[PHI1] < -2*M_PI) );
-	} else {
-		return(t);
-	}	
+	return(flipped(r[PHI1], t, done));
 }
 
 double platform_with_springs_right_flip(double *r, double *r0,
         double t, double *values, int done) {
-    if ( ! done ) {
-        return( (r[PHI2] > 2*M_PI) || (r[PHI2] < -2*M_PI) );
-    } else {
-        return(t);
-    }
+	return(flipped(r[PHI2], t, done));
 }
 
 double platform_with_springs_platform_flip(double *r, double *r0,
         double t, double *values, int done) {
-    if ( ! done ) {
-        return( (r[PHI3] > 2*M_PI) || (r[PHI3] < -2*M_PI) );
-    } else {
-        return(t);
-    }
+	return(flipped(r[PHI3], t, done));
 }

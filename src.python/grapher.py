@@ -68,10 +68,16 @@ class Grapher(object):
     def do_row(self, params):    
         row_number, r_left, r_right, n_variables, t_limits, width, height,\
             integrator, rule, result = params
+
+        if self.options.extend_time:
+            print("Extension of time is not yet implemented.")
+            
         print("{0}: Working on row {1} of {2}.".format(\
                     datetime.date.strftime(datetime.datetime.today(), \
                                            "%Y.%m.%d %H:%M:%S"),\
                     row_number, height.value-1))
+
+        print([a for a in r_left])
 
         lagrangians.do_row(r_left, r_right, n_variables, t_limits,
                         width, integrator, rule, result)
@@ -136,7 +142,7 @@ class Grapher(object):
                     else:
                         self.status.append(False)
         except OSError:
-            print("Could not open %s for reading." % src)          
+            print("Could not open %s for reading." % src)
 
     def to_ppm(self, my_colormap=[[0, 0, 0], [255, 0, 0], \
                                   [255, 255, 0],  [255, 255, 255]], \
@@ -153,7 +159,7 @@ aesthetically pleasing."""
 
     def to_png(self, my_colormap=[[0, 0, 0], [255, 0, 0], \
                                   [255, 255, 0],  [255, 255, 255]],
-               src=None, dst=None):
+               src=None, dst=None, width=None):
         """Converts the image to png, using ImageMagick."""
         if src == None:
             src = self.filename("ppm")
@@ -163,8 +169,13 @@ aesthetically pleasing."""
 
         if not os.path.isfile(src):
             self.to_ppm(my_colormap, self.filename("raw"), self.filename("ppm"))
-        subprocess.Popen(["convert", src, dst]).wait()
+        
+        if width:
+            cmd = ["convert", src, "-resize", "%dx" % width, dst]
+        else:
+            cmd = ["convert", src, dst]
 
+        subprocess.Popen(cmd).wait()
 
 
 
