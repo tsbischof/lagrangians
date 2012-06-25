@@ -1,6 +1,6 @@
 from collections import OrderedDict
 
-from c_libraries import lagrangians
+from lagrangians.clib import lagrangians
 
 class System(object):
     def __init__(self, name=None, params=None, rules=None, integrators=None, \
