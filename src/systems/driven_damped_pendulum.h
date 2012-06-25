@@ -3,13 +3,13 @@
 
 #include "includes.h"
 
-void do_driven_damped_pendulum(dictionary *options, Grapher *grapher);
-void derivs_driven_damped_pendulum(double *r, double *drdt);
-void derivs_driven_damped_pendulum_sinusoid(double *r, double *drdt);
-void integrate_driven_damped_pendulum_sinusoid(double *r, double dt);
-void derivs_driven_damped_pendulum_square(double *r, double *drdt);
-void integrate_driven_damped_pendulum_square(double *r, double dt);
-double first_flip_driven_damped_pendulum(double *, double *, double, double *, int);
+void driven_damped_pendulum_derivs(double *r, double *drdt);
+void driven_damped_pendulum_sinusoid_derivs(double *r, double *drdt);
+void driven_damped_pendulum_sinusoid_integrate(double *r, double dt);
+void driven_damped_pendulum_square_derivs(double *r, double *drdt);
+void driven_damped_pendulum_square_integrate(double *r, double dt);
+double driven_damped_pendulum_first_flip(double *, double *, double, 
+	double *, int);
 
 
 #endif

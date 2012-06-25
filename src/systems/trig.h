@@ -1,16 +1,15 @@
-#ifndef TRIG_H_
-#define TRIG_H_
+#ifndef TRIG_H
+#define TRIG_H
 
 #include "includes.h"
 
-void do_trig(dictionary *options, Grapher *grapher);
-double force_trig(double *r);
-void integrate_trig(double *r, double dt);
-double force_trig2(double *r);
-void integrate_trig2(double *r, double dt);
-double force_trig3(double *r);
-void integrate_trig3(double *r, double dt);
-double force_trigfull(double *);
-void integrate_trigfull(double *, double);
+double trig_force(double *);
+void trig_integrate(double *, double);
+double trig_first_turnaround(double *r, double *r0, double t, double *values,
+        int done);
+double trig_speed(double *r, double *r0, double t, double *values,
+        int done);
+
+
 
 #endif

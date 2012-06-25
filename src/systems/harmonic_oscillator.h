@@ -1,10 +1,13 @@
-#ifndef HARMONIC_OSCILLATOR_H_
-#define HARMONIC_OSCILLATOR_H_
+#ifndef HARMONIC_OSCILLATOR_H
+#define HARMONIC_OSCILLATOR_H
 
 #include "includes.h"
 
-double force_harmonic_oscillator(double *r);
-void integrate_harmonic_oscillator(double *r, double dt);
-void do_harmonic_oscillator(dictionary *options, Grapher *grapher);
+double harmonic_oscillator_force(double *r);
+void harmonic_oscillator_integrate(double *r, double dt);
+double harmonic_oscillator_first_turnaround(double *r, double *r0, double t,
+    double *values, int done);
+double harmonic_oscillator_speed(double *r, double *r0, double t, 
+	double *values, int done);
 
 #endif 

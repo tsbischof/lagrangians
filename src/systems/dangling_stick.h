@@ -1,15 +1,16 @@
-#ifndef DANGLING_STICK_H_
-#define DANGLING_STICK_H_
+#ifndef DANGLING_STICK_H
+#define DANGLING_STICK_H
 
 #include "includes.h"
 
-void derivs_dangling_stick(double *r, double *drdt);
-void integrate_dangling_stick(double *r, double dt);
-void do_dangling_stick(dictionary *options, Grapher *grapher);
-double U_dangling_stick(double *);
-double T_dangling_stick(double *);
-int energy_dangling_stick(double *);
-double first_flip_dangling_stick(double *, double *, double, double *, int);
+void dangling_stick_derivs(double *r, double *drdt);
+void dangling_stick_integrate(double *r, double dt);
+double dangling_stick_U(double *);
+double dangling_stick_T(double *);
+int dangling_stick_lower_flip_energy(double *);
+double dangling_stick_lower_flip(double *, double *, double, double *, int);
+int dangling_stick_upper_flip_energy(double *);
+double dangling_stick_upper_flip(double *, double *, double, double *, int);
 
 
 #endif

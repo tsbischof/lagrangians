@@ -1,69 +1,34 @@
-OPENMP = -fopenmp
-MPI = -fmpi
-
-USE_GPU = #-DUSE_GPU
-OPENCL = 
-BROOK = #true
-STATIC = #true
-M32 = #true
-
-CFLAGS = -Wall -O3 ${OPENMP} ${USE_GPU}
-
-ifdef USE_GPU
-CC = c++
-CFLAGS += -Wno-write-strings
-LD = c++
-else
 CC = cc
 LD = cc
-endif
+CFLAGS = -Wall -fPIC -O3 -shared -fopenmp
+LDFLAGS := -lm
 
-LDFLAGS := -lm -liniparser 
+INSTALL_DIR = ${HOME}/lib
 
-ifdef M32
-CFLAGS += -m32
-endif
-ifdef STATIC
-CFLAGS += -static -static-libgcc
-LDFLAGS += -L/home/tsbischof/src/lagrangians/iniparser/iniparser3.0b
-endif
+COLORMAPOBJS = colormap.o
+COLORMAP = libcolormap.so
+LAGRANGIANOBJS := integrators.o rules.o
+LAGRANGIAN = liblagrangians.so
+SYSTEMS = dangling_stick double_pendulum double_spring double_well \
+		driven_damped_pendulum harmonic_oscillator platform_with_springs \
+		springy_pendulum trig
+LAGRANGIANOBJS += ${addsuffix .o, ${addprefix systems/, ${SYSTEMS}}}
 
-CPPFLAGS =
-OBJS :=  image_funcs.o integrators.o main.o parse_utils.o rules.o installed.o \
-        grapher.o 
-SYSTEMS := harmonic_oscillator trig double_well \
-		double_pendulum dangling_stick springy_pendulum double_spring \
-		platform_with_springs driven_damped_pendulum
-OBJS += ${addsuffix .o, ${addprefix systems/, ${SYSTEMS}}}
-TARGET = lagrangians
+TARGETS = ${COLORMAP} ${LAGRANGIAN} 
 
-ifeq (${BROOK},true)
-BRCC = brcc
-BRKERNS = systems/gpu/harmonic_oscillator.brook
-BRCPP = systems/gpu/gpu_brook.cpp
-BRGEN := ${BRKERNS:.brook=.h} ${BRKERNS:.brook=_gpu.h} ${BRKERNS:.brook=.cpp}
-BROBJS := ${BRCPP:.cpp=.o} ${BRKERNS:.brook=.o}
-BRLIBS := -I/usr/local/atibrook/sdk/include -L/usr/local/atibrook/sdk/lib -lbrook -lbrook_cal
-LIBS += ${BRLIBS}
-else
-endif
+all: ${TARGETS}
 
-all: ${TARGET}
+${COLORMAP}: ${COLORMAPOBJS}
+	${CC} ${CFLAGS} -o $@ ${COLORMAPOBJS} ${LDFLAGS}
 
-${TARGET}: ${BROBJS} ${OBJS}
-	${LD} ${LDFLAGS} ${CFLAGS} ${CPPFLAGS} -o $@ ${OBJS} ${BROBJS} ${LDFLAGS}
+${LAGRANGIAN}: ${LAGRANGIANOBJS}
+	${CC} ${CFLAGS} -o $@ ${LAGRANGIANOBJS} ${LDFLAGS}
 
 $%.o: %.c
-	${CC} ${LDFLAGS} ${CFLAGS} ${CPPFLAGS} -c -o $@ $< ${LDFLAGS}
+	${CC} ${CFLAGS} -c -o $@ $< ${LDFLAGS}
 
-${BROBJS}: ${BRKERNS} 
-	${CC} ${LDFLAGS} ${CFLAGS} ${CPPFLAGS} -c -o $@ ${@:.o=.cpp}
-
-${BRKERNS}: 
-	${BRCC} ${@:.brook=.br}
-
-install: ${TARGET}
-	cp ${TARGET} ~tsbischof/bin/.
+install: ${COLORMAP} ${LAGRANGIAN}
+	cp ${COLORMAP} ${LAGRANGIAN} ${INSTALLDIR}
 
 clean:
-	rm -f ${OBJS} ${TARGET} ${BRGEN} ${BROBJS} 
+	rm -f ${TARGETS} ${COLORMAPOBJS} ${LAGRANGIANOBJS} *.pyc

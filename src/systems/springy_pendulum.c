@@ -12,34 +12,16 @@
  * A `d' in front of the variable indicates a time derivative.
  */
 
-enum { R, DR, PHI1, DPHI1, PHI2, DPHI2, M1, M2, R0, K, L, G };
+enum { R, DR, PHI1, DPHI1, PHI2, DPHI2, M1, M2, R_0, K, L, G };
 
-void do_springy_pendulum(dictionary *options, Grapher *grapher) {
-	Functions functions;
-	functions.integrate_names[0] = "springy_pendulum";
-	functions.integrate_funcs[0] = integrate_springy_pendulum;
-
-	functions.rule_names[0] = "lower_flip";
-	functions.rule_funcs[0] = lower_flip_springy_pendulum;
-
-	functions.rule_names[1] = "upper_flip";
-	functions.rule_funcs[1] = upper_flip_springy_pendulum;
-
-    char *variable_order[12] = {"r", "dr", "phi1", "dphi1", "phi2", "dphi2",
-								"m1", "m2", "r0", "k", "l", "g"};
-	double variable_defaults[12] = {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 9.8};
-    setup_config(grapher, options, &variable_order[0], &variable_defaults[0],
-				12, &functions);
-}
-
-void derivs_springy_pendulum(double *r, double *drdt) {
-	drdt[DR] = -r[G]+(r[K]*r[R0])/r[M2]+r[G]*cos(r[PHI2])+r[L]*cos(r[PHI1]-r[PHI2])*r[DPHI1]*r[DPHI2]+r[R]*(-(r[K]/r[M2])+pow(r[DPHI2],2));
+void springy_pendulum_derivs(double *r, double *drdt) {
+	drdt[DR] = -r[G]+(r[K]*r[R_0])/r[M2]+r[G]*cos(r[PHI2])+r[L]*cos(r[PHI1]-r[PHI2])*r[DPHI1]*r[DPHI2]+r[R]*(-(r[K]/r[M2])+pow(r[DPHI2],2));
 	drdt[DPHI1] = (r[L]*r[M2]*pow(cos(r[PHI1]-r[PHI2]),2)*r[DR]*r[DPHI1]-r[M2]*pow(r[R],2)*sin(r[PHI1]-r[PHI2])*pow(r[DPHI2],2)-(r[R]*(2*r[G]*r[M1]*sin(r[PHI1])+r[G]*r[M2]*sin(r[PHI1])+r[G]*r[M2]*sin(r[PHI1]-2*r[PHI2])+r[L]*r[M2]*sin(2*(r[PHI1]-r[PHI2]))*pow(r[DPHI1],2)-2*r[M2]*cos(r[PHI1]-r[PHI2])*r[DR]*r[DPHI2]))/2.)/(r[L]*(r[M1]+r[M2]-r[M2]*pow(cos(r[PHI1]-r[PHI2]),2))*r[R]);
 	drdt[DPHI2] = (-2*r[L]*(r[M1]+r[M2])*cos(r[PHI1]-r[PHI2])*r[DR]*r[DPHI1]+r[M2]*pow(r[R],2)*sin(2*(r[PHI1]-r[PHI2]))*pow(r[DPHI2],2)+r[R]*(2*r[G]*(r[M1]+r[M2])*cos(r[PHI1])*sin(r[PHI1]-r[PHI2])+2*r[L]*(r[M1]+r[M2])*sin(r[PHI1]-r[PHI2])*pow(r[DPHI1],2)-(4*r[M1]+3*r[M2]-r[M2]*cos(2*(r[PHI1]-r[PHI2])))*r[DR]*r[DPHI2]))/(2.*(r[M1]+r[M2]-r[M2]*pow(cos(r[PHI1]-r[PHI2]),2))*pow(r[R],2));
 	drdt[R] = r[DR];
 	drdt[PHI1] = r[DPHI1];
 	drdt[PHI2] = r[DPHI2];
-	drdt[R0] = 0;
+	drdt[R_0] = 0;
 	drdt[G] = 0;
 	drdt[K] = 0;
 	drdt[L] = 0;
@@ -47,33 +29,69 @@ void derivs_springy_pendulum(double *r, double *drdt) {
 	drdt[M2] = 0;
 }
 
-void integrate_springy_pendulum(double *r, double dt) {
-	runge_kutta_4(derivs_springy_pendulum, r, dt, 12);
+void springy_pendulum_integrate(double *r, double dt) {
+	runge_kutta_4(springy_pendulum_derivs, r, dt, 12);
 }
 
-double U_springy_pendulum(double *r) {
-	return(r[G]*r[L]*(r[M1]+r[M2])*(1-cos(r[PHI1]))+r[G]*r[M2]*(1-cos(r[PHI2]))*r[R]+(r[K]*pow(-r[R0]+r[R],2))/2.);
+double springy_pendulum_U(double *r) {
+	return(r[G]*r[L]*(r[M1]+r[M2])*(1-cos(r[PHI1]))+r[G]*r[M2]*(1-cos(r[PHI2]))*r[R]+(r[K]*pow(-r[R_0]+r[R],2))/2.);
 }
 
-double T_springy_pendulum(double *r) {
+double springy_pendulum_T(double *r) {
 	return((pow(r[L],2)*(r[M1]+r[M2])*pow(r[DPHI1],2))/2.+(r[M2]*(pow(r[DR],2)+2*r[L]*cos(r[PHI1]-r[PHI2])*r[R]*r[DPHI1]*r[DPHI2]+pow(r[R],2)*pow(r[DPHI2],2)))/2.);
 }
 
-double lower_flip_springy_pendulum(double *r, double *r0, 
-		double t, double *values, int done) {
-	if ( ! done ) {
-		return( (r[PHI2] > 2*M_PI) || (r[PHI2] < -2*M_PI) );
-	} else {
-		return(t);
-	}	
+int springy_pendulum_lower_flip_energy(double *r) {
+    double r_min[12];
+    r_min[PHI1] = 0;
+    r_min[PHI2] = 0;
+    r_min[DPHI1] = M_PI;
+    r_min[DPHI2] = 0;
+
+    r_min[M1] = r[M1];
+    r_min[M2] = r[M2];
+
+    r_min[K] = r[K];
+    r_min[R] = r[R_0];
+    r_min[DR] = 0;
+    r_min[R_0] = r[R_0];
+
+	r_min[L] = r[L];
+    r_min[G] = r[G];
+
+    return( springy_pendulum_U(r) + springy_pendulum_T(r)
+            > springy_pendulum_U(&r_min[0]) );
 }
 
-double upper_flip_springy_pendulum(double *r, double *r0,
+double springy_pendulum_lower_flip(double *r, double *r0, 
+		double t, double *values, int done) {
+	return(flipped(r[PHI2], t, done));
+}
+
+int springy_pendulum_upper_flip_energy(double *r) {
+    double r_min[12];
+    r_min[PHI1] = M_PI;
+    r_min[PHI2] = 0;
+    r_min[DPHI1] = 0;
+    r_min[DPHI2] = 0;
+
+    r_min[M1] = r[M1];
+    r_min[M2] = r[M2];
+
+    r_min[K] = r[K];
+    r_min[R] = r[R_0];
+    r_min[DR] = 0;
+    r_min[R_0] = r[R_0];
+
+	r_min[L] = r[L];
+    r_min[G] = r[G];
+
+    return( springy_pendulum_U(r) + springy_pendulum_T(r)
+            > springy_pendulum_U(&r_min[0]) );
+}
+
+double springy_pendulum_upper_flip(double *r, double *r0,
         double t, double *values, int done) {
-    if ( ! done ) {
-        return( (r[PHI1] > 2*M_PI) || (r[PHI1] < -2*M_PI) );
-    } else {
-        return(t);
-    }
+	return(flipped(r[PHI1], t, done));
 }
 

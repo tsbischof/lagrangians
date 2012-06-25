@@ -1,16 +1,18 @@
-#ifndef PLATFORM_WITH_SPRINGS_H_
-#define PLATFORM_WITH_SPRINGS_H_
+#ifndef PLATFORM_WITH_SPRINGS_H
+#define PLATFORM_WITH_SPRINGS_H
 
 #include "includes.h"
 
-void derivs_platform_with_springs(double *r, double *drdt);
-void integrate_platform_with_springs(double *r, double dt);
-void do_platform_with_springs(dictionary *options, Grapher *grapher);
-double U_platform_with_springs(double *);
-double T_platform_with_springs(double *);
-double left_flip_platform_with_springs(double *, double *, double, double *, int);
-double right_flip_platform_with_springs(double *, double *, double, double *, int);
-double platform_flip_platform_with_springs(double *, double *, double, double *, int);
+void platform_with_springs_derivs(double *r, double *drdt);
+void platform_with_springs_integrate(double *r, double dt);
+double platform_with_springs_U(double *);
+double platform_with_springs_T(double *);
+double platform_with_springs_left_flip(double *, double *, double, 
+	double *, int);
+double platform_with_springs_right_flip(double *, double *, double, 
+	double *, int);
+double platform_with_springs_platform_flip(double *, double *, double, 
+	double *, int);
 
 
 #endif

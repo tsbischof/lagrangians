@@ -1,28 +1,24 @@
 #include "harmonic_oscillator.h"
 
 enum { X, V, M, K };
-double force_harmonic_oscillator(double *r) {
+
+double harmonic_oscillator_force(double *r) {
 	return(-r[K]*r[X]);
 }
 
-void integrate_harmonic_oscillator(double *r, double dt) {
-	verlet(force_harmonic_oscillator, r, dt);
+void harmonic_oscillator_integrate(double *r, double dt) {
+	verlet(harmonic_oscillator_force, r, dt);
 }
 
-void do_harmonic_oscillator(dictionary *options, Grapher *grapher) {
-	Functions functions;
-	functions.integrate_names[0] = "harmonic_oscillator";
-	functions.integrate_funcs[0] = integrate_harmonic_oscillator;
-
-	functions.rule_names[0] = "first_turnaround";
-	functions.rule_funcs[0] = first_turnaround;
-
-	functions.rule_names[1] = "speed";
-	functions.rule_funcs[1] = speed;
-
-
-    char *variable_order[4] = {"x", "v", "m", "k"};
-	double variable_defaults[4] = {0, 0, 1, 1};
-    setup_config(grapher, options, &variable_order[0], &variable_defaults[0],
-				4, &functions);
+double harmonic_oscillator_first_turnaround(double *r, double *r0, double t,
+    double *values, int done) {
+    return(first_turnaround(r, r0, t, values, done));
 }
+
+double harmonic_oscillator_speed(double *r, double *r0, double t, 
+	double *values, int done) {
+    return(speed(r, r0, t, values, done));
+}
+
+
+

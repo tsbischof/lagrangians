@@ -1,0 +1,15 @@
+[config]
+system = double_spring
+rule = lower_flip
+width = 10
+height = 10
+
+t = 0, 0.01, 100
+
+[defaults]
+
+[horizontal]
+phi2 = 1, 2
+
+[vertical]
+r1 = 1.5, 2

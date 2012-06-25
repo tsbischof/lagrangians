@@ -1,0 +1,6 @@
+-do proper checks of return statuses (error checking? How silly)
+-be more careful with the Points object, and pass copies when it makes sense.
+-simplify the grapher, such that we can do parallel runs more easily.
+-put the new version online, and update the paper
+-make a configuration file which lets us set things like the location of ImageMagick
+-modify the gui to use the new system

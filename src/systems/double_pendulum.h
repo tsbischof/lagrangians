@@ -1,15 +1,13 @@
-#ifndef DOUBLE_PENDULUM_H_
-#define DOUBLE_PENDULUM_H_
+#ifndef DOUBLE_PENDULUM_H
+#define DOUBLE_PENDULUM_H
 
 #include "includes.h"
 
-void derivs_double_pendulum(double *r, double *drdt);
-void integrate_double_pendulum(double *r, double dt);
-void do_double_pendulum(dictionary *options, Grapher *grapher);
-double U_double_pendulum(double *);
-double T_double_pendulum(double *);
-int energy_double_pendulum(double *);
-double first_flip_double_pendulum(double *, double *, double, double *, int);
-double count_flips_double_pendulum(double *, double *, double, double *, int);
+void double_pendulum_derivs(double *r, double *drdt);
+void double_pendulum_integrate(double *r, double t, double dt);
+double double_pendulum_U(double *);
+double double_pendulum_T(double *);
+int double_pendulum_lower_flip_energy(double *);
+double double_pendulum_lower_flip(double *, double *, double, double *, int);
 
 #endif

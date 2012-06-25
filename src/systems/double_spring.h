@@ -1,17 +1,17 @@
-#ifndef DOUBLE_SPRING_H_
-#define DOUBLE_SPRING_H_
+#ifndef DOUBLE_SPRING_H
+#define DOUBLE_SPRING_H
 
 #include "includes.h"
 
-void derivs_double_spring(double *r, double *drdt);
-void integrate_double_spring(double *r, double dt);
-void do_double_spring(dictionary *options, Grapher *grapher);
-double U_double_spring(double *);
-double T_double_spring(double *);
-int energy_double_spring(double *);
-double lower_flip_double_spring(double *r, double *r0,
+void double_spring_derivs(double *r, double *drdt);
+void double_spring_integrate(double *r, double dt);
+double double_spring_U(double *);
+double double_spring_T(double *);
+int double_spring_lower_flip_energy(double *);
+double double_spring_lower_flip(double *r, double *r0,
         double t, double *values, int done);
-double upper_flip_double_spring(double *r, double *r0,
+int double_spring_upper_flip_energy(double *);
+double double_spring_upper_flip(double *r, double *r0,
         double t, double *values, int done);
 
 #endif

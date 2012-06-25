@@ -11,28 +11,7 @@
 
 enum { PHI1, DPHI1, PHI2, DPHI2, M1, M2, L1, L2, G };
 
-void do_double_pendulum(dictionary *options, Grapher *grapher) {
-    Functions functions;
-    functions.integrate_names[0] = "double_pendulum";
-    functions.integrate_funcs[0] = integrate_double_pendulum;
-
-    functions.rule_names[0] = "first_flip";
-    functions.rule_funcs[0] = first_flip_double_pendulum;
-	functions.rule_names[1] = "count_flips";
-	functions.rule_funcs[1] = count_flips_double_pendulum;
-
-    functions.validate = 1; // set to 1 to indicate that we do have a validator
-    functions.validate_names[0] = "energy";
-    functions.validate_funcs[0] = energy_double_pendulum;
-
-    char *variable_order[9] = {"phi1", "dphi1", "phi2", "dphi2", "m1", "m2",
-                             	  "l1", "l2", "g"};
-    double variable_defaults[9] = {0, 0, 0, 0, 1, 1, 1, 1, 9.8};
-    setup_config(grapher, options, &variable_order[0], &variable_defaults[0],
-                9, &functions);
-}
-
-void derivs_double_pendulum(double *r, double *drdt) {
+void double_pendulum_derivs(double *r, double *drdt) {
     drdt[PHI1] = r[DPHI1];
     drdt[DPHI1] = ( - r[G]*((2*r[M1]+r[M2])*sin(r[PHI1])
 							+ r[M2]*sin(r[PHI1]-2*r[PHI2]))
@@ -52,21 +31,21 @@ void derivs_double_pendulum(double *r, double *drdt) {
 	drdt[G] = 0;
 }
 
-void integrate_double_pendulum(double *r, double dt) {
-	runge_kutta_4(derivs_double_pendulum, r, dt, 9);
+void double_pendulum_integrate(double *r, double t, double dt) {
+	runge_kutta_4(double_pendulum_derivs, r, dt, 9);
 }
 
-double T_double_pendulum(double *r) {
+double double_pendulum_T(double *r) {
 	return(1.0/2*r[M1]*pow(r[DPHI1]*r[L1], 2) + 
 		1.0/2*r[M2]*(pow(r[DPHI1]*r[L1], 2)+pow(r[DPHI2]*r[L2], 2)+
 					 2*r[L1]*r[L2]*r[DPHI1]*r[DPHI2]*cos(r[PHI1]-r[PHI2])));
 }
 
-double U_double_pendulum(double *r) {
+double double_pendulum_U(double *r) {
 	return(r[M1]*r[G]*r[L1]*(1-cos(r[PHI1]))+r[M2]*r[G]*(r[L1]*(1-cos(r[PHI1]))+r[L2]*(1-cos(r[PHI2]))));
 }
 
-int energy_double_pendulum(double *r) {
+int double_pendulum_lower_flip_energy(double *r) {
 	double r_min[9];
 	r_min[PHI1] = 0;
 	r_min[PHI2] = M_PI;
@@ -78,25 +57,16 @@ int energy_double_pendulum(double *r) {
 	r_min[L2] = r[L2];
 	r_min[G] = r[G];
 
-	return( U_double_pendulum(r) + T_double_pendulum(r) 
-			> U_double_pendulum(&r_min[0]) );
+	return( double_pendulum_U(r) + double_pendulum_T(r) 
+			> double_pendulum_U(&r_min[0]) );
 } 
 
-double first_flip_double_pendulum(double *r, double *r0, 
+double double_pendulum_lower_flip(double *r, double *r0, 
 			double t, double *values, 
 				int done) {
 	if ( ! done ) {
 		return( (r[PHI2] > 2*M_PI) || (r[PHI2] < -2*M_PI) );
 	} else {
 		return(t);
-	}
-}
-
-double count_flips_double_pendulum(double *r, double *r0, double t, 
-	double *values, int done) {
-	if ( ! done ) {
-		return(0);
-	} else {
-		return(r[PHI2]);
 	}
 }
