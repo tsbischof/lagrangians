@@ -1,9 +1,6 @@
 import ctypes
 import os
 
-def sign(x):
-    return(x/abs(x))
-
 def increment_array(array, dr):
     for index, elem in enumerate(dr):
         array[index] += elem

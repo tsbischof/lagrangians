@@ -1,12 +1,9 @@
 CC = cc
 LD = cc
-CFLAGS = -Wall -fPIC -O3 -shared -fopenmp
+CFLAGS = -Wall -O3 -fopenmp -fPIC -shared
 LDFLAGS := -lm
 
-INSTALL_DIR = ${HOME}/lib
-
-COLORMAPOBJS = colormap.o
-COLORMAP = libcolormap.so
+COLORMAP = colormap
 LAGRANGIANOBJS := integrators.o rules.o
 LAGRANGIAN = liblagrangians.so
 SYSTEMS = dangling_stick double_pendulum double_spring double_well \
@@ -18,8 +15,8 @@ TARGETS = ${COLORMAP} ${LAGRANGIAN}
 
 all: ${TARGETS}
 
-${COLORMAP}: ${COLORMAPOBJS}
-	${CC} ${CFLAGS} -o $@ ${COLORMAPOBJS} ${LDFLAGS}
+${COLORMAP}: 
+	${CC} -Wall -O3 -o $@ colormap.c ${LDFLAGS}
 
 ${LAGRANGIAN}: ${LAGRANGIANOBJS}
 	${CC} ${CFLAGS} -o $@ ${LAGRANGIANOBJS} ${LDFLAGS}
@@ -28,7 +25,8 @@ $%.o: %.c
 	${CC} ${CFLAGS} -c -o $@ $< ${LDFLAGS}
 
 install: ${COLORMAP} ${LAGRANGIAN}
-	cp ${COLORMAP} ${LAGRANGIAN} ${INSTALLDIR}
+	cp ${LAGRANGIAN} ${HOME}/lib
+	cp ${COLORMAP} ${HOME}/bin
 
 clean:
-	rm -f ${TARGETS} ${COLORMAPOBJS} ${LAGRANGIANOBJS} *.pyc
+	rm -f ${TARGETS} ${COLORMAP} ${LAGRANGIANOBJS} 

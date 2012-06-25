@@ -2,7 +2,8 @@
 
 import os
 import sys
-import grapher
+
+import lagrangians
 
 def find_files():
     for root, dirs, files in os.walk(os.getcwd()):
@@ -18,5 +19,5 @@ if __name__ == "__main__":
         filenames = find_files()
         
     for filename in sorted(filenames):
-        my_grapher = grapher.Grapher(filename)
-        my_grapher.get_status()
+        lagrangians.Lagrangian(filename).status()
+        

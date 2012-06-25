@@ -1,7 +1,14 @@
+import os
 import configparser
 from collections import OrderedDict
 
-from lagrangians import systems
+from lagrangians import systems, modes, points
+
+def sign(x):
+    if x < 0:
+        return(-1)
+    else:
+        return(1)
 
 class Options(object):
     def __init__(self, filename=None):
@@ -114,21 +121,15 @@ class Options(object):
             self.integrator = self.validate_config("config", "integrator", \
                                                 self.system.integrators)
        
-        try:
-            # We need to check that the time increment will actually run in the
-            # same direction as the upper limit.
-            self.t = list(map(float, self.get("config", "t").split(",")))
-            t, dt, t_limit = self.t
+        # We need to check that the time increment will actually run in the
+        # same direction as the upper limit.
+        self.t = list(map(float, self.get("config", "t").split(",")))
+        t, dt, t_limit = self.t
 
-            if sign(t_limit-t) != sign(dt):
-                raise(ValueError("Chosen time step will never complete."))
-            else:
-                pass
-        except:
-            raise(\
-                ValueError(\
-                    "Invalid time steps: {0}.".\
-                    format(self.get("config", "t"))))
+        if sign(t_limit-t) != sign(dt):
+            raise(ValueError("Chosen time step will never complete."))
+        else:
+            pass
 
         self.height = self.validate_size("config", "height")
         self.width = self.validate_size("config", "width")
@@ -140,6 +141,7 @@ class Options(object):
         if video_run:
             # We have found a video line, so parse it to make sure the variables
             # requested are actually available
+            self.mode = modes.MODE_VIDEO
             self.video = list()
             video = list(map(lambda x: x.strip(), \
                              video.split(",")))
@@ -163,6 +165,7 @@ class Options(object):
                 raise(ValueError("write_every must be a positive integer."))
         else:
             # doing an image run, go from there.
+            self.mode = modes.MODE_IMAGE
             self.rule = self.validate_config("config", "rule", \
                                              self.system.rules)
             self.validator = self.validate_config("config", "validator", \
@@ -170,12 +173,13 @@ class Options(object):
             self.extend_time = self.getboolean("config", "extend_time")
 
         self.n_variables = len(self.system.params.keys())                                            
-        self.points = Points(self.get_section("horizontal"), \
-                             self.get_section("vertical"), \
-                             self.get_section("defaults"), \
-                             self.system.params, \
-                             self.height, \
-                             self.width)
+        self.rows = points.Points(
+            self.get_section("horizontal"),
+            self.get_section("vertical"),
+            self.get_section("defaults"),
+            self.system.params,
+            self.height,
+            self.width)
 
     def to_file(self):
         pass
