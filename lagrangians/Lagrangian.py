@@ -169,47 +169,56 @@ be used to determine the initial conditions for each pixel."""
                my_colormap=colormap.DEFAULT_COLORMAP,
                dst_folder=None,
                dst_filename=None,
-               dst_width=None):
+               name_with_colormap=False,
+               dst_width=None,
+               compress=True):
         if dst_width and not dst_width == self.options.width:
             # We must scale the image to achieve the desired dimensions. This
             # can either require downsampling or upsampling.
             dst_height = int(dst_width/float(self.options.width)
                              *self.options.height)
 
-            logging.info("To output an image at {0}x{1}, the raw data must "
-                         "be resampled from its original {2}x{3}. This may"
-                         "take a while.".format(
-                             dst_height, dst_width,
-                             self.options.height, self.options.width))
-            with open(self.filename("raw"), "rb") as raw_file:
-                downsampled = colormap.downsample(raw_file,
-                                                  self.options.height,
-                                                  self.options.width,
-                                                  dst_height,
-                                                  dst_width)
-
             raw_filename = self.filename(
-                "raw.{0}.{1}".format(dst_width, dst_height))
-            with open(raw_filename, "wb") as downsampled_file:
-                for row in downsampled:
-                    for pixel in row:
-                        downsampled_file.write(
-                            struct.pack(
-                                modes.raw_type,
-                                pixel))
+                "raw.{0}.{1}".format(dst_height,
+                                     dst_width))
 
-            if not dst_filename:
-                dst_filename = self.filename("{0}.png".format(
-                    "_".join(
-                        map(str, colormap.flatten(my_colormap)))))
+            if files.compressed_file_exists(raw_filename):
+                files.decompress(raw_filename)
+            else:
+                logging.info("To output an image at {0}x{1}, the raw data "
+                             "must be resampled from its original {2}x{3}. "
+                             "This may take a while.".format(
+                                 dst_height, dst_width,
+                                 self.options.height, self.options.width))
+                with open(self.filename("raw"), "rb") as raw_file:
+                    downsampled = colormap.downsample(raw_file,
+                                                      self.options.height,
+                                                      self.options.width,
+                                                      dst_height,
+                                                      dst_width)
+
+
+                with open(raw_filename, "wb") as downsampled_file:
+                    for row in downsampled:
+                        for pixel in row:
+                            downsampled_file.write(
+                                struct.pack(
+                                    modes.raw_type,
+                                    pixel))
+
         else:
             raw_filename = self.filename("raw")
             dst_height = self.options.height
             dst_width = self.options.width
 
         if not dst_filename:
-            dst_filename = self.filename("png")
-
+            if name_with_colormap:
+                dst_filename = self.filename("{0}.png".format(
+                    "_".join(
+                        map(str, colormap.flatten(my_colormap)))))
+            else:
+                dst_filename = self.filename("png")
+                
         if dst_folder:
             try:
                 os.mkdir(dst_folder)
@@ -221,9 +230,13 @@ be used to determine the initial conditions for each pixel."""
     
             dst_filename = os.path.join(dst_folder,
                                         dst_filename)
-            
-        colormap.apply_colormap(raw_filename, dst_height, dst_width,
-                          dst_filename, my_colormap)             
+
+        if self.overwrite or not os.path.isfile(dst_filename):
+            colormap.apply_colormap(raw_filename, dst_height, dst_width,
+                              dst_filename, my_colormap)
+
+        if compress:
+            files.compress(raw_filename)
         
     def run_video(self):
         raise(ValueError("Video mode not yet enabled."))

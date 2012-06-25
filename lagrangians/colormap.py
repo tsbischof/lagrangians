@@ -20,6 +20,23 @@ DEFAULT_COLORMAP = [(0, 0, 0),
                     (255, 255, 0),
                     (255, 255, 255)]
 
+def colormaps_from_swatches(
+    swatch_dir="/home/tsbischof/src/lagrangians/run/swatches"):
+    parser = re.compile("swatch_(?P<points>.+)\.png")
+    for root, dirs, files in os.walk(swatch_dir):
+        if "like" in root and not "dislike" in root:
+            for filename in files:
+                parsed = parser.search(filename)
+                if parsed:
+                    points = list(
+                        map(
+                            int,
+                            parsed.group("points").split("_")))
+
+                    yield([tuple(points[i:i+3]) for i in range(len(points)//3)])
+                else:
+                    logging.error("Could not parse {0}".format(filename))
+
 def apply_colormap(raw_filename, height, width,
              dst_filename,
              my_colormap=DEFAULT_COLORMAP):
@@ -30,8 +47,6 @@ def apply_colormap(raw_filename, height, width,
         "--width", str(width),
         "--colormap-length", str(len(my_colormap))]
     colormap_cmd.extend(list(map(str, flatten(my_colormap))))
-
-    print(colormap_cmd)
 
     convert_cmd = ["convert", "ppm:-", dst_filename]
 
@@ -81,12 +96,45 @@ if __name__ == "__main__":
 
 
     colormaps = []
+##    colormaps = list(colormaps_from_swatches())
 
     for i in range(0, 255, 10):
-        colormaps.append([(0, 0, 0),
-                          (0, 0, i),
-                          (0, i, i),
-                          (i, i, i)])
+        colormaps.extend([
+            [(0, 0, 0),
+             (0, 0, i),
+             (0, i, i),
+             (i, i, i)],
+            [(0, 0, 0),
+             (i, 0, 0),
+             (0, i, 0),
+             (0, 0, i)],
+            DEFAULT_COLORMAP,
+            [(0, 0, 0),
+             (i, 0, 0),
+             (i, i, 0),
+             (i, i, i),
+             (0, i, i),
+             (0, 0, i),
+             (0, 0, 0)],
+            [(i, i, i),
+             (0, i, i),
+             (0, 0, i),
+             (0, 0, 0),
+             (i, 0, 0),
+             (i, i, 0),
+             (i, i, i)],
+            [(i, i, i),
+             (0, i, i),
+             (0, 0, i),
+             (0, 0, 0),
+             (0, 0, i),
+             (0, i, i),
+             (i, i, i)],
+            [(0, 0, 0),
+             (0, i, i),
+             (i, i, 0),
+             (i, 0, 0),
+             (0, 0, 0)]])
     
     
     for filename in sys.argv[1:]:
@@ -94,6 +142,9 @@ if __name__ == "__main__":
 
         for my_colormap in colormaps:
             print(filename, my_colormap)
-            image.to_png(dst_width=1000,
+            image.to_png(dst_width=options.width,
                          dst_folder=filename[:-4],
-                         my_colormap=my_colormap)
+                         my_colormap=my_colormap,
+                         compress=False,
+                         name_with_colormap=True)
+

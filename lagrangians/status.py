@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
+import logging
 import os
 import sys
 
+sys.path.append("/home/tsbischof/lib")
 import lagrangians
 
 def find_files():
@@ -14,6 +16,7 @@ def find_files():
                 yield(myfile)
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     filenames = sys.argv[1:]
     if len(filenames) == 0:
         filenames = find_files()
