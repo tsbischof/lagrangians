@@ -7,17 +7,13 @@ import struct
 import re
 import shutil
 
-import colormap
-import parse
-import systems
-import utils
-from c_libraries import lagrangians
+from lagrangians import colormap, options, clib
 
 class Grapher(object):
     def __init__(self, filename):
-        self.filename_base = filename
-        if self.filename_base.endswith(".inp"):
-            self.filename_base = self.filename_base[:-4]
+        self.name_base = filename
+        if self.name_base.endswith(".inp"):
+            self.name_base = self.filename_base[:-4]
 
         self.options = parse.Options(filename)
       

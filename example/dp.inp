@@ -1,9 +1,0 @@
-title=Double pendulum test
-comment=Test
-integrator=double_pendulum
-rule=first_flip
-
-t=0,0.001,10
-phi1=-5,0.01,5
-phi2=-5,0.01,5
-plot=phi1,phi2

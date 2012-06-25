@@ -6,7 +6,7 @@ import os
 import struct
 import sys
 
-sys.path.append("/home/tsbischof/src/lagrangians/run")
+sys.path.append("/home/tsbischof/src/lagrangians/src.python")
 
 import colormap
 
@@ -40,19 +40,19 @@ def make_swatches(n, n_swatches=0, in_colormap=None):
 
     make_swatch(source, resolution, height, width)
 
+    colormaps = list()
+
     for i in range(n_swatches):
-        mycolormap = colormap.random_colormap(n, depth)
-        out_name = out_base + "_".join(map(str, mycolormap)) + ".png"
-        print(out_name)
-        colormap.do_colormap(source, out_name, resolution, \
-                             height, width, n, mycolormap)
+        colormaps.append(colormap.random_colormap(n, depth))
 
     if in_colormap:
-        mycolormap = in_colormap
-        out_name = out_base + "_".join(map(str, mycolormap)) + ".png"
+        colormaps.append(in_colormap)
+
+    for mycolormap in colormaps:
+        out_name = out_base + "_".join(map(str, flatten(mycolormap))) + ".png"
         print(out_name)
-        colormap.do_colormap(source, out_name, resolution, \
-                             height, width, n, mycolormap)
+        colormap.do_colormap(source, out_name, height, width, \
+                             resolution, mycolormap)
 
     
 ##    p1 = [0,0,0]
@@ -73,8 +73,11 @@ def make_swatches(n, n_swatches=0, in_colormap=None):
 
 if __name__ == "__main__":
     n_swatches = 0
-    mycolormap = flatten([[0xff, 0xff, 0xff],
-                          [0x44, 0x44, 0x44],
-                          [0x00, 0x00, 0x00]])
-    n = len(mycolormap) // 3
+    mycolormap = [[0, 0, 0], [0, 0, 255], [0, 255, 255],
+                  [255, 255, 255], [255, 255, 0], [255, 0, 0], 
+                  [0, 0, 0]]
+#    mycolormap = flatten([[0xff, 0xff, 0xff],
+#                          [0x44, 0x44, 0x44],
+#                          [0x00, 0x00, 0x00]])
+    n = len(mycolormap)
     make_swatches(n, n_swatches, in_colormap=mycolormap)
