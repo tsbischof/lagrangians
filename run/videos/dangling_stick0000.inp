@@ -1,0 +1,28 @@
+[config]
+system = dangling_stick
+
+video = phi1, phi2, dphi1, dphi2
+write_every = 10
+
+t = 0, 0.001, 10
+
+height = 1000
+width = 1000
+
+[defaults]
+dr = 0
+dphi1 = 0
+dphi2 = 0
+m1 = 1
+m2 = 1
+l = 1
+k = 1
+g = 9.8
+r_0 = 1
+
+[horizontal]
+phi1 = -3.1415926, 3.1415926
+
+[vertical]
+r = 0.1, 2.0
+

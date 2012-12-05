@@ -1,0 +1,12 @@
+system = dangling_stick
+rule = first_flip
+;restart = true
+validator = energy
+
+t = 0, 0.01, 100
+phi1 = -3.141592654,20001, 3.141592654
+phi2 = -3.141592654,20001, 3.141592654
+r0 = 1
+r = 0.5
+dphi2 = -2
+plot = phi1, phi2

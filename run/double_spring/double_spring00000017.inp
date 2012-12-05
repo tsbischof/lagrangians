@@ -1,0 +1,19 @@
+[config]
+system = double_spring
+rule = lower_flip
+validate = energy
+
+t=0,0.01,100
+
+height = 200
+width = 400
+
+[defaults]
+dr1 = 2
+dr2 = 1.1
+
+[horizontal]
+phi1 = -3.1415926, 3.1415926
+
+[vertical]
+phi2 = -3.1415926, 0

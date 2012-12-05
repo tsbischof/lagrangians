@@ -1,0 +1,10 @@
+system = dangling_stick
+rule = first_flip
+;restart = true
+
+t = 0, 0.01, 300
+r = 0.0005, 5000, 10
+phi2 = -3.1415926535897932385, 5000, 3.1415926535897932385
+dr = 1
+dphi2 = -3
+plot = r, phi2

@@ -30,7 +30,7 @@ void runge_kutta_4(void (*derivs)(double *, double *),
 	k1ptr = k1;
 	k2ptr = k2;
 	k3ptr = k3;
-	k4ptr = k4;
+	k4ptr = k4; 
 
 	int i;
 

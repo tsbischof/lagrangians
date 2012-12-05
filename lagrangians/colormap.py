@@ -9,6 +9,7 @@ import collections
 import subprocess
 import optparse
 import logging
+import random
 
 sys.path.append("/home/tsbischof/lib")
 
@@ -45,7 +46,8 @@ def apply_colormap(raw_filename, height, width,
         "--file-in", raw_filename,
         "--height", str(height),
         "--width", str(width),
-        "--colormap-length", str(len(my_colormap))]
+        "--colormap-length", str(len(my_colormap)),
+        "--"]
     colormap_cmd.extend(list(map(str, flatten(my_colormap))))
 
     convert_cmd = ["convert", "ppm:-", dst_filename]
@@ -90,13 +92,12 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     parser = optparse.OptionParser()
     parser.add_option("-w", "--width", type=int, help="New width",
-                        default=1000)
+                        default=None)
 
     options, args = parser.parse_args()
 
 
-    colormaps = []
-##    colormaps = list(colormaps_from_swatches())
+    colormaps = list(colormaps_from_swatches())
 
     for i in range(0, 255, 10):
         colormaps.extend([
@@ -135,15 +136,53 @@ if __name__ == "__main__":
              (i, i, 0),
              (i, 0, 0),
              (0, 0, 0)]])
-    
-    
-    for filename in sys.argv[1:]:
+
+##    for i in range(100):
+##        colormaps.extend([
+##			[tuple([random.randint(-255, 255) for i in range(3)])
+##             for j in range(5)]])
+
+##    colormaps = [DEFAULT_COLORMAP,
+##                 [(255, 255, 255),
+##                  (219, 133, 14),
+##                  (0, 0, 0),
+##                  (133, 185, 214),
+##                  (255, 255, 255)],
+##                 [(255, 255, 255),
+##                  (48, 86, 246),
+##                  (0, 0, 0),
+##                  (223, 98, 126), 
+##                  (0, 0, 0)]]
+
+#    colormaps = list()
+#    
+#    a = 30
+#    for i in range(1000):
+#        colormaps.append([(255-random.randint(0, 2*a),
+#                           255-random.randint(0, 2*a),
+#                           255-random.randint(0, 2*a)),
+#                          (255-random.randint(0, 2*a),
+#                           59+random.randint(-a, a),
+#                           59+random.randint(-a, a)),
+#                          (255-random.randint(0, 2*a),
+#                           255-random.randint(0, 2*a),
+#                           random.randint(0, 2*a)),
+#                          (40+random.randint(-a, a),
+#                           40+random.randint(-a, a),
+#                           150+random.randint(-a, a)),
+#                          (random.randint(0, 2*a),
+#                           random.randint(0, 2*a),
+#                           random.randint(0, 2*a))])
+##    colormaps = [DEFAULT_COLORMAP]
+
+    for filename in args:
         image = lagrangians.Lagrangian(filename)
 
         for my_colormap in colormaps:
             print(filename, my_colormap)
             image.to_png(dst_width=options.width,
-                         dst_folder=filename[:-4],
+                         dst_folder=os.path.join(os.getcwd(),
+                                    re.sub("\.inp", "", filename)),
                          my_colormap=my_colormap,
                          compress=False,
                          name_with_colormap=True)

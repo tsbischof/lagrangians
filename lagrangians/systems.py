@@ -86,7 +86,8 @@ double_pendulum = System("double_pendulum", \
     OrderedDict([("phi1", 0), ("dphi1", 0), ("phi2", 0), ("dphi2", 0),\
                  ("m1", 1), ("m2", 1), ("l1", 1), ("l2", 1), ("g", 9.8)]), \
     [Rule("lower_flip", lagrangians.double_pendulum_lower_flip, \
-      [Validator("energy", lagrangians.double_pendulum_lower_flip_energy)])],\
+      [Validator("energy", lagrangians.double_pendulum_lower_flip_energy)],),\
+     Rule("lower_turnaround", lagrangians.double_pendulum_lower_turnaround)],\
     [Integrator("double_pendulum", lagrangians.double_pendulum_integrate)], \
     """Simulates the motion of two pendulums, attached to each other. The first
 pendulum is attached to a fixed point, has a mass m1 attached to its lower

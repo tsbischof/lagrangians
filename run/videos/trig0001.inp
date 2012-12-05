@@ -1,0 +1,25 @@
+[config]
+system = trig
+
+video = x, v
+write_every = 1
+
+t = 0, 0.002, 20
+height = 1000
+width = 1000
+
+[defaults]
+m = 1
+k1 = 0.5
+k2 = 0 
+k3 = 0
+k4 = 1
+k5 = 0 
+k6 = 0
+
+[horizontal]
+x = -20, 20
+
+[vertical]
+v = -20, 20
+

@@ -2,12 +2,15 @@
 
 import os
 import sys
+import logging
 
 sys.path.append("/home/tsbischof/lib")
 
 import lagrangians
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+
     if len(sys.argv) == 1:
         print("Usage: lagrangians <input_files>")
     else:

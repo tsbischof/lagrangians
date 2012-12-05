@@ -1,0 +1,12 @@
+system = double_spring
+rule = lower_flip
+;restart = true
+;extend_time = true
+;gpu = brook
+
+t=0,0.01,100
+phi1 = -3.1415926,6285, 3.1415926
+phi2 = -3.1415926,6285, 3.1415926
+dphi1 = 2
+dphi2 = -2
+plot = phi1, phi2

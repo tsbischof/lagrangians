@@ -1,0 +1,29 @@
+[config]
+system = driven_damped_pendulum
+integrator = sinusoid
+
+t = 0, 0.001, 50
+write_every = 10
+video = phi, dphi
+
+height = 100
+width = 100
+
+[defaults]
+m = 1
+l = 1
+b = 0
+
+;omega = 1
+delta = 0
+a = 5
+
+g = 9.8
+
+dphi = 0
+
+[horizontal]
+phi = -3.1415926, 3.1415926
+
+[vertical]
+omega = 0, 4

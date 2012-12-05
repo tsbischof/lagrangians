@@ -1,0 +1,20 @@
+[config]
+system = springy_pendulum
+rule = lower_flip
+t = 0, 0.001, 250
+restart = true
+
+height = 10000
+width = 10000
+
+[defaults]
+dr = 3
+dphi1 = -3
+dphi2 = 1
+
+[horizontal]
+phi1 = 0.1, 0.6
+
+[vertical]
+r = 0.3, 0.6
+

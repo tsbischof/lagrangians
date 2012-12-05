@@ -1,0 +1,10 @@
+system = double_pendulum
+rule = first_flip
+validator = energy
+
+t = 0,0.01,150
+dphi1 = -0.5,5001,0.5
+dphi2 = -0.5,5001,0.5
+phi1 = -1.400000
+phi2 = 1.000000
+plot = dphi1,dphi2

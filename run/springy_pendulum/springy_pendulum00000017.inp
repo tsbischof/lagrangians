@@ -1,0 +1,28 @@
+[config]
+system = springy_pendulum
+rule = lower_flip
+validate = energy
+restart = true
+
+t = 0, 0.002, 200
+
+width = 20000
+height = 20000
+
+[horizontal]
+phi2 = -3.141593, 3.141593
+
+[vertical]
+dr = -2, 2
+
+[defaults]
+r = 0.052096
+phi1 = 0.420362
+dphi1 = -0.386657
+dphi2 = 0.791715
+m1 = 1
+m2 = 1
+r_0 = 1
+k = 1
+l = 1
+g = 9.8

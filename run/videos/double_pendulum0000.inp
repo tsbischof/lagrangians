@@ -1,0 +1,22 @@
+[config]
+system = double_pendulum
+video = phi1, phi2, dphi1, dphi2
+write_every = 1
+width = 1000
+height = 1000
+t = 0, 0.01, 10
+
+[defaults]
+m1 = 1
+m2 = 1
+l1 = 1
+l2 = 1
+dphi1 = 0
+dphi2 = 0
+g = 9.8
+
+[horizontal]
+phi1 = -3.1415926, 3.1415926
+
+[vertical]
+phi2 = -3.1415926, 3.1415926

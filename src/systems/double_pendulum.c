@@ -31,7 +31,7 @@ void double_pendulum_derivs(double *r, double *drdt) {
 	drdt[G] = 0;
 }
 
-void double_pendulum_integrate(double *r, double t, double dt) {
+void double_pendulum_integrate(double *r, double dt) {
 	runge_kutta_4(double_pendulum_derivs, r, dt, 9);
 }
 
@@ -66,6 +66,15 @@ double double_pendulum_lower_flip(double *r, double *r0,
 				int done) {
 	if ( ! done ) {
 		return( (r[PHI2] > 2*M_PI) || (r[PHI2] < -2*M_PI) );
+	} else {
+		return(t);
+	}
+}
+
+double double_pendulum_lower_turnaround(double *r, double *r0,
+			double t, double *values, int done) {
+	if ( ! done ) {
+		return( (r[DPHI2] == 0) || (sign(r[DPHI2]) == -1*sign(r0[DPHI2])) );
 	} else {
 		return(t);
 	}

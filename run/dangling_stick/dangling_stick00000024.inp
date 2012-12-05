@@ -1,0 +1,20 @@
+[config]
+system = dangling_stick
+rule = first_flip
+
+t = 0, 0.01, 300
+
+width = 20000
+height = 20000
+
+[defaults]
+dr = 2
+dphi2 = -2
+m1 = 1
+m2 = 1
+
+[vertical]
+r = 1.85, 1.95
+
+[horizontal]
+phi2 = 1.25, 1.35

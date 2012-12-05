@@ -1,0 +1,11 @@
+system = springy_pendulum
+r = 0.00002,20000, 0.4
+;restart = true
+
+t=0,0.01,250
+phi1 = -3.1415926,20002, 3.1415926
+r = 0.00002,20000, 0.4
+dr = 0
+dphi1 = -4
+dphi2 = 4
+plot = r, phi1

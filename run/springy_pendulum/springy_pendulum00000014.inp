@@ -1,0 +1,16 @@
+dphi1 = -1.0
+dphi2 = -2.0
+dr = 0.0
+g = 9.8
+k = 1.0
+l = 2.0
+m1 = 1.0
+m2 = 1.0
+phi1 = -1.5,5000,1
+phi2 = -1,5000,2
+plot = phi2,phi1
+r = 1.5
+r0 = 1.0
+rule = lower_flip
+system = springy_pendulum
+t = 0,0.005,100.0

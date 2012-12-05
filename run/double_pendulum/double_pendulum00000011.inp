@@ -1,0 +1,19 @@
+[config]
+system = double_pendulum
+rule = lower_turnaround
+;restart = true
+
+t = 0,0.01,100
+
+height = 200
+width = 200
+
+[defaults]
+dphi1 = -0.1
+dphi2 = 0.1
+
+[vertical]
+phi1 = -3.14159, 3.14159
+
+[horizontal]
+phi2 = -3.14159, 3.14159

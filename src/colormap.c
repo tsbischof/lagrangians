@@ -7,12 +7,12 @@
 #include "colormap.h"
 
 #define VERBOSE 0
-
+#define RESOLUTION 0.001
 #define RGB_DEPTH 255
 
 void usage() {
 	fprintf(stderr,
-"Usage: colormap [options] points\n"
+"Usage: colormap [options] -- points\n"
 "        -i, --file-in: Input file to process, which is a stream of double-\n"
 "                       precision floats. By default, this is stdin.\n"
 "       -o, --file-out: Output file to write the ppm file to. By default, \n"
@@ -22,12 +22,13 @@ void usage() {
 "-n, --colormap-length: Number of points in the colormap (RGB for each).\n"
 "                       The default is black->red->yellow->white.\n"
 "     -r, --resolution: Float resolution for pixels. By default, \n"
-"                       this is 0.01.\n"
+"                       this is %f.\n"
 "        -m, --modulus: Modulus for pixel values. By default, this \n"
 "                       is not used.\n"
 "               points: The points in the colormap, as the RGB values\n"
 "                       separated by spaces.\n"
-"           -h, --help: Print this message.\n");      
+"           -h, --help: Print this message.\n",
+			RESOLUTION);      
 }
 
 colormap_t *allocate_colormap(int n_points) {
@@ -194,7 +195,7 @@ int main(int argc, char *argv[]) {
 	int colormap_length = 0;
 	colormap_t *colormap = NULL;
 
-	double resolution = 0.01;
+	double resolution = RESOLUTION;
 	double modulus = 0;
 
 	int i, point_index, rgb_index; 

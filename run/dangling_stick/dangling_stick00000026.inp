@@ -1,0 +1,26 @@
+[config]
+system = dangling_stick
+rule = lower_flip
+validate = energy
+restart = true
+
+t = 0, 0.01, 200
+height = 10000
+width = 10000
+
+[defaults]
+dr = 2
+dphi2 = -2
+m1 = 1
+m2 = 1
+r_0 = 1
+k = 1
+g = 9.8
+phi1 = 0
+
+[vertical]
+r = 0.4, 0.9
+
+[horizontal]
+phi2 = 1.25, 1.85
+

@@ -1,0 +1,12 @@
+system = dangling_stick
+r = 0.0005,10000, 5
+restart = true
+
+t = 0, 0.01, 200
+r = 0.0005,10000, 5
+phi2 = 0,6285, 3.1415926
+dr = 2
+dphi2 = -2
+m1 = 1.5
+m2 = 1
+plot = r, phi2

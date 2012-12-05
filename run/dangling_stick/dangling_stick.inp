@@ -1,0 +1,10 @@
+system = dangling_stick
+r = 0.001,5000, 5
+
+t = 0, 0.01, 200
+r = 0.001,5000, 5
+phi = 0,3143, 3.1415926
+dphi2 = 2
+dr = 2
+dphi = -2
+plot = r, phi

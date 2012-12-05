@@ -1,0 +1,17 @@
+dphi1 = 0.0
+dphi2 = -2.0
+dr = 2.0
+g = 9.8
+k = 1.0
+l = 1.0
+m1 = 1.0
+m2 = 1.0
+phi1 = -3.14159265,5000,3.14159265
+phi2 = -3.14159265,5000,3.14159265
+plot = phi1,phi2
+r = 0.1
+r0 = 1.0
+rule = first_flip
+system = dangling_stick
+t = 0,0.005,100.0
+validator = energy

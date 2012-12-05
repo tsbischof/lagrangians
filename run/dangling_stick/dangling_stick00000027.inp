@@ -1,0 +1,19 @@
+[config]
+system = dangling_stick
+rule = lower_flip
+t = 0, 0.01, 250
+height = 10000
+width = 10000
+
+[defaults]
+dr = 2
+dphi2 = -2
+m1 = 0.9
+m2 = 1
+
+[horizontal]
+phi2 = -0.5, 0.5
+
+[vertical]
+r = 2.2, 3.5
+

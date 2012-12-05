@@ -1,0 +1,11 @@
+system = double_spring
+rule = lower_flip
+validate = energy
+;restart = true
+
+t=0,0.01,100
+phi1 = -3.1415926,6285, 3.1415926
+phi2 = -3.1415926,6285, 3.1415926
+m1 = 2
+m2 = 1
+plot = phi1, phi2

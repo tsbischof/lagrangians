@@ -1,0 +1,8 @@
+system = double_spring
+rule = platform_flip
+restart = true
+
+t=0,0.01,100
+phi1 = -3.1415926,6285, 3.1415926
+phi2 = -3.1415926,6285, 3.1415926
+plot = phi1, phi2

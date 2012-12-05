@@ -1,0 +1,29 @@
+[config]
+system = double_spring
+
+video = phi1, phi2, dphi1, dphi2, r1, r2, dr1, dr2
+write_every = 500
+
+t = 0, 0.00002, 50
+height = 1000
+width = 1000
+
+[defaults]
+m1 = 1
+m2 = 1
+dphi1 = 0
+dphi2 = 0
+r1 = 1
+r1_0 = 1
+r2 = 1
+r2_0 = 1
+k1 = 1
+k2 = 1
+g = 9.8
+
+[horizontal]
+phi1 = -3.1415926, 3.1415926
+
+[vertical]
+phi2 = -3.1415926, 3.1415926
+

@@ -38,7 +38,7 @@ class Lagrangian(object):
 be used to determine the initial conditions for each pixel."""
         for row_number, row in enumerate(self.options.rows):
             if not self.status(row_number):
-                yield(row)
+                yield(row_number, row)
 
     def allocate_restart(self):
         restart_filename = self.filename("restart")
@@ -66,30 +66,28 @@ be used to determine the initial conditions for each pixel."""
                         raw_filename)))
         else:
             with open(raw_filename, "wb") as raw_file:
-                raw_file.write(
-                    struct.pack(
-                        "{0}{1}".format(
-                            self.options.height*self.options.width,
-                            modes.raw_type),
-                        *tuple([0 for i in range(self.options.width*
-                                                 self.options.height)])))
+                row = struct.pack(
+                    "{0}{1}".format(
+                        self.options.width,
+                        modes.raw_type),
+                    *tuple([0 for i in range(self.options.width)]))
+                
+                for i in range(self.options.height):
+                    raw_file.write(row)
 
     def write_row(self, row_number, row):
         with open(self.filename("raw"), "r+b") as raw_file:
+            # Do not do struct.calcsize("xd"), this will yield a MemoryError
+            # for large values of x.
             raw_file.seek(
-                struct.calcsize(
-                    "{0}{1}".format(
-                        self.options.width*row_number,
-                        modes.raw_type)))
+                self.options.width
+                *row_number
+                *struct.calcsize(modes.raw_type))
 
             raw_file.write(bytes(row))
 
         with open(self.filename("restart"), "r+b") as restart_file:
-            restart_file.seek(
-                struct.calcsize(
-                    "{0}{1}".format(
-                        row_number,
-                        modes.restart_type)))
+            restart_file.seek(struct.calcsize(modes.restart_type)*row_number)
             restart_file.write(
                 struct.pack(modes.restart_type,
                             1))
@@ -98,7 +96,6 @@ be used to determine the initial conditions for each pixel."""
 
     def status(self, row_number=None):
         if not self._status:
-            self._status = []
             with open(self.filename("restart"), "rb") as restart_file:
                 fmt = "{0}{1}".format(
                     self.options.height,
@@ -109,7 +106,7 @@ be used to determine the initial conditions for each pixel."""
                                       restart_file.read(
                                           struct.calcsize(fmt)))))
 
-        if row_number:
+        if row_number != None:
             return(self._status[row_number])
         else:
             logging.info(
@@ -146,7 +143,7 @@ be used to determine the initial conditions for each pixel."""
         rule = self.options.rule.function
         workspace = (ctypes.c_double*self.options.width)()
 
-        for row_number, row in enumerate(self.rows()):
+        for row_number, row in self.rows():
             logging.info("{0}: Working on row {1} of {2}.".format(
                 datetime.date.strftime(datetime.datetime.today(),
                                        "%Y.%m.%d %H:%M:%S"),
@@ -161,7 +158,10 @@ be used to determine the initial conditions for each pixel."""
             
             self.write_row(row_number, workspace)
 
-        self.to_png()
+        if self.options.width > 2000:
+            self.to_png(dst_width=2000)
+        else:
+            self.to_png()
 
         files.compress(self.filename("raw"))
 
@@ -182,6 +182,7 @@ be used to determine the initial conditions for each pixel."""
                 "raw.{0}.{1}".format(dst_height,
                                      dst_width))
 
+
             if files.compressed_file_exists(raw_filename):
                 files.decompress(raw_filename)
             else:
@@ -190,6 +191,9 @@ be used to determine the initial conditions for each pixel."""
                              "This may take a while.".format(
                                  dst_height, dst_width,
                                  self.options.height, self.options.width))
+
+                files.decompress(self.filename("raw"))
+                
                 with open(self.filename("raw"), "rb") as raw_file:
                     downsampled = colormap.downsample(raw_file,
                                                       self.options.height,
@@ -208,6 +212,9 @@ be used to determine the initial conditions for each pixel."""
 
         else:
             raw_filename = self.filename("raw")
+            if files.compressed_file_exists(raw_filename):
+                files.decompress(raw_filename)
+                
             dst_height = self.options.height
             dst_width = self.options.width
 

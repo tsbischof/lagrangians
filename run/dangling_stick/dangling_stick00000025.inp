@@ -1,0 +1,17 @@
+dphi1 = 0.0
+dphi2 = 0.0
+dr = 1.0
+g = 9.8
+k = 1.0
+l = 1.0
+m1 = 1.0
+m2 = 1.0
+phi1 = -3.1415926,40000,3.1415926
+phi2 = -3.1415926,20000,0
+plot = phi2,phi1
+r = 0.1
+r0 = 1.0
+rule = first_flip
+system = dangling_stick
+t = 0,0.01,250.0
+restart = true
