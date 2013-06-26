@@ -23,14 +23,14 @@ void runge_kutta_4(void (*derivs)(double *, double *),
 	double dydx[vec_length], dydxt[vec_length], yt[vec_length], 
 		k1[vec_length], k2[vec_length], k3[vec_length], k4[vec_length];
 
-	double *dydxptr, *dydxtptr, *ytptr, *k1ptr, *k2ptr, *k3ptr, *k4ptr;
+	double *dydxptr, *dydxtptr, *ytptr;/*, *k1ptr, *k2ptr, *k3ptr, *k4ptr;*/
 	dydxptr = dydx;
 	dydxtptr = dydxt;
 	ytptr = yt;
-	k1ptr = k1;
+	/*k1ptr = k1;
 	k2ptr = k2;
 	k3ptr = k3;
-	k4ptr = k4; 
+	k4ptr = k4;  */
 
 	int i;
 
