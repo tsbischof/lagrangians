@@ -1,12 +1,12 @@
 [config]
 system = dangling_stick
 rule = lower_flip
-;restart = true
+restart = true
 
 t = 0, 0.01, 300
 
-height = 200
-width = 200
+height = 20000
+width = 20000
 
 [defaults]
 dr = 2
