@@ -1,0 +1,19 @@
+[config]
+system = double_pendulum
+rule = lower_flip
+validator = energy
+
+t = 0,0.01,100
+
+width = 20000
+height = 20000
+
+[defaults]
+phi1 = 1.8
+phi2 = 1.2
+
+[horizontal]
+dphi1 = -5,5
+
+[vertical]
+dphi2 = -5,5

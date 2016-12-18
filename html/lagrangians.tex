@@ -1,0 +1,398 @@
+\documentclass{article}
+
+%\usepackage{natbib}
+%\renewcommand{\cite}{\citep}
+\usepackage{amsmath}
+\usepackage{url}
+\usepackage{enumerate}
+\renewcommand\vec\mathbf
+\newcommand{\lagrangian}{\ensuremath{\mathcal{L}}}
+\newcommand{\floor}[1]{\ensuremath{\left\lfloor #1 \right\rfloor}}
+\newcommand{\abs}[1]{\ensuremath{\left| #1 \right|}}
+\newcommand{\ppt}{\frac{\partial}{\partial t}}
+\newcommand{\ddt}{\frac{d}{dt}}
+\usepackage{graphicx}
+
+\title{Lagrangians: A Package for Visualizing Properties of Chaotic Systems}
+\author{Thomas Bischof \\
+tbischof@mit.edu}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Introduction}
+In classical mechanics, one useful formalism for describing the motion of coupled bodies is that of Lagrange, in which Newton's equations of motion in Cartesian coordinates are transformed into a general expression in arbitrary coordinates, leading to the integral form, for a single particle moving in one dimension:
+\begin{equation}
+ S = \int{\lagrangian(q,\dot{q},t)\,dt}
+\end{equation}
+where $q$ is some coordinate, $\dot{q}$ is its time derivative, \lagrangian{} is the ``Lagrangian'', and $S$ is the ``action''. In many classical systems, the Lagrangian can be expressed as the difference of the kinetic and potential energy of the system:
+\begin{equation}
+\lagrangian = T-U
+\end{equation}
+It can be shown that the path the system follows will yield an extremum of $S$, and, using the calculus of variations, it can be shown that this path is given by:
+\begin{equation}
+ \frac{\partial\lagrangian}{\partial q} = \ddt\left(\frac{\partial\lagrangian}{\partial\dot{q}}\right)
+\end{equation}
+Extension of the theory to multiple particles is achieved by writing a Lagrangian with more coordinates, giving $n$ total differential equations for the $n$ degrees of freedom in the original system. This method allows for the use of more natural coordinates when describing the motion of a system, such as the relative angles of pendula, which greatly simplifies the problem of determining a compact form of these equations. For a more complete description of this formulation, see any good text on mechanics, such as Sussman and Wisdom\cite{sussman2001}, Taylor\cite{taylor2005}, Goldstein, Poole and Safko\cite{goldstein2000}, Feynman and Hibbs\cite{feynman2010}, or Corben and Stehle\cite{corben1994}.
+
+% This use of the calculus of variations means that the goal of describing the motion of the system becomes one of choosing the path through phase space which minimizes the action integral, rather than relying on an expression in a space whose coordinates are inconvenient for the problem at hand. Ultimately, we can use this principle to recast a problem at hand in a way which makes the expression of the Lagrangian simpler, leading to a more managable expression of the equations of motion. For a more complete description of this process, see any reasonable text on classical mechanics, such as Taylor\cite{taylor2005}, Goldstein, Poole and Safko\cite{goldstein2000}, or Corben and Stehle\cite{corben1994}. A good description of the calculus of variations may be found in many textbooks on mathematics, but the descriptions in the mechanics texts should suffice for the purposes of this paper.
+
+But writing down some differential equations is only the first step of any analysis of a system: we must also solve them. This proves problematic in all but the simplest of cases, because analytical results do not exist for most coupled nonlinear differential equations--as most interesting constrained physical systems yield--and so we must instead simulate the analytical results. To do this, the equations of motion must be transformed into a familiar form, and appropriate algorithms used to advance them in time, given some initial conditions. 
+
+Once we do this, however, we can simulate the time evolution of a system of interest, and watch as some parameter evolves. Because of the chaotic nature of coupled nonlinear differential equations, slight differences in initial conditions can cause enormous differences in the long-time state of the system, so if we plot the results for many different initial conditions we should see some strange patterns arise. This is the goal of this package.
+
+%to describe the motion of a complicated system is nearly meaningless unless we can devise a useful way of visualizing any data that arises. The essential purpose of this package is to numerically integrate coupled differential equations until some quantity hits a meaningful value, and visualize the resulting point in phase space and time. By default, the package achieves this visualization by assigning the chosen quantity to a simple colormap, but the raw data is also output and can be read into any analysis package.
+
+\section{Methods}
+\subsection{Mechanics}
+The problem of determining the equations of motion for a given dynamical system can be reduced to a few steps under the Lagrangian formulation:
+\begin{enumerate}[1.]
+ \item Draw a system of interest, including all shapes, sizes, constitution, and couplings. 
+ \item Determine one meaningful coordinate for each of the $n$ degrees of freedom in the system, such as an angle relative to vertical or the stretch of a spring.
+ \item One choice for the Lagrangian is the difference of kinetic and potential energy ($\lagrangian=T-U$). So, determine these quantities in terms of the degrees of freedom for the system.
+ \item Armed with \lagrangian, write out the differential equation for each of the $n$ coordinates $q_{j}$. 
+  \begin{equation}
+   \frac{\partial\lagrangian}{\partial q_{j}} = \ddt\left(\frac{\partial\lagrangian}{\partial\dot{q_{j}}}\right)
+  \end{equation}
+\end{enumerate}
+
+Having performed these steps, the $n$ differential equations describe completely the time evolution of the system. Of course, these are--for nearly all interesting problems--analytically intractable, and so we turn to approximation methods to elucidate some basic bahavior from them, in cases where we just want to know such things as the behavior of the system under small perturbations from equilibrium. But, if we want to allow the full variation of each parameter, we need a more exact way to advance the equations of motion through time.
+
+\subsection{Numerical Integration}
+In cases where expressions do not yield easily to analytic solution, numerical methods may be employed to approximate the result. In this case, the problem is one of advancing in time the $2n$ variables (all $q_{j}$ and $\dot{q_{j}}$), according to the $n$ differential equations which arise from the Lagrangian. To do this, note that reasonably simple and accurate methods are known for integrating any differential equation of this form:
+\begin{equation}
+ y' = f(x,y)
+\end{equation}
+One method for integrating this differential equation is the fourth-order Runge-Kutta method, which works as follows\footnote{See Eric Weisstein's MathWorld entry at \url{http://mathworld.wolfram.com/Runge-KuttaMethod.html} for details.}:
+\begin{align}
+ k_{1} &= hf(x_{n},y_{n}) \\
+ k_{2} &= hf(x_{n}+\frac{1}{2}h, y_{n}+\frac{1}{2}k_{1}) \\
+ k_{3} &= hf(x_{n}+\frac{1}{2}h, y_{n}+\frac{1}{2}k_{2}) \\ 
+ k_{4} &= hf(x_{n}+h, y_{n}+k_{3}) \\
+ y_{n+1} &= y_{n} + \frac{1}{6}k_{1} + \frac{1}{3}k_{2} + \frac{1}{3}k_{3}+\frac{1}{6}k_{4} + O(h^{5})
+\end{align}
+So, if $h=\Delta t$, $x=t$, and $y=\vec{q}$, we have a method for integration of our coupled differential equations. Therefore, the next task becomes the expression of the $n$ differential equations as $2n$ differential equations of the form:
+\begin{equation}
+ \ddt q_{j} = f(t, \vec{q})
+\end{equation}
+
+\subsection{The Harmonic Oscillator}
+Consider a reasonably simple system, the harmonic oscillator. To a second-order approximation, all one-dimensional potentials can be expressed as harmonic oscillators about their equibilibrium points, thanks to Taylor's series:
+\begin{align}
+ U(x) &= U(x_{0}) + U'(x_{0})(x-x_{0}) + \frac{1}{2}U''(x_{0})(x-x_{0})^{2} + O(\Delta x^{3}) \nonumber \\
+      &= U(x_{0}) + \frac{1}{2}U''(x_{0})(x-x_{0})^{2} + O(\Delta x^{3})
+\end{align}
+Additive constants are irrelevant in the Lagrangian (all derivatives are zero), so we have:
+\begin{equation}
+ U(q) = \frac{1}{2}kq^{2}
+\end{equation}
+Where $q=x-x_{0}$. So, for a particle with mass $m$ moving in one dimension, we have $T=\frac{1}{2}m\dot{q}^2$. Combining these results, we have:
+\begin{equation}
+ \lagrangian = T-U = \frac{1}{2}m\dot{q}^{2} - \frac{1}{2}kq^{2}
+\end{equation}
+This yields the differential equation:
+\begin{equation}
+ -kq = m\ddot{q}
+\end{equation}
+This is the same as the expression using Cartesian coordinates, but in this case the problem is too simple to demonstrate effectively the Lagrangian formulation. Still, we can write the two final differential equations:
+\begin{align}
+ \ddt q &= \dot{q} \\
+ \ddt \dot{q} &= -\frac{k}{m}q
+\end{align}
+
+\subsection{The Double Pendulum}
+A canonical example of the joy of the Lagrangian formulation, the double pendulum is a painful but tractible system when using Cartesian coordinates, but the same result can be reached rapidly using the Lagrangian.
+
+Consider two masses, $m_{1}$ and $m_{2}$. The first mass is attached to the end of a massless stiff rod of length $l_{1}$, which is fixed by an ideal hinge to an immobile axis. The second mass is attached to the end of a massless stiff rod of length $l_{2}$, connected to the first mass by an ideal hinge. Either mass is free to rotate completely unhindered, with the angle relative to the vertical for each called $\phi_{1}$ and $\phi_{2}$. The only degrees of freedom in this view of the problem are the two $\phi$, so we can express \lagrangian{} in terms of these variables and their time derivatives.
+
+The system is placed under a uniform graviational field:
+\begin{align}
+ U &= m_{1}gl_{1}(1-\cos{(\phi_{1})}) + m_{2}g(l_{1}(1-\cos{(\phi_{1})}) + l_{2}(1-\cos{(\phi_{2})})) \nonumber \\
+   &= (m_{1}+m_{2})gl_{1}(1-\cos{(\phi_{1})}) + m_{2}gl_{2}(1-\cos{(\phi_{2})})
+\end{align}
+Similarly, we write the energy of the system in terms of the velocities of each mass. To ensure that we get the expressions for velocity correct, we differentiate the positions of the coupled mass:
+\begin{align}
+ \vec{v_{2}} &= \ddt (l_{1}\sin{(\phi{1})}+l_{2}\sin{(\phi{2})}, -l_{1}\cos{(\phi{1})}-l_{2}\cos{(\phi{2})} \nonumber \\
+             &= (l_{1}\dot{\phi_{1}}\cos{(\phi{1})}+l_{2}\dot{\phi_{2}}\cos{(\phi{2})},
+                 l_{1}\dot{\phi_{1}}\sin{(\phi{1})}+l_{2}\dot{\phi_{2}}\sin{(\phi{2})} \\
+ \abs{\vec{v_{2}}}^{2} &= (l_{1}\dot{\phi_{1}})^{2}+(l_{2}\dot{\phi_{2}})^{2}+2l_{1}l_{2}\dot{\phi_{1}}\dot{\phi_{2}}\cos{(\phi_{1}-\phi_{2})} \\
+ T &= \frac{1}{2}(m_{1}+m_{2})(l_{1}\dot{\phi_{1}})^{2} + \frac{1}{2}m_{2}((l_{2}\dot{\phi_{2}})^{2} + 2l_{1}l_{2}\dot{\phi_{1}}\dot{\phi_{2}}\cos{(\phi_{1}-\phi_{2})})
+\end{align}
+This leads to the two differential equations:
+\begin{align}
+&-(m_{1}+m_{2})gl_{1}\sin{(\phi_{1})} 
+ -m_{2}l_{1}l_{2}\dot{\phi_{1}}\dot{\phi_{2}}\sin{(\phi_{1}-\phi_{2})} \nonumber \\
+&= (m_{1}+m_{2})l_{1}^{2}\ddot{\phi_{1}} + 
+  m_{2}(-l_{1}l_{2}\dot{\phi_{2}}(\dot{\phi_{1}}-\dot{\phi_{2}})\sin{(\phi_{1}-\phi_{2})}
+        +l_{1}l_{2}\ddot{\phi_{2}}\cos{(\phi_{1}-\phi_{2})}) \\
+&-m_{2}gl_{2}\sin{(\phi_{2})} 
+ +m_{2}l_{1}l_{2}\dot{\phi_{1}}\dot{\phi_{2}}\sin{(\phi_{1}-\phi_{2})} \nonumber \\
+&= m_{2}l_{1}^{2}\ddot{\phi_{1}} + 
+  m_{2}(-l_{1}l_{2}\dot{\phi_{1}}(\dot{\phi_{1}}-\dot{\phi_{2}})\sin{(\phi_{1}-\phi_{2})}
+        +l_{1}l_{2}\ddot{\phi_{1}}\cos{(\phi_{1}-\phi_{2})})
+\end{align}
+These then yield the four final equations:
+\begin{align}
+ \ddt\phi_{1} &= \dot{\phi_{1}} \\
+ \ddt\phi_{2} &= \dot{\phi_{2}} \\
+ \ddt\dot{\phi_{1}} &= \frac{-m_{1}g\sin{(\phi_{1})}
+                             -m_{2}\sin{(\phi_{1}-\phi_{2})}   
+                                   (g\cos{(\phi_{1})}
+                                    +l_{1}\dot{\phi_{1}^{2}}\cos{(\phi_{1}-\phi_{2})}
+                                    +l_{2}\dot{\phi_{2}^{2}})}
+                            {l_{1}(m_{1}+m_{2}\sin^{2}{(\phi_{1}-\phi_{2}))}} \\
+ \ddt\dot{\phi_{2}} &= \frac{\sin{(\phi_{1}-\phi_{2})}
+                                   (m_{1}(g\cos{(\phi_{1})} 
+                                         +l_{1}\dot{\phi_{1}^{2}})
+                                    +m_{2}(g\cos{(\phi_{1})}
+                                          +l_{2}\dot{\phi_{2}^{2}}\cos{(\phi_{1}-\phi_{2})}
+                                          +l_{1}\dot{\phi_{1}^{2}}))}
+                            {l_{2}(m_{1}+m_{2}\sin^{2}{(\phi_{1}-\phi_{2}))}}
+\end{align}
+
+\subsection{Using Computer Algebra Systems to Produce Differential Equations}
+While doing the algebra required to obtain differential equations to solve is a somewhat tedious task, we can automate the process using an analytical mathematics package such as Mathematica:
+\begin{verbatim}
+EquationsOfMotion[L_, vars_] := (equations = {}; 
+   For[i = 1, i <= Length[vars], i++, 
+    AppendTo[equations, 
+     D[L, vars[[i]]] == D[D[L, D[vars[[i]], t]], t]]]; 
+   results = 
+    Simplify[
+     Expand[Solve[Simplify[Expand[equations]], 
+       Map[Function[x, D[x, {t, 2}]], vars]]]];
+   For[i = 1, i <= Length[vars], i++,
+    AppendTo[results, vars[[i]] -> D[vars[[i]], t]]];
+   Flatten[results]);
+MyNorm[r_] := (result = 0; 
+   For[i = 1, i <= Length[r], i++, result = result + r[[i]]^2]; 
+   result);
+\end{verbatim}
+Using this function, the equations of motion may be recovered after defining \lagrangian{} and the variables:
+\begin{verbatim}
+(*many pendula*)
+nmasses = 2;
+U = Sum[Subscript[m, i]*g*
+    Sum[Subscript[l, j]*(1 - Cos[Subscript[\[Phi], j][t]]), {j, 1, 
+      i}], {i, 1, nmasses}];
+T = Sum[1/2*Subscript[m, i]*
+    Sum[Subscript[l, j]*Subscript[l, k]*Subscript[\[Phi], j]'[t]*
+      Subscript[\[Phi], k]'[t]*
+      Cos[Subscript[\[Phi], j][t] - Subscript[\[Phi], k][t]], 
+                         {j, 1, i}, {k, 1, i}], {i, 1, nmasses}];
+L = T - U;
+vars = {};
+For[i = 1, i <= nmasses, i++, AppendTo[vars, 
+                                       Subscript[\[Phi], i][t]]];
+EquationsOfMotion[L, vars]
+\end{verbatim}
+The resulting equations can be then be programmed as required, or even integrated in Mathematica itself. For the purposes of this package, the resulting equations were translated to C using a Python script which parsed the output of \verb#CForm#. The script can be found in the source code distribution, along with the Mathematica notebook.
+
+\section{Implementation}
+The appropriate algorithms were implemented using the C programming language, and a Python interface to simplify the design and execution of simulations. The code and some images are available at \url{http://tsbischof.dyndns.org/~tsbischof/lagrangians/images}. The basic function of the software is as follows:
+\begin{enumerate}
+\item Given a system of coupled differential equations, choose which parameters will be varied, and what the initial conditions for the other parameters are. 
+\item Choose a rule for halting the simulation, and what value should be reported upon termination.
+\item Allocate an array on the hard disk of sufficient size to house the results of the simulation.
+\item For each set of initial conditions, begin a trajectory and run until the rule is met or time runs out. Record the value in the appropriate location in the array. 
+\item As each row finishes, write it to the appropriate location on the hard disk.
+\item Once all rows are finished, map the raw data to some color, based on the colormap scheme described in section~\ref{sec:colormaps}. Clean up any temporary files generated as part of the simulation.
+\end{enumerate}
+
+\subsection{Color maps}
+\label{sec:colormaps}
+To visualize raw floating point numbers, there are a number of reasonable schemes. For purposes of this package, the raw data are mapped onto colors by drawing line segments through RGB color space and mapping the raw values onto this manifold. The procedure is as follows:
+\begin{enumerate}
+\item Choose $n$ points in RGB space ((0, 0, 255) is blue, for example).
+\item Determine the minimum and maximum values to be considered. For cyclic values, this can be a ring, but by default the values lie along a line segment.
+\item Map the range of values onto the segment [0,n-1].
+\item For each value to be mapped:
+  \begin{enumerate}
+    \item Map the value onto the segment [0, n-1], and call this value $y$. $\floor{y}$ determines which segment of the RGB manifold will be used, and $y-\floor{y}$ determines the distance along that segment.
+    \item The RGB triplet will be determined as the point which lines $y-\floor{y}$ along the segment, or: $z=S[\floor{y}]+(y-\floor{y})(S[\floor{y}+1]-S[\floor{y}])$
+  \end{enumerate}
+\end{enumerate}
+
+By default, the color map [(0, 0, 0), (255, 0, 0), (255, 255, 0), (255, 255, 255)] is used. 
+
+% For example, consider the case of a line between (0,0,0) and (255, 255, 255) (black to white, \#000000$\rightarrow$\#FFFFFF). If we have values in the range [0, 1], we may scale this range to the same size as the segment, such that 0 maps to (0, 0, 0), 0.5 to (127, 127, 127), and 1 to (255, 255, 255). 
+
+%Generalizing this, multiple segments may be used to introduce more colors. If we assign a uniform length to each segment, we may assign a color as follows:
+%\begin{enumerate}
+%\item Map the range of possible values onto the segment [0, 1] of the real line. 
+%\item For each value, determine which segment the point falls onto, assuming that the various segments evenly divide [0, 1] (two segments yield [0,$\frac{1}{2}$) and [$\frac{1}{2}$,1], \textit{et cetera}).
+%\item Map the chosen segment onto [0, 1], and determine the color values by finding the point that is the appropriate distance along this segment.
+%\end{enumerate}
+
+
+%More concretely, to map a value $a$ onto the segments $S$, where $a\in[a_{min},a_{max}]$:
+%\begin{enumerate}
+%\item $x \leftarrow \frac{a-a_{min}}{a_{max}-a_{min}}$ ($x\in[0,1]$)
+%\item $n \leftarrow \floor{x\abs{S}}$ ($n\in\lbrace 0, 1, \ldots \abs{S}-1\rbrace$)
+%\item $y \leftarrow x\abs{S} - n$ ($y\in[0,1]$)
+%\item $z \leftarrow S[n] + y\left(S[n+1]-S[n]\right)$
+%\end{enumerate}
+%Here, $z$ is the RGB triple.
+
+%By default, the values are mapped onto the colormap [(0, 0, 0), (255, 0, 0), (255, 255, 0), (255, 255, 255)], or black$\rightarrow$red$\rightarrow$yellow$\rightarrow$white. 
+
+\section{Results}
+See the appendix for some sample images. No post-simulation modifications were made, except for the colormap. In many of the images, the fringes seen are actually the results of numerical instability: in order to achieve appreciable resolution, the simulations must be run for a coarse time step, and as a result systems with springs may contract unphysically and achieve near-inifinite velocities. More accurate integrators may alleviate these problems, but for artistic purposes the coarse simulations are sufficient. 
+
+\section{Running Simulations}
+\subsection{Images}
+The input files are .ini format files, with semicolons denoting comments. The parameters are as follows:
+\begin{verbatim}
+[config]
+system = the name of the system being simulated
+rule = the rule which terminates the simulation
+       and reports a value
+validator = function which determines if the
+            rule can be satisfied (optional)
+t = limits for time steps (lower, step, upper)
+restart = if true, the run restarts from a 
+          previous simulation (optional)
+
+height = height in pixels
+width = width in pixels
+
+[defaults]
+variables and their default values. Unspecified values
+will be replaced with the defaults for the system.
+
+[horizontal]
+the variables to vary along the horizontal, as:
+variable = lower, upper
+
+[vertical]
+same as horizontal
+\end{verbatim}
+Here is a sample input file:
+\begin{verbatim}
+[config]
+system = dangling_stick
+rule = first_flip
+t = 0, 0.01, 200
+width = 1000
+height = 1000
+
+[defaults]
+dr = 2
+dphi2 = -2
+
+[horizontal]
+dphi2 = -2
+
+[vertical]
+r = 0.0005, 5
+\end{verbatim}
+
+The simulation is run by invoking \texttt{lagrangians input.inp}. This outputs \texttt{input.raw.bz2}, and \texttt{input.png} upon successful completion. During the simulation, \texttt{test.raw} and \texttt{test.restart} are used to keep track of the status of the simulation. The restart file can be used to recover results, in case the simulation is terminated prematurely. The raw file is an $n$ by $m$ array of double precision floating point integers, representing the image. The default colormap is used to create a PNG image of the data.
+
+\subsection{Videos}
+The individual trajectories may also be output as the result of a simulation. Instead of specifying a rule, instead include the following two lines:
+\begin{verbatim}
+[config]
+video = names of variales to visualize
+write_every = how many time steps to wait between writing an image
+\end{verbatim}
+This can require a large amount of space on the hard disk, so make sure it is available before execution.
+
+\subsection{Current systems}
+The available systems can be found in the file \texttt{systems.py}. Here is a summary of what is implemented:
+\begin{itemize}
+\item Harmonic oscillator
+\item Particle in a double well
+\item Particle in a trigonometric potential
+\item Driven damped pendlum
+\item Double rigid planar pendulum
+\item Planar rigid pendulum with a planar springy pendulum
+\item Planar springy pendulum with a planar rigid pendulum
+\item Double planar springy pendulum
+\end{itemize}
+
+Other systems will be added over time, but for now these produce enough interesting results.
+
+\section{Conclusions and Future Work}
+At the moment, the code is only capable of running on shared-memory systems, but it could be written for distributed-memory systems with a little effort. The numerical instability seen in the simulations may be resolved with improved integrators, but for now the computational cost appears to be too high.
+
+\bibliographystyle{unsrt}
+\bibliography{resources}
+
+\appendix
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{paper_images/springy_pendulum00000006_small.png} 
+\caption{A pendulum with a spring as a pendulum below it.}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{paper_images/springy_pendulum00000007_small.png} 
+\caption{A pendulum with a spring as a pendulum below it.}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{paper_images/double_pendulum00000000.png}
+\caption{The double pendulum}
+\end{figure}
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{paper_images/double_pendulum01000496.png}
+\caption{The double pendulum}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{paper_images/dangling_stick00000000_small.png} 
+\caption{The pendulum on a spring.}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{paper_images/dangling_stick00000006_small.png} 
+\caption{The pendulum on a spring. Note that this actually comes from the previous figure, if you look carefully.}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{paper_images/dangling_stick00000001_small.png} 
+\caption{The pendulum on a spring.}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{paper_images/dangling_stick00000007_small.png} 
+\caption{The pendulum on a spring.}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{paper_images/dangling_stick00000008_small.png} 
+\caption{The pendulum on a spring.}
+\end{figure}
+
+
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{paper_images/double_spring00000003_small.png} 
+\caption{Two springs as pendula.}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{paper_images/double_spring00000010_small.png} 
+\caption{Two springs as pendula.}
+\end{figure}
+
+
+
+
+
+
+\end{document}

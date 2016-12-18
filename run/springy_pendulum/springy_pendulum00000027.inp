@@ -2,12 +2,12 @@
 system = springy_pendulum
 rule = lower_flip
 validate = energy
-restart = true
+;restart = true
 
 t = 0, 0.001, 300
 
-width = 5000
-height = 5000
+width = 10000
+height = 10000
 
 [horizontal]
 phi2 = -0.75, -0.25

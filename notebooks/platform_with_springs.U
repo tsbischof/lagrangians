@@ -1,0 +1,6 @@
+g*Sin(Subscript(\[Phi],3)(t))*Subscript(m,3)*
+    (Power(Subscript(x,0),2) + Power(Subscript(y,0),2)) + 
+   g*(1 - Cos(Subscript(\[Phi],1)(t)))*Subscript(m,1)*Subscript(r,1)(t) + 
+   (Subscript(k,1)*Power(-Subscript(r,10) + Subscript(r,1)(t),2))/2. + 
+   g*(1 - Cos(Subscript(\[Phi],2)(t)))*Subscript(m,2)*Subscript(r,2)(t) + 
+   (Subscript(k,2)*Power(-Subscript(r,20) + Subscript(r,2)(t),2))/2.

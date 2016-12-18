@@ -1,0 +1,134 @@
+List(Rule(Derivative(2)(\[Phi]1)(t),-(-6*Power(b,2)*k2*Cos(\[Phi]0(t) - \[Phi]2(t))*r2(t)*
+         Sin(\[Phi]0(t) - \[Phi]1(t)) + 3*Power(b,2)*g*m1*Sin(2*(\[Phi]0(t) - \[Phi]1(t))) - 
+        3*Power(b,2)*k1*r10*Sin(2*(\[Phi]0(t) - \[Phi]1(t))) + 
+        3*Power(b,2)*k1*r1(t)*Sin(2*(\[Phi]0(t) - \[Phi]1(t))) - 
+        3*Power(b,2)*g*m1*Sin(2*\[Phi]0(t) - \[Phi]1(t)) + 
+        3*Power(b,2)*g*m2*Sin(2*\[Phi]0(t) - \[Phi]1(t)) - 
+        6*b*g*m0*Power(x0,2)*Sin(2*\[Phi]0(t) - \[Phi]1(t)) - 
+        6*b*g*m0*Power(y0,2)*Sin(2*\[Phi]0(t) - \[Phi]1(t)) + 
+        2*Power(b,2)*g*m0*Sin(\[Phi]1(t)) + 2*g*Power(h,2)*m0*Sin(\[Phi]1(t)) + 
+        3*Power(b,2)*g*m1*Sin(\[Phi]1(t)) - 3*Power(b,2)*g*m2*Sin(\[Phi]1(t)) + 
+        24*g*m0*Power(x0,2)*Sin(\[Phi]1(t)) + 6*b*g*m0*Power(x0,2)*Sin(\[Phi]1(t)) + 
+        24*g*m0*Power(y0,2)*Sin(\[Phi]1(t)) + 6*b*g*m0*Power(y0,2)*Sin(\[Phi]1(t)) - 
+        3*Power(b,2)*g*m2*Sin(2*\[Phi]0(t) - \[Phi]1(t) - \[Phi]2(t)) + 
+        3*Power(b,2)*k2*r20*Sin(2*\[Phi]0(t) - \[Phi]1(t) - \[Phi]2(t)) + 
+        3*Power(b,2)*g*m2*Sin(\[Phi]1(t) - \[Phi]2(t)) - 
+        3*Power(b,2)*k2*r20*Sin(\[Phi]1(t) - \[Phi]2(t)) + 
+        Power(b,3)*m0*Cos(\[Phi]0(t) - \[Phi]1(t))*Power(Derivative(1)(\[Phi]0)(t),2) + 
+        b*Power(h,2)*m0*Cos(\[Phi]0(t) - \[Phi]1(t))*Power(Derivative(1)(\[Phi]0)(t),2) + 
+        12*b*m0*Power(x0,2)*Cos(\[Phi]0(t) - \[Phi]1(t))*
+         Power(Derivative(1)(\[Phi]0)(t),2) + 
+        12*b*m0*Power(y0,2)*Cos(\[Phi]0(t) - \[Phi]1(t))*
+         Power(Derivative(1)(\[Phi]0)(t),2) + 
+        4*Power(b,2)*m0*Derivative(1)(r1)(t)*Derivative(1)(\[Phi]1)(t) + 
+        4*Power(h,2)*m0*Derivative(1)(r1)(t)*Derivative(1)(\[Phi]1)(t) + 
+        48*m0*Power(x0,2)*Derivative(1)(r1)(t)*Derivative(1)(\[Phi]1)(t) + 
+        48*m0*Power(y0,2)*Derivative(1)(r1)(t)*Derivative(1)(\[Phi]1)(t))/
+     (2.*m0*(Power(b,2) + Power(h,2) + 12*(Power(x0,2) + Power(y0,2)))*r1(t)))
+    ,Rule(Derivative(2)(\[Phi]2)(t),-(-6*Power(b,2)*k1*Cos(\[Phi]0(t) - \[Phi]1(t))*r1(t)*
+         Sin(\[Phi]0(t) - \[Phi]2(t)) + 3*Power(b,2)*g*m2*Sin(2*(\[Phi]0(t) - \[Phi]2(t))) - 
+        3*Power(b,2)*k2*r20*Sin(2*(\[Phi]0(t) - \[Phi]2(t))) + 
+        3*Power(b,2)*k2*r2(t)*Sin(2*(\[Phi]0(t) - \[Phi]2(t))) + 
+        3*Power(b,2)*g*m1*Sin(2*\[Phi]0(t) - \[Phi]2(t)) - 
+        3*Power(b,2)*g*m2*Sin(2*\[Phi]0(t) - \[Phi]2(t)) + 
+        6*b*g*m0*Power(x0,2)*Sin(2*\[Phi]0(t) - \[Phi]2(t)) + 
+        6*b*g*m0*Power(y0,2)*Sin(2*\[Phi]0(t) - \[Phi]2(t)) - 
+        3*Power(b,2)*g*m1*Sin(2*\[Phi]0(t) - \[Phi]1(t) - \[Phi]2(t)) + 
+        3*Power(b,2)*k1*r10*Sin(2*\[Phi]0(t) - \[Phi]1(t) - \[Phi]2(t)) - 
+        3*Power(b,2)*g*m1*Sin(\[Phi]1(t) - \[Phi]2(t)) + 
+        3*Power(b,2)*k1*r10*Sin(\[Phi]1(t) - \[Phi]2(t)) + 
+        2*Power(b,2)*g*m0*Sin(\[Phi]2(t)) + 2*g*Power(h,2)*m0*Sin(\[Phi]2(t)) - 
+        3*Power(b,2)*g*m1*Sin(\[Phi]2(t)) + 3*Power(b,2)*g*m2*Sin(\[Phi]2(t)) + 
+        24*g*m0*Power(x0,2)*Sin(\[Phi]2(t)) - 6*b*g*m0*Power(x0,2)*Sin(\[Phi]2(t)) + 
+        24*g*m0*Power(y0,2)*Sin(\[Phi]2(t)) - 6*b*g*m0*Power(y0,2)*Sin(\[Phi]2(t)) - 
+        Power(b,3)*m0*Cos(\[Phi]0(t) - \[Phi]2(t))*Power(Derivative(1)(\[Phi]0)(t),2) - 
+        b*Power(h,2)*m0*Cos(\[Phi]0(t) - \[Phi]2(t))*Power(Derivative(1)(\[Phi]0)(t),2) - 
+        12*b*m0*Power(x0,2)*Cos(\[Phi]0(t) - \[Phi]2(t))*
+         Power(Derivative(1)(\[Phi]0)(t),2) - 
+        12*b*m0*Power(y0,2)*Cos(\[Phi]0(t) - \[Phi]2(t))*
+         Power(Derivative(1)(\[Phi]0)(t),2) + 
+        4*Power(b,2)*m0*Derivative(1)(r2)(t)*Derivative(1)(\[Phi]2)(t) + 
+        4*Power(h,2)*m0*Derivative(1)(r2)(t)*Derivative(1)(\[Phi]2)(t) + 
+        48*m0*Power(x0,2)*Derivative(1)(r2)(t)*Derivative(1)(\[Phi]2)(t) + 
+        48*m0*Power(y0,2)*Derivative(1)(r2)(t)*Derivative(1)(\[Phi]2)(t))/
+     (2.*m0*(Power(b,2) + Power(h,2) + 12*(Power(x0,2) + Power(y0,2)))*r2(t)))
+    ,Rule(Derivative(2)(r1)(t),(-2*Power(b,2)*g*m0*m1 - 
+       2*g*Power(h,2)*m0*m1 - 3*Power(b,2)*g*Power(m1,2) + 
+       2*Power(b,2)*k1*m0*r10 + 2*Power(h,2)*k1*m0*r10 + 
+       3*Power(b,2)*k1*m1*r10 - 24*g*m0*m1*Power(x0,2) + 
+       24*k1*m0*r10*Power(x0,2) - 24*g*m0*m1*Power(y0,2) + 
+       24*k1*m0*r10*Power(y0,2) - 
+       3*Power(b,2)*g*Power(m1,2)*Cos(2*(\[Phi]0(t) - \[Phi]1(t))) + 
+       3*Power(b,2)*k1*m1*r10*Cos(2*(\[Phi]0(t) - \[Phi]1(t))) + 
+       3*Power(b,2)*g*Power(m1,2)*Cos(2*\[Phi]0(t) - \[Phi]1(t)) - 
+       3*Power(b,2)*g*m1*m2*Cos(2*\[Phi]0(t) - \[Phi]1(t)) + 
+       6*b*g*m0*m1*Power(x0,2)*Cos(2*\[Phi]0(t) - \[Phi]1(t)) + 
+       6*b*g*m0*m1*Power(y0,2)*Cos(2*\[Phi]0(t) - \[Phi]1(t)) + 
+       2*Power(b,2)*g*m0*m1*Cos(\[Phi]1(t)) + 2*g*Power(h,2)*m0*m1*Cos(\[Phi]1(t)) + 
+       3*Power(b,2)*g*Power(m1,2)*Cos(\[Phi]1(t)) - 
+       3*Power(b,2)*g*m1*m2*Cos(\[Phi]1(t)) + 24*g*m0*m1*Power(x0,2)*Cos(\[Phi]1(t)) + 
+       6*b*g*m0*m1*Power(x0,2)*Cos(\[Phi]1(t)) + 
+       24*g*m0*m1*Power(y0,2)*Cos(\[Phi]1(t)) + 
+       6*b*g*m0*m1*Power(y0,2)*Cos(\[Phi]1(t)) + 
+       3*Power(b,2)*g*m1*m2*Cos(2*\[Phi]0(t) - \[Phi]1(t) - \[Phi]2(t)) - 
+       3*Power(b,2)*k2*m1*r20*Cos(2*\[Phi]0(t) - \[Phi]1(t) - \[Phi]2(t)) + 
+       3*Power(b,2)*g*m1*m2*Cos(\[Phi]1(t) - \[Phi]2(t)) - 
+       3*Power(b,2)*k2*m1*r20*Cos(\[Phi]1(t) - \[Phi]2(t)) + 
+       6*Power(b,2)*k2*m1*Cos(\[Phi]0(t) - \[Phi]1(t))*Cos(\[Phi]0(t) - \[Phi]2(t))*r2(t) + 
+       Power(b,3)*m0*m1*Sin(\[Phi]0(t) - \[Phi]1(t))*Power(Derivative(1)(\[Phi]0)(t),2) + 
+       b*Power(h,2)*m0*m1*Sin(\[Phi]0(t) - \[Phi]1(t))*Power(Derivative(1)(\[Phi]0)(t),2) + 
+       12*b*m0*m1*Power(x0,2)*Sin(\[Phi]0(t) - \[Phi]1(t))*
+        Power(Derivative(1)(\[Phi]0)(t),2) + 
+       12*b*m0*m1*Power(y0,2)*Sin(\[Phi]0(t) - \[Phi]1(t))*
+        Power(Derivative(1)(\[Phi]0)(t),2) - 
+       r1(t)*(k1*(Power(b,2)*(2*m0 + 3*m1) + 
+             2*m0*(Power(h,2) + 12*(Power(x0,2) + Power(y0,2))) + 
+             3*Power(b,2)*m1*Cos(2*(\[Phi]0(t) - \[Phi]1(t)))) - 
+          2*m0*m1*(Power(b,2) + Power(h,2) + 12*(Power(x0,2) + Power(y0,2)))*
+           Power(Derivative(1)(\[Phi]1)(t),2)))/
+     (2.*m0*m1*(Power(b,2) + Power(h,2) + 12*(Power(x0,2) + Power(y0,2))))),
+   Rule(Derivative(2)(\[Phi]0)(t),(-6*
+       (b*g*m1*Cos(\[Phi]0(t)) - b*g*m2*Cos(\[Phi]0(t)) + 
+         2*g*m0*Power(x0,2)*Cos(\[Phi]0(t)) + 2*g*m0*Power(y0,2)*Cos(\[Phi]0(t)) - 
+         b*g*m1*Cos(\[Phi]0(t) - \[Phi]1(t)) + b*k1*r10*Cos(\[Phi]0(t) - \[Phi]1(t)) + 
+         b*g*m2*Cos(\[Phi]0(t) - \[Phi]2(t)) - b*k2*r20*Cos(\[Phi]0(t) - \[Phi]2(t)) - 
+         b*k1*Cos(\[Phi]0(t) - \[Phi]1(t))*r1(t) + b*k2*Cos(\[Phi]0(t) - \[Phi]2(t))*r2(t)))/
+     (m0*(Power(b,2) + Power(h,2) + 12*(Power(x0,2) + Power(y0,2))))),
+   Rule(Derivative(2)(r2)(t),-(2*Power(b,2)*g*m0*m2 + 2*g*Power(h,2)*m0*m2 + 
+        3*Power(b,2)*g*Power(m2,2) - 2*Power(b,2)*k2*m0*r20 - 
+        2*Power(h,2)*k2*m0*r20 - 3*Power(b,2)*k2*m2*r20 + 
+        24*g*m0*m2*Power(x0,2) - 24*k2*m0*r20*Power(x0,2) + 
+        24*g*m0*m2*Power(y0,2) - 24*k2*m0*r20*Power(y0,2) + 
+        3*Power(b,2)*g*Power(m2,2)*Cos(2*(\[Phi]0(t) - \[Phi]2(t))) - 
+        3*Power(b,2)*k2*m2*r20*Cos(2*(\[Phi]0(t) - \[Phi]2(t))) + 
+        3*Power(b,2)*g*m1*m2*Cos(2*\[Phi]0(t) - \[Phi]2(t)) - 
+        3*Power(b,2)*g*Power(m2,2)*Cos(2*\[Phi]0(t) - \[Phi]2(t)) + 
+        6*b*g*m0*m2*Power(x0,2)*Cos(2*\[Phi]0(t) - \[Phi]2(t)) + 
+        6*b*g*m0*m2*Power(y0,2)*Cos(2*\[Phi]0(t) - \[Phi]2(t)) - 
+        3*Power(b,2)*g*m1*m2*Cos(2*\[Phi]0(t) - \[Phi]1(t) - \[Phi]2(t)) + 
+        3*Power(b,2)*k1*m2*r10*Cos(2*\[Phi]0(t) - \[Phi]1(t) - \[Phi]2(t)) - 
+        3*Power(b,2)*g*m1*m2*Cos(\[Phi]1(t) - \[Phi]2(t)) + 
+        3*Power(b,2)*k1*m2*r10*Cos(\[Phi]1(t) - \[Phi]2(t)) - 
+        2*Power(b,2)*g*m0*m2*Cos(\[Phi]2(t)) - 2*g*Power(h,2)*m0*m2*Cos(\[Phi]2(t)) + 
+        3*Power(b,2)*g*m1*m2*Cos(\[Phi]2(t)) - 
+        3*Power(b,2)*g*Power(m2,2)*Cos(\[Phi]2(t)) - 
+        24*g*m0*m2*Power(x0,2)*Cos(\[Phi]2(t)) + 
+        6*b*g*m0*m2*Power(x0,2)*Cos(\[Phi]2(t)) - 
+        24*g*m0*m2*Power(y0,2)*Cos(\[Phi]2(t)) + 
+        6*b*g*m0*m2*Power(y0,2)*Cos(\[Phi]2(t)) - 
+        6*Power(b,2)*k1*m2*Cos(\[Phi]0(t) - \[Phi]1(t))*Cos(\[Phi]0(t) - \[Phi]2(t))*r1(t) + 
+        Power(b,3)*m0*m2*Sin(\[Phi]0(t) - \[Phi]2(t))*Power(Derivative(1)(\[Phi]0)(t),2) + 
+        b*Power(h,2)*m0*m2*Sin(\[Phi]0(t) - \[Phi]2(t))*Power(Derivative(1)(\[Phi]0)(t),2) + 
+        12*b*m0*m2*Power(x0,2)*Sin(\[Phi]0(t) - \[Phi]2(t))*
+         Power(Derivative(1)(\[Phi]0)(t),2) + 
+        12*b*m0*m2*Power(y0,2)*Sin(\[Phi]0(t) - \[Phi]2(t))*
+         Power(Derivative(1)(\[Phi]0)(t),2) + 
+        r2(t)*(k2*(Power(b,2)*(2*m0 + 3*m2) + 
+              2*m0*(Power(h,2) + 12*(Power(x0,2) + Power(y0,2))) + 
+              3*Power(b,2)*m2*Cos(2*(\[Phi]0(t) - \[Phi]2(t)))) - 
+           2*m0*m2*(Power(b,2) + Power(h,2) + 12*(Power(x0,2) + Power(y0,2)))*
+            Power(Derivative(1)(\[Phi]2)(t),2)))/
+     (2.*m0*m2*(Power(b,2) + Power(h,2) + 12*(Power(x0,2) + Power(y0,2))))),
+   Rule(\[Phi]0(t),Derivative(1)(\[Phi]0)(t)),Rule(\[Phi]1(t),Derivative(1)(\[Phi]1)(t)),
+   Rule(\[Phi]2(t),Derivative(1)(\[Phi]2)(t)),Rule(r1(t),Derivative(1)(r1)(t)),
+   Rule(r2(t),Derivative(1)(r2)(t)))

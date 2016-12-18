@@ -6,14 +6,16 @@ restart = true
 
 t = 0, 0.001, 300
 
-width = 5000
-height = 5000
+width = 20000
+height = 20000
 
 [horizontal]
-phi2 = -0.75, -0.25
+;phi2 = -0.75, -0.25
+phi2 = -0.7, -0.6
 
 [vertical]
-dr = -1.25, -0.5
+dr = -1.2, -1
+;dr = -1.25, -0.5
 
 [defaults]
 r = 0.185979
