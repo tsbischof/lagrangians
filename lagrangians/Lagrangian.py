@@ -1,5 +1,4 @@
 import sys
-sys.path.append("/home/tsbischof/lib")
 
 import subprocess
 import os

@@ -1,4 +1,2 @@
-from Lagrangian import *
-import colormap
-import options
-import clib
+from .Lagrangian import *
+from . import colormap, options, clib
