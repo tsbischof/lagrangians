@@ -12,8 +12,10 @@ AC_PROG_CXX
 
 # Checks for libraries.
 AX_BOOST_BASE([1.48],, [AC_MSG_ERROR([lagrangians needs Boost, but it was not found in your system])])
-AX_BOOST_SYSTEM
+AX_BOOST_FILESYSTEM
 AX_BOOST_PROGRAM_OPTIONS
+AX_BOOST_REGEX
+AX_BOOST_SYSTEM
 
 # Checks for header files.
 
