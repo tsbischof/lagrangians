@@ -2,9 +2,8 @@
 
 namespace lagrangians 
 {
-
 	void runge_kutta_4
-	(std::vector<double> &r, void (&derivs)(std::vector<double> &, std::vector<double> &), double const dt)
+	(std::vector<double> &r, void (*derivs)(std::vector<double> &, std::vector<double> const&), double const dt)
 	{
 		std::vector<double> k1, k2, k3, k4, yt;
 		std::vector<double> dydx, dydxt;
@@ -27,4 +26,4 @@ namespace lagrangians
 		r += 1.0/6.0*(k1 + 2*k2 + 2*k3 + k4); */
 	}
 
-} // namespace
+} // lagrangians

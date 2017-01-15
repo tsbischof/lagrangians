@@ -32,7 +32,7 @@ Lagrangian::Lagrangian
 	this->input_filename = input_filename;
 
 	// config section
-	this->system = property_tree.get<std::string>("config.system");
+	this->system = new EquationSystem(property_tree.get<std::string>("config.system"), property_tree.get<std::string>("config.endpoint"), property_tree.get<std::string>("config.validator"));
 
 	this->run_type = property_tree.get<std::string>("config.run_type");
 	this->height = property_tree.get<size_t>("config.height");
@@ -46,11 +46,9 @@ Lagrangian::Lagrangian
 		throw(std::runtime_error("Image dimensions must be >0."));
 	} else {
 		image_type::extent_gen image_extents;
-		// todo:
-		// replace "9" with the actual number of parameters (or a dummy
-		// value which covers all use cases?). Note this is the number
-		// of values specific to the system, plus 1 (time)
-		this->image.resize(image_extents[this->height][this->width][9]);
+		
+		// third dimension includes time, hence parameters + 1
+		this->image.resize(image_extents[this->height][this->width][this->system->parameters.size() + 1]);
 
 		status_type::extent_gen status_extents;
 		this->status.resize(status_extents[this->height]); 
@@ -62,18 +60,19 @@ Lagrangian::Lagrangian
 		} 
 	}
 
-	//this->validator = property_tree.get_optional<std::string>("config.validator").get_value_or("");
-	this->times.from_string(property_tree.get<std::string>("config.t"));
+	this->times = new Range(property_tree.get<std::string>("config.t"));
 
 	// defaults, horizontal, and vertical can have all sorts of information
 	get_section(this->default_parameters, property_tree.get_child("defaults"));
 	get_section(this->horizontal_parameters, property_tree.get_child("horizontal"));
 	get_section(this->vertical_parameters, property_tree.get_child("vertical"));
+
+	this->build_phase_space();
 }
 
 // todo: 
 // We want to be able to resume runs. Currently we halt if any files are
-// already present, so build logic into the check for the 
+// already present, so build logic into the check for them
 int Lagrangian::allocate_files
 (void)
 {
@@ -91,6 +90,19 @@ int Lagrangian::allocate_files
 	// status
 	
 	return(0);
+}
+
+// Given the default, horizontal, and vertical parameters, generate the
+// phase space object which allow us to pick initial conditions for any
+// point in an image.
+void Lagrangian::build_phase_space
+(void)
+{
+	std::vector<double> origin, basis_x, basis_y;
+
+	this->system->get_origin_and_basis(origin, basis_x, basis_y, this->default_parameters, this->horizontal_parameters, this->vertical_parameters);
+
+	this->phase_space = new PhaseSpace(origin, basis_x, basis_y);
 }
 
 fs::path Lagrangian::data_directory
@@ -111,13 +123,14 @@ bool Lagrangian::is_valid
 void Lagrangian::run
 (void)
 {
-	for ( auto row = 0; row < this->height; row++ ) {
+	// calculate origin and basis vectors for phase space
+/*	for ( size_t row = 0; row < this->height; row++ ) {
 		// complete rows do not need to be worked on
 		if ( this->status[row] ) {
 			continue;
 		}
 
-		for ( auto column = 0; column < this->width; column++ ) {
+		for ( size_t column = 0; column < this->width; column++ ) {
 			double row_frac = column/(this->height - 1.0);
 			double column_frac = row/(this->width - 1.0);
 
@@ -125,9 +138,10 @@ void Lagrangian::run
 			// phase space:
 			// r = r0 + r_h*x + r_v*y
 			// (origin plus basis in each direction)
-			this->image[row][column] = 
+			//r = 
+			this->image[row][column] = 0;
 		}
-	}
+	} */
 }
 
 std::string Lagrangian::status_string

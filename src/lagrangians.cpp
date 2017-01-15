@@ -71,5 +71,7 @@ int main
 			std::cout << "Error while processing " << input_filename.string() << ": " << ex.what() << std::endl;
 		}
 	}
+
+	std::cout << "Finished with all requested tasks." << std::endl;
 	return(0);
 }

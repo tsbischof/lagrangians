@@ -1,5 +1,5 @@
-#ifndef RANGE_H_
-#define RANGE_H_
+#ifndef RANGE_HPP_
+#define RANGE_HPP_
 
 #include <string>
 
@@ -12,9 +12,7 @@ namespace lagrangians
 		double step;
 
 		public:
-			Range* from_string(std::string const &);
-
-//		public:
+			Range(std::string const &);
 //			iterator	
 	};
 }

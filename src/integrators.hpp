@@ -1,11 +1,11 @@
-#ifndef INTEGRATORS_H_
-#define INTEGRATORS_H_
+#ifndef INTEGRATORS_HPP_
+#define INTEGRATORS_HPP_
 
 #include <vector>
 
 namespace lagrangians 
 {
-	void runge_kutta_4(std::vector &, void (&)(std::vector<double> &, std::vector<double> &), double const &);
+	void runge_kutta_4(std::vector<double> &r, void (*derivatives)(std::vector<double> &, std::vector<double> const&), double const t);
 }
 
 #endif

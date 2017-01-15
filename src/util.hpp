@@ -1,7 +1,8 @@
-#ifndef UTIL_H_
-#define UTIL_H_
+#ifndef UTIL_HPP_
+#define UTIL_HPP_
 
 namespace lagrangians {
+	double sign(double const x);
 }
 
 #endif

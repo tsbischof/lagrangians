@@ -6,7 +6,7 @@
 
 namespace lagrangians
 {
-	Range* Range::from_string
+	Range::Range
 	(std::string const &value)
 	{
 		// We have two options:
@@ -28,8 +28,6 @@ namespace lagrangians
 		} else {
 			throw(std::runtime_error("Expected 2 or 3 values in time definition (start, stop, [step])."));
 		}
-
-		return(this);
 	}
 
 } // namespace lagrangians
