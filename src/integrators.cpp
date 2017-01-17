@@ -3,27 +3,38 @@
 namespace lagrangians 
 {
 	void runge_kutta_4
-	(std::vector<double> &r, void (*derivs)(std::vector<double> &, std::vector<double> const&), double const dt)
+	(std::vector<double> &r, std::vector<double> const& c, void (*derivative)(std::vector<double> &, std::vector<double> const&, std::vector<double> const&), double const dt)
 	{
-		std::vector<double> k1, k2, k3, k4, yt;
-		std::vector<double> dydx, dydxt;
+		int i;
+		std::vector<double> k1(r.size(), 0), k2(r.size(), 0), k3(r.size(), 0), k4(r.size(), 0), yt(r.size(), 0);
+		std::vector<double> dydx(r.size()), dydxt(r.size());
 
-/*		derivs(r, dydx);
-		k1 = dt*dydx;
-		yt = r + 0.5*k1;
+		derivative(dydx, r, c);
+		for ( i = 0; i < r.size(); i++ ) {
+			k1[i] = dt*dydx[i];
+	       		yt[i] = r[i] + 0.5*k1[i];
+		}
 
-		derivs(yt, dydxt);
-		k2 = dt*dydxt;
-		yt = r + 0.5*k2;
+		derivative(dydx, yt, c);
+		for ( i = 0; i < r.size(); i++ ) {
+			k2[i] = dt*dydx[i];
+			yt[i] = r[i] + 0.5*k2[i];
+		}
 
-		derivs(yt, dydxt);
-		k3 = dt*dydxt;
-		yt = r + k3;
+		derivative(dydx, yt, c);
+		for ( i = 0; i < r.size(); i++ ) {
+			k3[i] = dt*dydxt[i];
+			yt[i] = r[i] + k3[i];
+		}
 
-		derivs(yt, dydxt);
-		k4 = dt*dydxt;
+		derivative(dydx, yt, c);
+		for ( i = 0; i < r.size(); i++ ) {
+			k4[i] = dt*dydxt[i];
+		}
 		
-		r += 1.0/6.0*(k1 + 2*k2 + 2*k3 + k4); */
+		for ( i = 0; i < r.size(); i++ ) {
+			r[i] += 1.0/6.0*(k1[i] + 2*k2[i] + 2*k3[i] + k4[i]);
+		}
 	}
 
 } // lagrangians

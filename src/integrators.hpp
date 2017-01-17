@@ -5,7 +5,7 @@
 
 namespace lagrangians 
 {
-	void runge_kutta_4(std::vector<double> &r, void (*derivatives)(std::vector<double> &, std::vector<double> const&), double const t);
+	void runge_kutta_4(std::vector<double>& r, std::vector<double> const& c, void (*derivative)(std::vector<double> &, std::vector<double> const&, std::vector<double> const&), double const t);
 }
 
 #endif

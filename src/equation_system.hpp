@@ -17,10 +17,13 @@ namespace lagrangians
 
 			void get_origin_and_basis(std::vector<double>& origin, std::vector<double>& basis_x, std::vector<double>& basis_y, std::map<std::string, std::string> const default_parameters, std::map<std::string, std::string> const horizontal_parameters, std::map<std::string, std::string> const vertical_parameters);
 
-			void (*integrate)(std::vector<double> &r, double const dt);
+			void (*integrate)(std::vector<double>& r, std::vector<double>const& c, double const dt);
 			bool (*validate)(std::vector<double> const& r);
 			bool (*endpoint)(std::vector<double> const& r, std::vector<double> const& r0);
-			std::vector<std::string> parameters; 
+			std::vector<std::string> constants;
+			std::vector<std::string> variables;
+
+			size_t n_parameters(void);
 	};
 } // lagrangians
 

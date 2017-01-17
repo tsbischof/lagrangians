@@ -72,6 +72,5 @@ int main
 		}
 	}
 
-	std::cout << "Finished with all requested tasks." << std::endl;
 	return(0);
 }

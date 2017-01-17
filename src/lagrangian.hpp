@@ -1,6 +1,7 @@
 #ifndef LAGRANGIAN_HPP_
 #define LAGRANGIAN_HPP_
 
+#include <fstream>
 #include <iostream>
 #include <map>
 #include <string>
@@ -17,7 +18,6 @@ namespace fs = boost::filesystem;
 
 namespace lagrangians {
 	typedef boost::multi_array<double, 3> image_type;
-	typedef boost::multi_array<bool, 1> status_type;
 
 	class Lagrangian
 	{
@@ -25,12 +25,15 @@ namespace lagrangians {
 
 		std::string run_type;
 		image_type image;
-		status_type status;
+		std::vector<char> status;
 		size_t width;
 		size_t height;
 
 //		std::string validator;
-		Range* times;
+//		Range* times;
+		double t_start;
+		double t_stop;
+		double t_step;
 
 		std::map<std::string, std::string> default_parameters;
 		std::map<std::string, std::string> horizontal_parameters;
@@ -39,20 +42,19 @@ namespace lagrangians {
 		EquationSystem* system;
 		PhaseSpace* phase_space;
 
-		fs::path trajectory_filename;
-		fs::path status_filename;
+		fs::path data_directory;
+
+		std::ofstream trajectory_file;
+		std::ofstream status_file;
 
 		public:
 			Lagrangian(fs::path const&);
-			fs::path data_directory(void);
-
 			void build_phase_space(void);
-
 			void run(void);
 			std::string status_string(void);
 		private:
 			int allocate_files(void);	
-			bool is_valid(void);
+			fs::path filename(std::string);
 	};
 
 	class LagrangianVideo : Lagrangian {

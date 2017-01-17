@@ -1,3 +1,5 @@
+#include <ostream>
+#include <stdlib.h>
 #include <sys/stat.h>
 
 #include <boost/filesystem.hpp>
@@ -10,15 +12,6 @@
 using namespace lagrangians;
 namespace pt = boost::property_tree;
 
-void 
-get_section
-(std::map<std::string, std::string> &parameters, pt::ptree const &tree)
-{
-	for ( auto const& node: tree ) {
-		parameters[node.first] = tree.get<std::string>(node.first);
-	}
-}
-
 Lagrangian::Lagrangian
 (fs::path const& input_filename)
 {
@@ -30,6 +23,7 @@ Lagrangian::Lagrangian
 	pt::ini_parser::read_ini(input_filename.filename().string(), property_tree);
 
 	this->input_filename = input_filename;
+	this->data_directory = this->input_filename.parent_path() / boost::regex_replace(input_filename.filename().string(), boost::regex("\\.inp"), "");
 
 	// config section
 	this->system = new EquationSystem(property_tree.get<std::string>("config.system"), property_tree.get<std::string>("config.endpoint"), property_tree.get<std::string>("config.validator"));
@@ -47,20 +41,20 @@ Lagrangian::Lagrangian
 	} else {
 		image_type::extent_gen image_extents;
 		
-		// third dimension includes time, hence parameters + 1
-		this->image.resize(image_extents[this->height][this->width][this->system->parameters.size() + 1]);
+		// third dimension includes time, hence variables + 1
+		this->image.resize(image_extents[this->height][this->width][this->system->variables.size() + 1]);
 
-		status_type::extent_gen status_extents;
-		this->status.resize(status_extents[this->height]); 
+		this->status.resize(this->height); 
 
-		// todo:
-		// clean this up. there must be a nicer way to go about this
-		for ( size_t i = 0; i < this->status.num_elements(); i++ ) {
-			this->status.data()[i] = false; 
+		for ( size_t i = 0; i < this->status.size(); i++ ) {
+			this->status[i] = 0; 
 		} 
 	}
 
-	this->times = new Range(property_tree.get<std::string>("config.t"));
+	auto times = split(property_tree.get<std::string>("config.t"), ',');;
+	this->t_start = atof(times[0].c_str());
+	this->t_stop = atof(times[1].c_str());
+	this->t_step = atof(times[2].c_str());
 
 	// defaults, horizontal, and vertical can have all sorts of information
 	get_section(this->default_parameters, property_tree.get_child("defaults"));
@@ -68,6 +62,7 @@ Lagrangian::Lagrangian
 	get_section(this->vertical_parameters, property_tree.get_child("vertical"));
 
 	this->build_phase_space();
+	this->allocate_files();
 }
 
 // todo: 
@@ -77,17 +72,32 @@ int Lagrangian::allocate_files
 (void)
 {
 	// working directory
-	if ( ! fs::exists(this->data_directory()) ) {
-		fs::create_directories(this->data_directory());
-	} else if ( fs::is_directory(this->data_directory()) ) {
+	if ( ! fs::exists(this->data_directory) ) {
+		fs::create_directories(this->data_directory);
+	} else if ( fs::is_directory(this->data_directory) ) {
 		// this is fine: we will check to see what files exist in the directory already
 	} else {
 		throw std::runtime_error("Output directory name exists already but is not a directory. Remove it to continue.");
 	}
 
 	// trajectory
+	double zero_d = 0;
+	this->trajectory_file = std::ofstream(this->filename("trajectory").string(), std::ios::out | std::ios::binary);
+
+	for ( auto i = 0; i < this->width*this->height*(this->system->variables.size()+1); i++ ) {
+		this->trajectory_file.write(reinterpret_cast<char*>(&zero_d), sizeof(zero_d));
+	}
 	
 	// status
+	char zero = 0;
+	this->status_file = std::ofstream(this->filename("status").string(), std::ios::out | std::ios::binary);
+
+	for ( auto i = 0; i < this->height; i++ ) {
+		this->status_file.write(&zero, sizeof(zero));
+	}
+
+	this->trajectory_file.seekp(std::ios_base::beg);
+	this->status_file.seekp(std::ios_base::beg);
 	
 	return(0);
 }
@@ -98,50 +108,82 @@ int Lagrangian::allocate_files
 void Lagrangian::build_phase_space
 (void)
 {
-	std::vector<double> origin, basis_x, basis_y;
+	size_t n_parameters = this->system->n_parameters();
+	std::vector<double> origin(n_parameters), basis_x(n_parameters), basis_y(n_parameters);
 
 	this->system->get_origin_and_basis(origin, basis_x, basis_y, this->default_parameters, this->horizontal_parameters, this->vertical_parameters);
 
 	this->phase_space = new PhaseSpace(origin, basis_x, basis_y);
 }
 
-fs::path Lagrangian::data_directory
-(void)
+fs::path Lagrangian::filename
+(std::string name)
 {
-	fs::path data_directory = this->input_filename.root_directory();
-	data_directory /= boost::regex_replace(input_filename.filename().string(), boost::regex("\\.inp"), "");
-
-	return(data_directory);
-}
-
-bool Lagrangian::is_valid
-(void)
-{
-	return(true);
+	return(this->data_directory / name);
 }
 
 void Lagrangian::run
 (void)
 {
+	int i;
+	double t;
+	std::vector<double> variables(this->system->variables.size());
+	std::vector<double> variables_init(this->system->variables.size());
+	std::vector<double> constants(this->system->constants.size());
+	std::vector<double> parameters(variables.size() + constants.size());
+	size_t row = 0, column = 0;
+	double row_frac, column_frac;
+
+	this->allocate_files();
+
 	// calculate origin and basis vectors for phase space
-/*	for ( size_t row = 0; row < this->height; row++ ) {
+	for ( row = 0; row < this->height; row++ ) {
 		// complete rows do not need to be worked on
+		std::cout << "Working on row " << row << " of " << column << std::endl;
 		if ( this->status[row] ) {
 			continue;
 		}
 
-		for ( size_t column = 0; column < this->width; column++ ) {
-			double row_frac = column/(this->height - 1.0);
-			double column_frac = row/(this->width - 1.0);
+		for ( column = 0; column < this->width; column++ ) {
+			row_frac = column/(this->height - 1.0);
+			column_frac = row/(this->width - 1.0);
 
-			// form the r0 values associated with this point in
-			// phase space:
-			// r = r0 + r_h*x + r_v*y
-			// (origin plus basis in each direction)
-			//r = 
-			this->image[row][column] = 0;
+			this->phase_space->point(parameters, row_frac, column_frac);
+
+			for ( i = 0; i < variables.size(); i++ ) {
+				variables[i] = parameters[i];
+				variables_init[i] = parameters[i];
+			}
+
+			for ( i = 0; i < constants.size(); i++ ) {
+				constants[i] = parameters[variables.size() + i];
+			}
+
+			t = this->t_start;
+
+			while ( (not this->system->endpoint(variables, variables_init)) and ( this->t_stop - t > this->t_step) ) {
+				this->system->integrate(variables, constants, this->t_step);
+			
+				t += this->t_step;
+
+			}
+
+			// store result in image
+			for ( i = 0; i < variables.size(); i++ ) {
+				this->image[row][column][i] = variables[i];
+			}
+
+			this->image[row][column][variables.size()] = t;		
+
+			// write result to file
+			for ( i = 0; i <= variables.size(); i++ ) {
+				this->trajectory_file.write(reinterpret_cast<char*>(&(this->image[row][column][i])), sizeof(this->image[row][column][i]));
+			}
 		}
-	} */
+
+		this->status[row] = 1;
+		this->status_file.write(&(this->status[row]), sizeof(this->status[row]));
+	} 
 }
 
 std::string Lagrangian::status_string
