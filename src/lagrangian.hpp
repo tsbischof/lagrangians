@@ -17,7 +17,7 @@
 namespace fs = boost::filesystem;
 
 namespace lagrangians {
-	typedef boost::multi_array<double, 3> image_type;
+	typedef boost::multi_array<double, 2> image_type;
 
 	class Lagrangian
 	{

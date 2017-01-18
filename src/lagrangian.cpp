@@ -42,7 +42,7 @@ Lagrangian::Lagrangian
 		image_type::extent_gen image_extents;
 		
 		// third dimension includes time, hence variables + 1
-		this->image.resize(image_extents[this->height][this->width][this->system->variables.size() + 1]);
+		this->image.resize(image_extents[this->width][this->system->n_parameters() + 1]);
 
 		this->status.resize(this->height); 
 
@@ -84,7 +84,7 @@ int Lagrangian::allocate_files
 	double zero_d = 0;
 	this->trajectory_file = std::ofstream(this->filename("trajectory").string(), std::ios::out | std::ios::binary);
 
-	for ( auto i = 0; i < this->width*this->height*(this->system->variables.size()+1); i++ ) {
+	for ( auto i = 0; i < this->width*this->height*(this->system->n_parameters()+1); i++ ) {
 		this->trajectory_file.write(reinterpret_cast<char*>(&zero_d), sizeof(zero_d));
 	}
 	
@@ -131,7 +131,7 @@ void Lagrangian::run
 	std::vector<double> variables_init(this->system->variables.size());
 	std::vector<double> constants(this->system->constants.size());
 	std::vector<double> parameters(variables.size() + constants.size());
-	size_t row = 0, column = 0;
+	size_t row, column;
 	double row_frac, column_frac;
 
 	this->allocate_files();
@@ -139,13 +139,15 @@ void Lagrangian::run
 	// calculate origin and basis vectors for phase space
 	for ( row = 0; row < this->height; row++ ) {
 		// complete rows do not need to be worked on
-		std::cout << "Working on row " << row << " of " << column << std::endl;
+		std::cout << "Working on row " << row << " of " << this->height << std::endl;
+
 		if ( this->status[row] ) {
 			continue;
 		}
 
+		row_frac = column/(this->height - 1.0);
+
 		for ( column = 0; column < this->width; column++ ) {
-			row_frac = column/(this->height - 1.0);
 			column_frac = row/(this->width - 1.0);
 
 			this->phase_space->point(parameters, row_frac, column_frac);
@@ -161,6 +163,7 @@ void Lagrangian::run
 
 			t = this->t_start;
 
+
 			while ( (not this->system->endpoint(variables, variables_init)) and ( this->t_stop - t > this->t_step) ) {
 				this->system->integrate(variables, constants, this->t_step);
 			
@@ -170,14 +173,15 @@ void Lagrangian::run
 
 			// store result in image
 			for ( i = 0; i < variables.size(); i++ ) {
-				this->image[row][column][i] = variables[i];
+				this->image[column][i] = variables[i];
 			}
 
-			this->image[row][column][variables.size()] = t;		
+			this->image[column][variables.size()] = t;		
+		}
 
-			// write result to file
+		for ( column = 0; column < this->width; column++ ) {
 			for ( i = 0; i <= variables.size(); i++ ) {
-				this->trajectory_file.write(reinterpret_cast<char*>(&(this->image[row][column][i])), sizeof(this->image[row][column][i]));
+				this->trajectory_file.write(reinterpret_cast<char*>(&(this->image[column][i])), sizeof(this->image[column][i]));
 			}
 		}
 
