@@ -81,11 +81,17 @@ int Lagrangian::allocate_files
 	}
 
 	// trajectory
-	double zero_d = 0;
+	double zero_lf = 0;
 	this->trajectory_file = std::ofstream(this->filename("trajectory").string(), std::ios::out | std::ios::binary);
 
-	for ( auto i = 0; i < this->width*this->height*(this->system->n_parameters()+1); i++ ) {
-		this->trajectory_file.write(reinterpret_cast<char*>(&zero_d), sizeof(zero_d));
+	auto depth = this->system->variables.size() + 1;
+
+	for ( auto row = 0; row < this->height; row++ ) {
+		for ( auto column = 0; column < this->width; column++ ) {
+			for ( auto var = 0; var < depth; var++ ) {
+				this->trajectory_file.write(reinterpret_cast<char*>(&zero_lf), sizeof(zero_lf));
+			}
+		}
 	}
 	
 	// status
@@ -134,20 +140,17 @@ void Lagrangian::run
 	size_t row, column;
 	double row_frac, column_frac;
 
-	this->allocate_files();
-
 	// calculate origin and basis vectors for phase space
 	for ( row = 0; row < this->height; row++ ) {
 		// complete rows do not need to be worked on
-		std::cout << "Working on row " << row << " of " << this->height << std::endl;
+		std::cout << this->input_filename << ": working on row " << row << " of " << this->height << std::endl;
 
 		if ( this->status[row] ) {
 			continue;
 		}
 
-		row_frac = column/(this->height - 1.0);
-
 		for ( column = 0; column < this->width; column++ ) {
+			row_frac = column/(this->height - 1.0);
 			column_frac = row/(this->width - 1.0);
 
 			this->phase_space->point(parameters, row_frac, column_frac);
@@ -176,7 +179,7 @@ void Lagrangian::run
 				this->image[column][i] = variables[i];
 			}
 
-			this->image[column][variables.size()] = t;		
+			this->image[column][i] = t;		
 		}
 
 		for ( column = 0; column < this->width; column++ ) {
