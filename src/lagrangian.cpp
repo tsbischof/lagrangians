@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 
+#include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/ini_parser.hpp>
@@ -153,6 +154,7 @@ void Lagrangian::run
 	size_t row, column;
 	double row_frac, column_frac;
 
+
 	// calculate origin and basis vectors for phase space
 	for ( row = 0; row < this->height; row++ ) {
 		// complete rows do not need to be worked on
@@ -162,7 +164,7 @@ void Lagrangian::run
 			continue;
 		}
 
-		std::cout << this->input_filename << ": working on row " << row << " of " << this->height << std::endl;
+		std::cout << boost::posix_time::to_simple_string(boost::posix_time::second_clock::local_time()) << ": " << this->input_filename.string() << ": working on row " << row << " of " << this->height << std::endl;
 
 		# pragma omp parallel for schedule(dynamic)
 		for ( column = 0; column < this->width; column++ ) {

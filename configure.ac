@@ -13,6 +13,7 @@ AC_OPENMP
 
 # Checks for libraries.
 AX_BOOST_BASE([1.44],, [AC_MSG_ERROR([lagrangians needs Boost, but it was not found in your system])])
+AX_BOOST_DATE_TIME
 AX_BOOST_FILESYSTEM
 AX_BOOST_PROGRAM_OPTIONS
 AX_BOOST_REGEX

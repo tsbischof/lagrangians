@@ -1,0 +1,25 @@
+[config]
+run_type = image
+
+system = double_pendulum
+t = 0, 100, 0.001
+
+endpoint = lower_flip
+
+width = 1001
+height = 1001
+
+[defaults]
+l1 = 1
+l2 = 5
+m1 = 1
+m2 = 1
+g = 9.8
+dphi1 = -2
+dphi2 = 2
+
+[vertical]
+phi1 = -3.14159, 3.14159
+
+[horizontal]
+phi2 = -3.14159, 3.14159
