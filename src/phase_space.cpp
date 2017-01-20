@@ -1,4 +1,4 @@
-#include <iostream>
+#include <stdexcept>
 
 #include "phase_space.hpp"
 

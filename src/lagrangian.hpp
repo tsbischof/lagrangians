@@ -44,7 +44,7 @@ namespace lagrangians {
 
 		fs::path data_directory;
 
-		std::ofstream trajectory_file;
+		std::fstream trajectory_file;
 		std::fstream status_file;
 
 		public:

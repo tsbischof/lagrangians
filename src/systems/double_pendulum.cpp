@@ -5,7 +5,10 @@
 #include "../integrators.hpp"
 #include "../util.hpp"
 
-namespace lagrangians::double_pendulum {
+namespace lagrangians
+{
+
+namespace double_pendulum {
 
 void derivatives
 (std::vector<double> &drdt, std::vector<double> const& r, std::vector<double> const& c)
@@ -70,4 +73,5 @@ bool upper_turnaround_endpoint
 	return( (r[DPHI1] == 0) || (lagrangians::sign(r[DPHI1]) == -1*lagrangians::sign(r0[DPHI1])) );
 }
 
-} // lagrangians::double_pendulum
+} // double_pendulum
+} // lagrangians

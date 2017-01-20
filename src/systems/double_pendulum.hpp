@@ -4,7 +4,9 @@
 #include <string>
 #include <vector>
 
-namespace lagrangians::double_pendulum
+namespace lagrangians 
+{
+namespace double_pendulum 
 {
 	enum { PHI1, DPHI1, PHI2, DPHI2 };
 	enum { M1, M2, L1, L2, G };
@@ -20,5 +22,6 @@ namespace lagrangians::double_pendulum
 	bool lower_turnaround_endpoint(std::vector<double> const& r, std::vector<double> const& r0);
 	bool upper_turnaround_endpoint(std::vector<double> const& r, std::vector<double> const& r0);
 
-} // lagrangians::double_pendulum
+} // double_pendulum
+} // lagrangians
 #endif

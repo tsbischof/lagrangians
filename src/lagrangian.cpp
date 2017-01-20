@@ -26,7 +26,7 @@ Lagrangian::Lagrangian
 	this->data_directory = this->input_filename.parent_path() / boost::regex_replace(input_filename.filename().string(), boost::regex("\\.inp"), "");
 
 	// config section
-	this->system = new EquationSystem(property_tree.get<std::string>("config.system"), property_tree.get<std::string>("config.endpoint"), property_tree.get<std::string>("config.validator"));
+	this->system = new EquationSystem(property_tree.get<std::string>("config.system"), property_tree.get<std::string>("config.endpoint"), property_tree.get<std::string>("config.validator", ""));
 
 	this->run_type = property_tree.get<std::string>("config.run_type");
 	this->height = property_tree.get<size_t>("config.height");
@@ -82,7 +82,8 @@ int Lagrangian::allocate_files
 
 	// trajectory
 	if ( fs::exists(this->filename("trajectory")) and fs::exists(this->filename("status")) ) {
-		this->status_file = std::fstream(this->filename("status").string(), std::ios::in | std::ios::out | std::ios::binary);
+		this->status_file.open(this->filename("status").string(), std::ios::in | std::ios::out | std::ios::binary);
+		this->trajectory_file.open(this->filename("trajectory").string(), std::ios::in | std::ios::out | std::ios::binary);
 
 		for ( auto row = 0; row < this->height; row++ ) {
 			this->status_file.read(&(this->status[row]), sizeof(this->status[row]));
@@ -90,7 +91,7 @@ int Lagrangian::allocate_files
 	} else { 
 		// if a new run, allocate space
 		double zero_lf = 0;
-		this->trajectory_file = std::ofstream(this->filename("trajectory").string(), std::ios::out | std::ios::binary);
+		this->trajectory_file.open(this->filename("trajectory").string(), std::ios::out | std::ios::binary);
 
 		auto depth = this->system->variables.size() + 1;
 
@@ -105,7 +106,7 @@ int Lagrangian::allocate_files
 	
 		// status
 		char zero = 0;
-		this->status_file = std::fstream(this->filename("status").string(), std::ios::out | std::ios::binary);
+		this->status_file.open(this->filename("status").string(), std::ios::out | std::ios::binary);
 
 		for ( auto i = 0; i < this->height; i++ ) {
 			this->status_file.write(&zero, sizeof(zero));
