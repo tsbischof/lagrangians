@@ -9,6 +9,7 @@ AM_INIT_AUTOMAKE([foreign -Wall -Werror])
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_CXX
+AC_OPENMP
 
 # Checks for libraries.
 AX_BOOST_BASE([1.44],, [AC_MSG_ERROR([lagrangians needs Boost, but it was not found in your system])])

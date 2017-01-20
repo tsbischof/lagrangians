@@ -164,6 +164,7 @@ void Lagrangian::run
 
 		std::cout << this->input_filename << ": working on row " << row << " of " << this->height << std::endl;
 
+		# pragma omp parallel for schedule(dynamic)
 		for ( column = 0; column < this->width; column++ ) {
 			row_frac = row/(this->height - 1.0);
 			column_frac = column/(this->width - 1.0);
