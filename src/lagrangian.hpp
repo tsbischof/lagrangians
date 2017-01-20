@@ -35,10 +35,6 @@ namespace lagrangians {
 		double t_stop;
 		double t_step;
 
-		std::map<std::string, std::string> default_parameters;
-		std::map<std::string, std::string> horizontal_parameters;
-		std::map<std::string, std::string> vertical_parameters;
-
 		EquationSystem* system;
 		PhaseSpace* phase_space;
 
@@ -49,7 +45,7 @@ namespace lagrangians {
 
 		public:
 			Lagrangian(fs::path const&);
-			void build_phase_space(void);
+			void build_phase_space(std::map<std::string, std::string>& default_parameters, std::map<std::string, std::string>& horizontal_parameters, std::map<std::string, std::string>& vertical_parameters);
 			void run(void);
 			std::string status_string(void);
 		private:

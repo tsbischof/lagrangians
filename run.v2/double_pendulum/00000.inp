@@ -6,8 +6,8 @@ t = 0, 100, 0.001
 
 endpoint = lower_flip
 
-width = 1000
-height = 1000
+width = 1001
+height = 1001
 
 [defaults]
 l1 = 1

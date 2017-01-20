@@ -15,6 +15,10 @@ namespace pt = boost::property_tree;
 Lagrangian::Lagrangian
 (fs::path const& input_filename)
 {
+	std::map<std::string, std::string> default_parameters;
+	std::map<std::string, std::string> horizontal_parameters;
+	std::map<std::string, std::string> vertical_parameters;
+
 	if ( ! (fs::exists(input_filename) && !fs::is_directory(input_filename)) ) {
 		throw std::runtime_error("Could not find input file.");
 	}
@@ -57,17 +61,15 @@ Lagrangian::Lagrangian
 	this->t_step = atof(times[2].c_str());
 
 	// defaults, horizontal, and vertical can have all sorts of information
-	get_section(this->default_parameters, property_tree.get_child("defaults"));
-	get_section(this->horizontal_parameters, property_tree.get_child("horizontal"));
-	get_section(this->vertical_parameters, property_tree.get_child("vertical"));
+	get_section(default_parameters, property_tree.get_child("defaults"));
+	get_section(horizontal_parameters, property_tree.get_child("horizontal"));
+	get_section(vertical_parameters, property_tree.get_child("vertical"));
 
-	this->build_phase_space();
+	this->build_phase_space(default_parameters, horizontal_parameters, vertical_parameters);
+
 	this->allocate_files();
 }
 
-// todo: 
-// We want to be able to resume runs. Currently we halt if any files are
-// already present, so build logic into the check for them
 int Lagrangian::allocate_files
 (void)
 {
@@ -123,12 +125,12 @@ int Lagrangian::allocate_files
 // phase space object which allow us to pick initial conditions for any
 // point in an image.
 void Lagrangian::build_phase_space
-(void)
+(std::map<std::string, std::string>& default_parameters, std::map<std::string, std::string>& horizontal_parameters, std::map<std::string, std::string>& vertical_parameters)
 {
 	size_t n_parameters = this->system->n_parameters();
 	std::vector<double> origin(n_parameters), basis_x(n_parameters), basis_y(n_parameters);
 
-	this->system->get_origin_and_basis(origin, basis_x, basis_y, this->default_parameters, this->horizontal_parameters, this->vertical_parameters);
+	this->system->get_origin_and_basis(origin, basis_x, basis_y, default_parameters, horizontal_parameters, vertical_parameters);
 
 	this->phase_space = new PhaseSpace(origin, basis_x, basis_y);
 }
@@ -154,17 +156,17 @@ void Lagrangian::run
 	// calculate origin and basis vectors for phase space
 	for ( row = 0; row < this->height; row++ ) {
 		// complete rows do not need to be worked on
-		std::cout << this->input_filename << ": working on row " << row << " of " << this->height << std::endl;
-
 		if ( this->status[row] ) {
 			this->trajectory_file.seekp(sizeof(this->image[row][0])*(this->image[row].size()), std::ios_base::cur);
 			this->status_file.seekp(sizeof(this->status[row]), std::ios_base::cur);
 			continue;
 		}
 
+		std::cout << this->input_filename << ": working on row " << row << " of " << this->height << std::endl;
+
 		for ( column = 0; column < this->width; column++ ) {
-			row_frac = column/(this->height - 1.0);
-			column_frac = row/(this->width - 1.0);
+			row_frac = row/(this->height - 1.0);
+			column_frac = column/(this->width - 1.0);
 
 			this->phase_space->point(parameters, row_frac, column_frac);
 
@@ -178,7 +180,6 @@ void Lagrangian::run
 			}
 
 			t = this->t_start;
-
 
 			while ( (not this->system->endpoint(variables, variables_init)) and ( this->t_stop - t > this->t_step) ) {
 				this->system->integrate(variables, constants, this->t_step);

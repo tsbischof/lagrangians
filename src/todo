@@ -1,1 +1,3 @@
 -speedup: check the endpoint every n steps, then seek backwards when we find it to get the first point where the endpoint is satisfied.
+-add datetime to display of status
+-parallelize inner loop
