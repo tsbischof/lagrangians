@@ -217,8 +217,8 @@ std::string Lagrangian::status_string
 {
 	unsigned int finished = 0;
 
-	for ( auto index: this->status ) {
-		if ( this->status[index] ) {
+	for ( auto& status: this->status ) {
+		if ( status ) {
 			finished++;
 		}
 	}
