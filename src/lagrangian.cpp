@@ -81,19 +81,35 @@ int Lagrangian::allocate_files
 	}
 
 	// trajectory
-	double zero_d = 0;
-	this->trajectory_file = std::ofstream(this->filename("trajectory").string(), std::ios::out | std::ios::binary);
+	if ( fs::exists(this->filename("trajectory")) and fs::exists(this->filename("status")) ) {
+		this->status_file = std::fstream(this->filename("status").string(), std::ios::in | std::ios::out | std::ios::binary);
 
-	for ( auto i = 0; i < this->width*this->height*(this->system->n_parameters()+1); i++ ) {
-		this->trajectory_file.write(reinterpret_cast<char*>(&zero_d), sizeof(zero_d));
-	}
+		for ( auto row = 0; row < this->height; row++ ) {
+			this->status_file.read(&(this->status[row]), sizeof(this->status[row]));
+		}
+	} else { 
+		// if a new run, allocate space
+		double zero_lf = 0;
+		this->trajectory_file = std::ofstream(this->filename("trajectory").string(), std::ios::out | std::ios::binary);
+
+		auto depth = this->system->variables.size() + 1;
+
+		for ( auto row = 0; row < this->height; row++ ) {
+			for ( auto column = 0; column < this->width; column++ ) {
+				for ( auto var = 0; var < depth; var++ ) {
+					this->trajectory_file.write(reinterpret_cast<char*>(&zero_lf), sizeof(zero_lf));
+				}
+			}
+		}
+		
 	
-	// status
-	char zero = 0;
-	this->status_file = std::ofstream(this->filename("status").string(), std::ios::out | std::ios::binary);
+		// status
+		char zero = 0;
+		this->status_file = std::fstream(this->filename("status").string(), std::ios::out | std::ios::binary);
 
-	for ( auto i = 0; i < this->height; i++ ) {
-		this->status_file.write(&zero, sizeof(zero));
+		for ( auto i = 0; i < this->height; i++ ) {
+			this->status_file.write(&zero, sizeof(zero));
+		}
 	}
 
 	this->trajectory_file.seekp(std::ios_base::beg);
@@ -134,20 +150,19 @@ void Lagrangian::run
 	size_t row, column;
 	double row_frac, column_frac;
 
-	this->allocate_files();
-
 	// calculate origin and basis vectors for phase space
 	for ( row = 0; row < this->height; row++ ) {
 		// complete rows do not need to be worked on
-		std::cout << "Working on row " << row << " of " << this->height << std::endl;
+		std::cout << this->input_filename << ": working on row " << row << " of " << this->height << std::endl;
 
 		if ( this->status[row] ) {
+			this->trajectory_file.seekp(sizeof(this->image[row][0])*(this->image[row].size()), std::ios_base::cur);
+			this->status_file.seekp(sizeof(this->status[row]), std::ios_base::cur);
 			continue;
 		}
 
-		row_frac = column/(this->height - 1.0);
-
 		for ( column = 0; column < this->width; column++ ) {
+			row_frac = column/(this->height - 1.0);
 			column_frac = row/(this->width - 1.0);
 
 			this->phase_space->point(parameters, row_frac, column_frac);
@@ -176,7 +191,7 @@ void Lagrangian::run
 				this->image[column][i] = variables[i];
 			}
 
-			this->image[column][variables.size()] = t;		
+			this->image[column][i] = t;		
 		}
 
 		for ( column = 0; column < this->width; column++ ) {
@@ -187,6 +202,8 @@ void Lagrangian::run
 
 		this->status[row] = 1;
 		this->status_file.write(&(this->status[row]), sizeof(this->status[row]));
+		this->trajectory_file.flush();
+		this->status_file.flush();
 	} 
 }
 
