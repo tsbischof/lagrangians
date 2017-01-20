@@ -20,7 +20,7 @@ Lagrangian::Lagrangian
 	}
 
 	pt::ptree property_tree;
-	pt::ini_parser::read_ini(input_filename.filename().string(), property_tree);
+	pt::ini_parser::read_ini(input_filename.string(), property_tree);
 
 	this->input_filename = input_filename;
 	this->data_directory = this->input_filename.parent_path() / boost::regex_replace(input_filename.filename().string(), boost::regex("\\.inp"), "");
