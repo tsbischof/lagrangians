@@ -81,25 +81,35 @@ int Lagrangian::allocate_files
 	}
 
 	// trajectory
-	double zero_lf = 0;
-	this->trajectory_file = std::ofstream(this->filename("trajectory").string(), std::ios::out | std::ios::binary);
+	if ( fs::exists(this->filename("trajectory")) and fs::exists(this->filename("status")) ) {
+		this->status_file = std::fstream(this->filename("status").string(), std::ios::in | std::ios::out | std::ios::binary);
 
-	auto depth = this->system->variables.size() + 1;
+		for ( auto row = 0; row < this->height; row++ ) {
+			this->status_file.read(&(this->status[row]), sizeof(this->status[row]));
+		}
+	} else { 
+		// if a new run, allocate space
+		double zero_lf = 0;
+		this->trajectory_file = std::ofstream(this->filename("trajectory").string(), std::ios::out | std::ios::binary);
 
-	for ( auto row = 0; row < this->height; row++ ) {
-		for ( auto column = 0; column < this->width; column++ ) {
-			for ( auto var = 0; var < depth; var++ ) {
-				this->trajectory_file.write(reinterpret_cast<char*>(&zero_lf), sizeof(zero_lf));
+		auto depth = this->system->variables.size() + 1;
+
+		for ( auto row = 0; row < this->height; row++ ) {
+			for ( auto column = 0; column < this->width; column++ ) {
+				for ( auto var = 0; var < depth; var++ ) {
+					this->trajectory_file.write(reinterpret_cast<char*>(&zero_lf), sizeof(zero_lf));
+				}
 			}
 		}
-	}
+		
 	
-	// status
-	char zero = 0;
-	this->status_file = std::ofstream(this->filename("status").string(), std::ios::out | std::ios::binary);
+		// status
+		char zero = 0;
+		this->status_file = std::fstream(this->filename("status").string(), std::ios::out | std::ios::binary);
 
-	for ( auto i = 0; i < this->height; i++ ) {
-		this->status_file.write(&zero, sizeof(zero));
+		for ( auto i = 0; i < this->height; i++ ) {
+			this->status_file.write(&zero, sizeof(zero));
+		}
 	}
 
 	this->trajectory_file.seekp(std::ios_base::beg);
@@ -146,6 +156,8 @@ void Lagrangian::run
 		std::cout << this->input_filename << ": working on row " << row << " of " << this->height << std::endl;
 
 		if ( this->status[row] ) {
+			this->trajectory_file.seekp(sizeof(this->image[row][0])*(this->image[row].size()), std::ios_base::cur);
+			this->status_file.seekp(sizeof(this->status[row]), std::ios_base::cur);
 			continue;
 		}
 
@@ -190,6 +202,8 @@ void Lagrangian::run
 
 		this->status[row] = 1;
 		this->status_file.write(&(this->status[row]), sizeof(this->status[row]));
+		this->trajectory_file.flush();
+		this->status_file.flush();
 	} 
 }
 
