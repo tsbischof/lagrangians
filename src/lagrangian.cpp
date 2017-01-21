@@ -1,3 +1,4 @@
+#include <math.h>
 #include <ostream>
 #include <stdlib.h>
 #include <sys/stat.h>
@@ -47,7 +48,7 @@ Lagrangian::Lagrangian
 		image_type::extent_gen image_extents;
 		
 		// third dimension includes time, hence variables + 1
-		this->image.resize(image_extents[this->width][this->system->n_parameters() + 1]);
+		this->image.resize(image_extents[this->width][this->system->variables.size() + 1]);
 
 		this->status.resize(this->height); 
 
@@ -145,15 +146,7 @@ fs::path Lagrangian::filename
 void Lagrangian::run
 (void)
 {
-	int i;
-	double t;
-	std::vector<double> variables(this->system->variables.size());
-	std::vector<double> variables_init(this->system->variables.size());
-	std::vector<double> constants(this->system->constants.size());
-	std::vector<double> parameters(variables.size() + constants.size());
 	size_t row, column;
-	double row_frac, column_frac;
-
 
 	// calculate origin and basis vectors for phase space
 	for ( row = 0; row < this->height; row++ ) {
@@ -168,8 +161,16 @@ void Lagrangian::run
 
 		# pragma omp parallel for schedule(dynamic)
 		for ( column = 0; column < this->width; column++ ) {
+			double t;
+			int i;
+			int step, n_steps;
+			double row_frac, column_frac;
+			std::vector<double> variables(this->system->variables.size(), 0);
+			std::vector<double> variables_init(this->system->variables.size(), 0);
+			std::vector<double> constants(this->system->constants.size(), 0);
+			std::vector<double> parameters(this->system->n_parameters(), 0);
 			row_frac = row/(this->height - 1.0);
-			column_frac = column/(this->width - 1.0);
+			column_frac = column/(this->width - 1.0);	
 
 			this->phase_space->point(parameters, row_frac, column_frac);
 
@@ -182,15 +183,13 @@ void Lagrangian::run
 				constants[i] = parameters[variables.size() + i];
 			}
 
-			t = this->t_start;
+			t = 0;
+			n_steps = floor((this->t_stop - this->t_start)/this->t_step);
 
-			while ( (not this->system->endpoint(variables, variables_init)) and ( this->t_stop - t > this->t_step) ) {
+			for ( int step = 0; (not this->system->endpoint(variables, variables_init)) and (step < n_steps); step++ ) {
+				t = step*this->t_step;
 				this->system->integrate(variables, constants, this->t_step);
-			
-				t += this->t_step;
-
 			}
-
 			// store result in image
 			for ( i = 0; i < variables.size(); i++ ) {
 				this->image[column][i] = variables[i];
@@ -200,7 +199,7 @@ void Lagrangian::run
 		}
 
 		for ( column = 0; column < this->width; column++ ) {
-			for ( i = 0; i <= variables.size(); i++ ) {
+			for ( int i = 0; i < this->image[column].size(); i++ ) {
 				this->trajectory_file.write(reinterpret_cast<char*>(&(this->image[column][i])), sizeof(this->image[column][i]));
 			}
 		}

@@ -3,6 +3,8 @@
 #include <boost/algorithm/string.hpp>
 
 #include "equation_system.hpp"
+#include "systems/dangling_stick.hpp"
+#include "systems/double_pendulum.hpp"
 
 using namespace lagrangians;
 
@@ -13,6 +15,17 @@ EquationSystem::EquationSystem
 	this->validate = [](std::vector<double> const &) { return(false); };
 
 	if ( system == "dangling_stick" ) {
+		this->constants = dangling_stick::constants;
+		this->variables = dangling_stick::variables;
+		this->integrate = dangling_stick::integrate;
+
+		if ( endpoint == "lower_flip" ) {
+			this->endpoint = dangling_stick::lower_flip_endpoint;
+		} else if ( endpoint == "upper_flip" ) {
+			this->endpoint = dangling_stick::upper_flip_endpoint;
+		} else {
+			throw(std::runtime_error("Endpoint \"" + endpoint + "\" not found for " + system));
+		}
 	} else if ( system == "double_pendulum" ) {
 		this->constants = double_pendulum::constants;
 		this->variables = double_pendulum::variables;
@@ -20,10 +33,8 @@ EquationSystem::EquationSystem
 
 		if ( endpoint == "lower_flip" ) {
 			this->endpoint = double_pendulum::lower_flip_endpoint;
-
-			if ( validator == "energy" ) {
-				this->validate = double_pendulum::lower_flip_energy_validator;
-			}
+		} else if ( endpoint == "upper_flip" ) {
+			this->endpoint = double_pendulum::upper_flip_endpoint;
 		} else if ( endpoint == "lower_turnaround" ) {
 			this->endpoint = double_pendulum::lower_turnaround_endpoint;
 		} else if ( endpoint == "upper_turnaround" ) {

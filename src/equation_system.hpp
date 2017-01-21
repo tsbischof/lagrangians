@@ -5,9 +5,6 @@
 #include <string>
 #include <vector>
 
-#include "systems/dangling_stick.hpp"
-#include "systems/double_pendulum.hpp"
-
 namespace lagrangians
 {
 	class EquationSystem
