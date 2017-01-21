@@ -8,5 +8,6 @@ AM_LDFLAGS = $(BOOST_LDFLAGS) -fopenmp
 lagrangians_SOURCES = integrators.cpp phase_space.cpp \
 		      range.cpp equation_system.cpp util.cpp \
 		      systems/dangling_stick.cpp systems/double_pendulum.cpp \
+		      systems/trig.cpp \
 		      lagrangian.cpp lagrangians.cpp # last so we fail quick
 lagrangians_LDADD = $(BOOST_DATE_TIME_LIB) $(BOOST_FILESYSTEM_LIB) $(BOOST_PROGRAM_OPTIONS_LIB) $(BOOST_REGEX_LIB) $(BOOST_SYSTEM_LIB)

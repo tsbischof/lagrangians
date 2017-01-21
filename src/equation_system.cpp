@@ -5,6 +5,7 @@
 #include "equation_system.hpp"
 #include "systems/dangling_stick.hpp"
 #include "systems/double_pendulum.hpp"
+#include "systems/trig.hpp"
 
 using namespace lagrangians;
 
@@ -13,6 +14,7 @@ EquationSystem::EquationSystem
 {
 	// all validations fail by default
 	this->validate = [](std::vector<double> const &) { return(false); };
+	auto not_found = [](std::string system, std::string endpoint){ throw(std::runtime_error("Endpoint \"" + endpoint + "\" not found for " + system)); };
 
 	if ( system == "dangling_stick" ) {
 		this->constants = dangling_stick::constants;
@@ -24,7 +26,7 @@ EquationSystem::EquationSystem
 		} else if ( endpoint == "upper_flip" ) {
 			this->endpoint = dangling_stick::upper_flip_endpoint;
 		} else {
-			throw(std::runtime_error("Endpoint \"" + endpoint + "\" not found for " + system));
+			not_found(system, endpoint);
 		}
 	} else if ( system == "double_pendulum" ) {
 		this->constants = double_pendulum::constants;
@@ -40,7 +42,17 @@ EquationSystem::EquationSystem
 		} else if ( endpoint == "upper_turnaround" ) {
 			this->endpoint = double_pendulum::upper_turnaround_endpoint;
 		} else {
-			throw(std::runtime_error("Endpoint \"" + endpoint + "\" not found for " + system));
+			not_found(system, endpoint);
+		}
+	} else if ( system == "trig" ) {
+		this->constants = trig::constants;
+		this->variables = trig::variables;
+		this->integrate = trig::integrate;
+
+		if ( endpoint == "first_turnaround" ) {
+			this->endpoint = trig::first_turnaround;
+		} else {
+			not_found(system, endpoint);
 		}
 	} else {
 		throw(std::runtime_error("System not found: " + system));
