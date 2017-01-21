@@ -47,9 +47,9 @@ EquationSystem::EquationSystem
 			not_found(system, endpoint);
 		}
 	} else if ( system == "double_spring" ) {
-		this->constants = double_well::constants;
-		this->variables = double_well::variables;
-		this->integrate = double_well::integrate;
+		this->constants = double_spring::constants;
+		this->variables = double_spring::variables;
+		this->integrate = double_spring::integrate;
 
 		if ( endpoint == "lower_flip" ) {
 			this->endpoint = double_spring::lower_flip_endpoint;
