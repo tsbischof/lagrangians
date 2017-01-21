@@ -1,5 +1,5 @@
-#ifndef TRIG_HPP_
-#define TRIG_HPP_
+#ifndef DOUBLE_WELL_HPP_
+#define DOUBLE_WELL_HPP_
 
 #include <string>
 #include <vector>

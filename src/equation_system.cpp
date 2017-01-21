@@ -5,6 +5,8 @@
 #include "equation_system.hpp"
 #include "systems/dangling_stick.hpp"
 #include "systems/double_pendulum.hpp"
+#include "systems/double_spring.hpp"
+#include "systems/double_well.hpp"
 #include "systems/trig.hpp"
 
 using namespace lagrangians;
@@ -41,6 +43,28 @@ EquationSystem::EquationSystem
 			this->endpoint = double_pendulum::lower_turnaround_endpoint;
 		} else if ( endpoint == "upper_turnaround" ) {
 			this->endpoint = double_pendulum::upper_turnaround_endpoint;
+		} else {
+			not_found(system, endpoint);
+		}
+	} else if ( system == "double_spring" ) {
+		this->constants = double_well::constants;
+		this->variables = double_well::variables;
+		this->integrate = double_well::integrate;
+
+		if ( endpoint == "lower_flip" ) {
+			this->endpoint = double_spring::lower_flip_endpoint;
+		} else if ( endpoint == "upper_flip" ) {
+			this->endpoint = double_spring::upper_flip_endpoint;
+		} else {
+			not_found(system, endpoint);
+		}
+	} else if ( system == "double_well" ) {
+		this->constants = double_well::constants;
+		this->variables = double_well::variables;
+		this->integrate = double_well::integrate;
+
+		if ( endpoint == "first_turnaround" ) {
+			this->endpoint = double_well::first_turnaround;
 		} else {
 			not_found(system, endpoint);
 		}
