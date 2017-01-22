@@ -36,3 +36,14 @@ void PhaseSpace::point
 		r[i] = this->origin[i] + a*this->basis_x[i] + b*this->basis_y[i];
 	}
 }
+
+/* void PhaseSpace::point
+(boost::multi_array<double, 1>& r, double const a, double const b)
+{
+	std::vector<double> rv(r.size());
+	this->point(rv, a, b);
+
+	for ( auto i = 0; i < rv.size(); i++ ) {
+		r[i] = rv[i];
+	}
+} */

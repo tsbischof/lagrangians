@@ -3,6 +3,8 @@
 
 #include <vector>
 
+#include <boost/multi_array.hpp>
+
 namespace lagrangians
 {
 	class PhaseSpace
@@ -16,6 +18,7 @@ namespace lagrangians
 
 			std::vector<double> point(double const a, double const b);
 			void point(std::vector<double> &r, double const a, double const b);
+			void point(boost::multi_array<double, 1> &r, double const a, double const b);
 	};
 } // lagrangians
 #endif

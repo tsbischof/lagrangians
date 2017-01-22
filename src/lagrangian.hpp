@@ -18,6 +18,7 @@ namespace fs = boost::filesystem;
 
 namespace lagrangians {
 	typedef boost::multi_array<double, 2> image_type;
+	typedef boost::multi_array<double, 3> video_type;
 
 	class Lagrangian
 	{
@@ -25,6 +26,8 @@ namespace lagrangians {
 
 		std::string run_type;
 		image_type image;
+		video_type video_variables;
+		video_type video_constants;
 		std::vector<char> status;
 		size_t width;
 		size_t height;
@@ -34,6 +37,7 @@ namespace lagrangians {
 		double t_start;
 		double t_stop;
 		double t_step;
+		int t_steps;
 
 		EquationSystem* system;
 		PhaseSpace* phase_space;
@@ -47,10 +51,14 @@ namespace lagrangians {
 			Lagrangian(fs::path const&);
 			void build_phase_space(std::map<std::string, std::string>& default_parameters, std::map<std::string, std::string>& horizontal_parameters, std::map<std::string, std::string>& vertical_parameters);
 			void run(void);
+
 			std::string status_string(void);
 		private:
-			int allocate_files(void);	
+			int allocate_image(void);	
+			int allocate_video(void);
 			fs::path filename(std::string);
+			void run_video(void);
+			void run_image(void);
 	};
 
 	class LagrangianVideo : Lagrangian {

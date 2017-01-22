@@ -1,0 +1,23 @@
+[config]
+run_type = video
+
+system = double_pendulum
+t = 0, 100, 1
+
+width = 100
+height = 100
+
+[defaults]
+l1 = 1
+l2 = 5
+m1 = 1
+m2 = 1
+g = 9.8
+dphi1 = -2
+dphi2 = 2
+
+[vertical]
+phi1 = -3.14159, 3.14159
+
+[horizontal]
+phi2 = -3.14159, 3.14159

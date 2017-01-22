@@ -16,6 +16,7 @@ EquationSystem::EquationSystem
 {
 	// all validations fail by default
 	this->validate = [](std::vector<double> const &) { return(false); };
+	this->endpoint = [](std::vector<double> const &, std::vector<double> const &) { return(false); };
 	auto not_found = [](std::string system, std::string endpoint){ throw(std::runtime_error("Endpoint \"" + endpoint + "\" not found for " + system)); };
 
 	if ( system == "dangling_stick" ) {
@@ -23,7 +24,9 @@ EquationSystem::EquationSystem
 		this->variables = dangling_stick::variables;
 		this->integrate = dangling_stick::integrate;
 
-		if ( endpoint == "lower_flip" ) {
+		if ( endpoint == "" ) {
+			// nothing, default is in place
+		} else if ( endpoint == "lower_flip" ) {
 			this->endpoint = dangling_stick::lower_flip_endpoint;
 		} else if ( endpoint == "upper_flip" ) {
 			this->endpoint = dangling_stick::upper_flip_endpoint;
@@ -35,7 +38,9 @@ EquationSystem::EquationSystem
 		this->variables = double_pendulum::variables;
 		this->integrate = double_pendulum::integrate;
 
-		if ( endpoint == "lower_flip" ) {
+		if ( endpoint == "" ) {
+			// nothing, default is in place
+		} else if ( endpoint == "lower_flip" ) {
 			this->endpoint = double_pendulum::lower_flip_endpoint;
 		} else if ( endpoint == "upper_flip" ) {
 			this->endpoint = double_pendulum::upper_flip_endpoint;
@@ -51,7 +56,9 @@ EquationSystem::EquationSystem
 		this->variables = double_spring::variables;
 		this->integrate = double_spring::integrate;
 
-		if ( endpoint == "lower_flip" ) {
+		if ( endpoint == "" ) {
+			// nothing, default is in place
+		} else if ( endpoint == "lower_flip" ) {
 			this->endpoint = double_spring::lower_flip_endpoint;
 		} else if ( endpoint == "upper_flip" ) {
 			this->endpoint = double_spring::upper_flip_endpoint;
@@ -63,7 +70,9 @@ EquationSystem::EquationSystem
 		this->variables = double_well::variables;
 		this->integrate = double_well::integrate;
 
-		if ( endpoint == "first_turnaround" ) {
+		if ( endpoint == "" ) {
+			// nothing, default is in place
+		} else if ( endpoint == "first_turnaround" ) {
 			this->endpoint = double_well::first_turnaround;
 		} else {
 			not_found(system, endpoint);
@@ -73,7 +82,9 @@ EquationSystem::EquationSystem
 		this->variables = trig::variables;
 		this->integrate = trig::integrate;
 
-		if ( endpoint == "first_turnaround" ) {
+		if ( endpoint == "" ) {
+			// nothing, default is in place
+		} else if ( endpoint == "first_turnaround" ) {
 			this->endpoint = trig::first_turnaround;
 		} else {
 			not_found(system, endpoint);

@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#include <boost/multi_array.hpp>
+
 namespace lagrangians
 {
 	class EquationSystem
