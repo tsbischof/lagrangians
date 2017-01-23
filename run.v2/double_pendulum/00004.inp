@@ -2,10 +2,10 @@
 run_type = video
 
 system = double_pendulum
-t = 0, 10, 0.001
+t = 0, 1, 0.001
 
-width = 1000
-height = 1000
+width = 500
+height = 500
 
 [defaults]
 l1 = 1

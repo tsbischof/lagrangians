@@ -159,8 +159,8 @@ int Lagrangian::allocate_video
 
 		auto depth = this->video_variables[0][0].size();
 
-		for ( auto step = 0; step < this->t_steps + 1; step++ ) {
-			// one extra frame for t = 0
+		for ( auto step = 0; step <= this->t_steps; step++ ) {
+			// one extra frame for t = 0 (<= instead of <)
 			for ( auto row = 0; row < this->height; row++ ) {
 				for ( auto column = 0; column < this->width; column++ ) {
 					for ( auto var = 0; var < depth; var++ ) {
