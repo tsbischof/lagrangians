@@ -232,7 +232,7 @@ void Lagrangian::run_image
 			continue;
 		}
 
-		std::cout << boost::posix_time::to_simple_string(boost::posix_time::second_clock::local_time()) << ": " << this->input_filename.string() << ": working on row " << row << " of " << this->height << std::endl;
+		std::cerr << boost::posix_time::to_simple_string(boost::posix_time::second_clock::local_time()) << ": " << this->input_filename.string() << ": working on row " << row << " of " << this->height << std::endl;
 
 		# pragma omp parallel for schedule(dynamic)
 		for ( column = 0; column < this->width; column++ ) {
@@ -341,7 +341,7 @@ void Lagrangian::run_video
 			continue;
 		}
 
-		std::cout << boost::posix_time::to_simple_string(boost::posix_time::second_clock::local_time()) << ": " << this->input_filename.string() << ": working on time step " << step << " of " << this->t_steps << std::endl;
+		std::cerr << boost::posix_time::to_simple_string(boost::posix_time::second_clock::local_time()) << ": " << this->input_filename.string() << ": working on time step " << step << " of " << this->t_steps << std::endl;
 
 		# pragma omp parallel for schedule(dynamic) private(row, column)
 		for ( row = 0; row < this->height; row++ ) {

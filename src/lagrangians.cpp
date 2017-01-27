@@ -48,8 +48,13 @@ int main
 
 	if ( vm.count("help") ) { 
 		std::cout << description << std::endl;
-	       	return(1); 
+       	return(1); 
 	} 
+
+	if ( vm.count("version") ) {
+		std::cout << "2" << std::endl;
+		return(0);
+	}
 	
 	std::vector<fs::path> input_files;
 
