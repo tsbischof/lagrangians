@@ -53,10 +53,10 @@ namespace lagrangians {
 			void run(void);
 
 			std::string status_string(void);
+			fs::path filename(std::string);
 		private:
 			int allocate_image(void);	
 			int allocate_video(void);
-			fs::path filename(std::string);
 			void run_video(void);
 			void run_image(void);
 	};

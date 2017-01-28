@@ -387,18 +387,27 @@ void Lagrangian::run_video
 std::string Lagrangian::status_string
 (void)
 {
-	std::ifstream status_file(this->filename("status").string(), std::ios::binary | std::ios::in );
-	char val;
-	unsigned int finished = 0;
+	/* this currently only works for image status */
+	std::string status_filename = this->filename("status").string();
+	size_t finished = 0;
 
-	for ( int i = 0; i < this->height; i++ ) {
-		status_file.read(&val, sizeof(val));
-		if ( val ) {
-			finished++;
+	if ( fs::exists(this->filename("trajectory").string()) and not fs::exists(status_filename) ) {
+		finished = this->height;
+	} else if ( not fs::exists(status_filename) ) {
+		finished = 0;
+	} else {
+		std::ifstream status_file(this->filename("status").string(), std::ios::binary | std::ios::in );
+		char val;
+
+		for ( size_t i = 0; i < this->height; i++ ) {
+			status_file.read(&val, sizeof(val));
+			if ( val ) {
+				finished++;
+			}
 		}
-	}
 
-	status_file.close();
+		status_file.close();
+	}
 
 	return(this->input_filename.string() + ": Finished " + std::to_string(finished) + " of " + std::to_string(this->height) + " rows");
 }

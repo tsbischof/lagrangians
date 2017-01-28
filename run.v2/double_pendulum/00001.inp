@@ -6,8 +6,8 @@ t = 0, 100, 0.001
 
 endpoint = lower_turnaround
 
-width = 1001
-height = 1001
+width = 5001
+height = 5001
 
 [defaults]
 l1 = 1
@@ -19,7 +19,7 @@ dphi1 = 1
 dphi2 = 1
 
 [vertical]
-phi1 = -3.14159, 3.14159
+phi1 = -6.28318530718, 6.28318530718
 
 [horizontal]
-phi2 = -3.14159, 3.14159
+phi2 = -6.28318530718, 6.28318530718

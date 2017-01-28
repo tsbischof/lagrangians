@@ -68,7 +68,9 @@ int main
 		try {
 			lagrangians::Lagrangian lagrangian(input_filename);
 			if ( vm.count("status") ) {
-				std::cout << lagrangian.status_string() << std::endl;
+				if ( fs::exists(lagrangian.filename("trajectory").string()) ) {
+					std::cout << lagrangian.status_string() << std::endl;
+				}
 			} else {
 				lagrangian.run();
 			}
