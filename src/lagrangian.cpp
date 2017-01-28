@@ -219,6 +219,7 @@ void Lagrangian::run
 void Lagrangian::run_image
 (void)
 {
+	size_t row_size = sizeof(this->image[0][0])*this->image[0].size();
 	size_t row, column;
 
 	this->allocate_image();
@@ -227,9 +228,19 @@ void Lagrangian::run_image
 	for ( row = 0; row < this->height; row++ ) {
 		// complete rows do not need to be worked on
 		if ( this->status[row] ) {
-			this->trajectory_file.seekp(sizeof(this->image[row][0])*(this->image[row].size()), std::ios_base::cur);
+			this->trajectory_file.seekp(row_size, std::ios_base::cur);
 			this->status_file.seekp(sizeof(this->status[row]), std::ios_base::cur);
 			continue;
+		}
+
+		/* for a file which has been left open a long time, the file pointer seems
+		 * to reset. To fight this we will explicitly check that we are at the correct
+		 * location.
+		 */
+		if ( this->trajectory_file.tellp() != (row * row_size) ) {
+			std::cerr << "improper row pointer at row " << row << ". Expected " << row*row_size << " but got " << this->trajectory_file.tellp() << std::endl;
+			this->trajectory_file.seekp(row_size*row, std::ios_base::beg);
+			this->status_file.seekp(sizeof(this->status[row])*row, std::ios_base::beg);
 		}
 
 		std::cerr << boost::posix_time::to_simple_string(boost::posix_time::second_clock::local_time()) << ": " << this->input_filename.string() << ": working on row " << row << " of " << this->height << std::endl;
