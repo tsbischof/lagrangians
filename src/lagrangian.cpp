@@ -219,7 +219,7 @@ void Lagrangian::run
 void Lagrangian::run_image
 (void)
 {
-	size_t row_size = sizeof(this->image[0][0])*this->image[0].size();
+	size_t row_size = sizeof(this->image[0][0])*this->image[0].size()*this->width;
 	size_t row, column;
 
 	this->allocate_image();
