@@ -1,6 +1,5 @@
--do proper checks of return statuses (error checking? How silly)
--be more careful with the Points object, and pass copies when it makes sense.
--simplify the grapher, such that we can do parallel runs more easily.
--put the new version online, and update the paper
--make a configuration file which lets us set things like the location of ImageMagick
--modify the gui to use the new system
+-speedup: check the endpoint every n steps, then seek backwards when we find it to get the first point where the endpoint is satisfied.
+-for video run, eliminate the copying involved in working with boost::multi_array
+-make an image and video renderer, including colormaps
+-test video output
+-investigate use of GPGPU for render
