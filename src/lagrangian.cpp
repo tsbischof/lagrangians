@@ -387,13 +387,18 @@ void Lagrangian::run_video
 std::string Lagrangian::status_string
 (void)
 {
+	std::ifstream status_file(this->filename("status").string(), std::ios::binary | std::ios::in );
+	char val;
 	unsigned int finished = 0;
 
-	for ( auto& status: this->status ) {
-		if ( status ) {
+	for ( int i = 0; i < this->height; i++ ) {
+		status_file.read(&val, sizeof(val));
+		if ( val ) {
 			finished++;
 		}
 	}
+
+	status_file.close();
 
 	return(this->input_filename.string() + ": Finished " + std::to_string(finished) + " of " + std::to_string(this->height) + " rows");
 }
