@@ -3,3 +3,5 @@
 -make an image and video renderer, including colormaps
 -test video output
 -investigate use of GPGPU for render
+-enable status check for videos
+-enable restart for videos
