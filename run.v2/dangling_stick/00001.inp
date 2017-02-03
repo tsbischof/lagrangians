@@ -1,0 +1,28 @@
+[config]
+system = dangling_stick
+run_type = image
+
+endpoint = lower_flip
+
+t = 0, 300, 0.01
+
+height = 20000
+width = 20000
+
+[defaults]
+dr = 2
+phi1 = 0
+dphi1 = -1
+dphi2 = -2
+m1 = 1
+m2 = 1
+r_0 = 0
+k = 1
+l = 1
+g = 9.8
+
+[horizontal]
+r = 1.85, 1.90
+
+[vertical]
+phi2 = 1.25, 1.30
