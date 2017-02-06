@@ -7,6 +7,7 @@
 #include "systems/double_pendulum.hpp"
 #include "systems/double_spring.hpp"
 #include "systems/double_well.hpp"
+#include "systems/springy_pendulum.hpp"
 #include "systems/trig.hpp"
 
 using namespace lagrangians;
@@ -74,6 +75,20 @@ EquationSystem::EquationSystem
 			// nothing, default is in place
 		} else if ( endpoint == "first_turnaround" ) {
 			this->endpoint = double_well::first_turnaround;
+		} else {
+			not_found(system, endpoint);
+		}
+	} else if ( system == "springy_pendulum" ) {
+		this->constants = springy_pendulum::constants;
+		this->variables = springy_pendulum::variables;
+		this->integrate = springy_pendulum::integrate;
+
+		if ( endpoint == "" ) {
+			// nothing, default is in place
+		} else if ( endpoint == "lower_flip" ) {
+			this->endpoint = springy_pendulum::lower_flip_endpoint;
+		} else if ( endpoint == "upper_flip" ) {
+			this->endpoint = springy_pendulum::upper_flip_endpoint;
 		} else {
 			not_found(system, endpoint);
 		}
