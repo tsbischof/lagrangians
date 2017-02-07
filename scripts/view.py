@@ -20,7 +20,7 @@ for input_filename in sys.argv[1:]:
     data = numpy.fromfile(os.path.join(re.sub("\.inp", ".run", input_filename),
                                        "trajectory"),
                           dtype=numpy.float64)
-    depth = round(len(data)/(height*width))
+    depth = len(data)//(height*width)
     data = data.reshape(height, width, depth)
 
     fig = plt.figure()
