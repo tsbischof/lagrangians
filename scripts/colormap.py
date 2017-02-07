@@ -38,7 +38,7 @@ if __name__ == "__main__":
                               "gist_earth", "BrBG", "PiYG", "seismic",
                               "Accent", "Pastel1", "Set1", "Set3",
                               "Paired", "flag"]:
-            dst_filename = re.sub("\.inp", "_{}.png".format(colormap_name),
+            dst_filename = re.sub("\.inp", "_t_{}.png".format(colormap_name),
                                   filename)
 
             if os.path.exists(dst_filename):
