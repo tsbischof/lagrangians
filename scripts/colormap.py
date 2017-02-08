@@ -3,6 +3,7 @@
 import argparse
 import bz2
 import configparser
+import itertools
 import os
 import re
 
@@ -10,6 +11,17 @@ import numpy
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import PIL.Image
+
+system_variables = {
+     "dangling_stick": ["r", "dr", "phi1", "dphi1", "phi2", "dphi2"],
+     "double_pendulum": ["phi1", "dphi1", "phi2", "dphi2"],
+     "double_spring": ["phi1", "dphi1", "phi2", "dphi2", "r1", "dr1", "r2", "dr2"]
+                    }
+colormap_names = ["afmhot", "bone", "gray", "gist_rainbow",
+                  "jet", "prism", "gist_ncar",
+                  "gist_earth", "BrBG", "PiYG", "seismic",
+                  "Accent", "Pastel1", "Set1", "Set3",
+                  "Paired", "flag"]
 
 def apply_colormap(dst_filename, data, colormap):
     image = PIL.Image.fromarray(numpy.uint8(colormap(data)*255))
@@ -26,40 +38,36 @@ if __name__ == "__main__":
         input_file.read(filename)
         width = input_file.getint("config", "width")
         height = input_file.getint("config", "height")
+        variables = system_variables[input_file.get("config", "system")] + ["t"]
 
         trajectory_filename = os.path.join(re.sub("\.inp", ".run", filename),
                                            "trajectory")
         bz2_filename = trajectory_filename + ".bz2"
         
-        image = None
+        data = None
         
-        for colormap_name in ["afmhot", "bone", "gray", "gist_rainbow",
-                              "jet", "prism", "gist_ncar",
-                              "gist_earth", "BrBG", "PiYG", "seismic",
-                              "Accent", "Pastel1", "Set1", "Set3",
-                              "Paired", "flag"]:
-            dst_filename = re.sub("\.inp", "_t_{}.png".format(colormap_name),
-                                  filename)
+        for index, variable in enumerate(variables):
+            for colormap_name in colormap_names:
+                dst_filename = os.path.join(re.sub("\.inp", ".run", filename),
+                                            "{}_{}.png".format(variable, colormap_name))
 
-            if os.path.exists(dst_filename):
-                pass
+                if os.path.exists(dst_filename):
+                    pass
 
-            if image is None:      
-                if os.path.exists(trajectory_filename):
-                    data = numpy.fromfile(trajectory_filename,
+                if data is None:      
+                    if os.path.exists(trajectory_filename):
+                        data = numpy.fromfile(trajectory_filename,
                                           dtype=numpy.float64)
-                elif os.path.exists(bz2_filename):
-                    data = numpy.frombuffer(bz2.BZ2File(bz2_filename).read(),
+                    elif os.path.exists(bz2_filename):
+                        data = numpy.frombuffer(bz2.BZ2File(bz2_filename).read(),
                                             dtype=numpy.float64)
-                else:
-                    raise(OSError("Could not find trajectory file "
-                                  "for {}".format(filename)))
+                    else:
+                        raise(OSError("Could not find trajectory file "
+                                      "for {}".format(filename)))
                 
-                depth = len(data)//(height * width)
-                data = data.reshape(height, width, depth)
+                    depth = len(data)//(height * width)
+                    data = data.reshape(height, width, depth)
 
-            t = data[:, :, -1]
-
-            image = PIL.Image.fromarray(
-                numpy.uint8(plt.get_cmap(colormap_name)(t)*255))
-            image.save(dst_filename)
+                image = PIL.Image.fromarray(numpy.uint8(
+                          plt.get_cmap(colormap_name)(data[:, :, index])*255))
+                image.save(dst_filename)

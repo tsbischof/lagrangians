@@ -6,17 +6,17 @@ t = 0, 100, 0.005
 
 endpoint = lower_flip
 
-width = 5000
-height = 5000
+width = 20000
+height = 20000
 
 [defaults]
 l1 = 1
 l2 = 1
-m1 = 2
+m1 = 1
 m2 = 1
 g = 9.8
-dphi1 = -2
-dphi2 = 2
+dphi1 = 0
+dphi2 = 0
 
 [vertical]
 phi1 = -6.28318530718, 6.28318530718

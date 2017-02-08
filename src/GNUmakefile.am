@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = subdir-objects
 
-bin_PROGRAMS = lagrangians colormap
+bin_PROGRAMS = lagrangians 
 
 AM_CPPFLAGS = $(BOOST_CPPFLAGS) -fopenmp -std=c++1y -D_FILE_OFFSET_BITS=64
 AM_LDFLAGS = $(BOOST_LDFLAGS) -fopenmp 
@@ -12,6 +12,3 @@ lagrangians_SOURCES = integrators.cpp phase_space.cpp \
 		      systems/springy_pendulum.cpp systems/trig.cpp \
 		      lagrangian.cpp lagrangians.cpp # last so we fail quick
 lagrangians_LDADD = $(BOOST_DATE_TIME_LIB) $(BOOST_FILESYSTEM_LIB) $(BOOST_PROGRAM_OPTIONS_LIB) $(BOOST_REGEX_LIB) $(BOOST_SYSTEM_LIB)
-
-colormap_SOURCES = colormap_main.cpp colormap.cpp
-colormap_LDADD = $(BOOST_FILESYSTEM_LIB) $(BOOST_PROGRAM_OPTIONS_LIB)
