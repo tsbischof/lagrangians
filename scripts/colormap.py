@@ -15,7 +15,10 @@ import PIL.Image
 system_variables = {
      "dangling_stick": ["r", "dr", "phi1", "dphi1", "phi2", "dphi2"],
      "double_pendulum": ["phi1", "dphi1", "phi2", "dphi2"],
-     "double_spring": ["phi1", "dphi1", "phi2", "dphi2", "r1", "dr1", "r2", "dr2"]
+     "double_spring": ["phi1", "dphi1", "phi2", "dphi2", "r1", "dr1", "r2", "dr2"],
+     "double_well": ["x", "v"],
+     "springy_pendulum": ["r", "dr", "phi1", "dphi1", "phi2", "dphi2"],
+     "trig": ["x", "v"]
                     }
 colormap_names = ["afmhot", "bone", "gray", "gist_rainbow",
                   "jet", "prism", "gist_ncar",
