@@ -5,3 +5,4 @@
 -investigate use of GPGPU for render
 -enable status check for videos
 -enable restart for videos
+-iterate through files to process, instead of loading all into memory first

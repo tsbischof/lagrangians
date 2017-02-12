@@ -66,7 +66,7 @@ Lagrangian::Lagrangian
 		} else if ( this->run_type == "video" ) {
 			video_type::extent_gen video_extents;
 
-			this->video_variables.resize(video_extents[this->height][this->width][this->system->variables.size() + 1]);
+			this->video_variables.resize(video_extents[this->height][this->width][this->system->variables.size()]);
 			this->video_constants.resize(video_extents[this->height][this->width][this->system->constants.size()]);
 
 			this->status.resize(this->t_steps);
@@ -297,7 +297,7 @@ void Lagrangian::run_image
 }
 
 void write_frame
-(std::fstream& stream_out, boost::multi_array<double, 3> const &frame)
+(std::fstream& stream_out, boost::multi_array<double, 3> const& frame)
 {
 	size_t row, column, depth;
 
@@ -354,6 +354,13 @@ void Lagrangian::run_video
 
 		std::cerr << boost::posix_time::to_simple_string(boost::posix_time::second_clock::local_time()) << ": " << this->input_filename.string() << ": working on time step " << step << " of " << this->t_steps << std::endl;
 
+// use the following code if you are debugging file location issues: tracks the file pointer and compares to the expected value
+/*		size_t point = this->height * this->width * this->system->variables.size() * step * sizeof(double);
+
+		if ( this->trajectory_file.tellp() != point ) { 
+			std::cerr << "Not at the expected point: " << this->trajectory_file.tellp() << " not " << point << std::endl;
+		} */
+
 		# pragma omp parallel for schedule(dynamic) private(row, column)
 		for ( row = 0; row < this->height; row++ ) {
 			for ( column = 0; column < this->width; column++ ) {
@@ -374,8 +381,6 @@ void Lagrangian::run_video
 				for ( auto i = 0; i < variables.size(); i++ ) {
 					this->video_variables[row][column][i] = variables[i];
 				}
-
-				this->video_variables[row][column][this->video_variables[row][column].size() - 1] = this->t_start + step*this->t_step;
 			}
 		} 
 
