@@ -20,11 +20,12 @@ system_variables = {
      "springy_pendulum": ["r", "dr", "phi1", "dphi1", "phi2", "dphi2"],
      "trig": ["x", "v"]
                     }
-colormap_names = ["afmhot", "bone", "gray", "gist_rainbow",
-                  "jet", "prism", "gist_ncar",
-                  "gist_earth", "BrBG", "PiYG", "seismic",
-                  "Accent", "Pastel1", "Set1", "Set3",
-                  "Paired", "flag"]
+#colormap_names = ["afmhot", "bone", "gray", "gist_rainbow",
+#                  "jet", "prism", "gist_ncar",
+#                  "gist_earth", "BrBG", "PiYG", "seismic",
+#                  "Accent", "Pastel1", "Set1", "Set3",
+#                  "Paired", "flag"]
+colormap_names = ["afmhot"]
 
 def apply_colormap(dst_filename, data, colormap):
     image = PIL.Image.fromarray(numpy.uint8(colormap(data)*255))
