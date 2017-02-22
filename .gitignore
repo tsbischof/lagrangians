@@ -19,5 +19,6 @@ CVS
 *.swp
 *.restart
 *.toc
-sweep*
 *.run
+
+sweep*
