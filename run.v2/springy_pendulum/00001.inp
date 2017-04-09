@@ -1,0 +1,26 @@
+[config]
+system = springy_pendulum
+run_type = video
+
+t = 0, 100, 0.001
+
+width = 30
+height = 30
+
+[defaults]
+dr = 0
+r = 1
+r_0 = 1
+g = 9.8
+l = 1
+k = 1
+m1 = 1
+m2 = 1
+dphi1 = 0
+dphi2 = 0
+
+[horizontal]
+phi1 = -2, 2
+
+[vertical]
+phi2 = -2, 2
