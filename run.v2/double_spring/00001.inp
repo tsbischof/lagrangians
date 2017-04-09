@@ -1,0 +1,30 @@
+[config]
+system = double_spring
+run_type = image
+endpoint = lower_flip
+
+t = 0, 100, 0.001
+
+height = 200
+width = 200
+
+[defaults]
+dphi1 = 0
+dphi2 = 0
+r1 = 1
+dr1 = 0
+r2 = 1
+dr2 = 0
+m1 = 1
+m2 = 1
+k1 = 1
+k2 = 1
+r1_0 = 1
+r2_0 = 1
+g = 9.8
+
+[horizontal]
+phi1 = -2, -1
+
+[vertical]
+phi2 = -2, -1
