@@ -9,6 +9,7 @@ import re
 
 import numpy
 import matplotlib.cm as cm
+import matplotlib.colors
 import matplotlib.pyplot as plt
 import PIL.Image
 
@@ -20,12 +21,7 @@ system_variables = {
      "springy_pendulum": ["r", "dr", "phi1", "dphi1", "phi2", "dphi2"],
      "trig": ["x", "v"]
                     }
-#colormap_names = ["afmhot", "bone", "gray", "gist_rainbow",
-#                  "jet", "prism", "gist_ncar",
-#                  "gist_earth", "BrBG", "PiYG", "seismic",
-#                  "Accent", "Pastel1", "Set1", "Set3",
-#                  "Paired", "flag"]
-colormap_names = ["afmhot"]
+#
 
 def apply_colormap(dst_filename, data, colormap):
     image = PIL.Image.fromarray(numpy.uint8(colormap(data)*255))
@@ -33,9 +29,21 @@ def apply_colormap(dst_filename, data, colormap):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("--all", action="store_true")
     parser.add_argument("input_files", metavar="input-files", nargs="*")
+    parser.add_argument("--flip", action="store_true")
+    parser.add_argument("--force-creation", action="store_true")
 
     args = parser.parse_args()
+
+    if args.all:
+        colormap_names = ["afmhot", "bone", "gray", "gist_rainbow",
+                          "jet", "prism", "gist_ncar",
+                          "gist_earth", "BrBG", "PiYG", "seismic",
+                          "Accent", "Pastel1", "Set1", "Set3",
+                          "Paired", "flag"]
+    else:
+        colormap_names = ["afmhot"]
 
     for filename in args.input_files:
         input_file = configparser.ConfigParser()
@@ -55,8 +63,8 @@ if __name__ == "__main__":
                 dst_filename = os.path.join(re.sub("\.inp", ".run", filename),
                                             "{}_{}.png".format(variable, colormap_name))
 
-                if os.path.exists(dst_filename):
-                    pass
+                if os.path.exists(dst_filename) and not args.force_creation:
+                    continue
 
                 if data is None:      
                     if os.path.exists(trajectory_filename):
@@ -71,7 +79,16 @@ if __name__ == "__main__":
                 
                     depth = len(data)//(height * width)
                     data = data.reshape(height, width, depth)
+                    if args.flip:
+                        raw = data
+                        data = numpy.zeros((width, width, depth))
+                        data[height:, :, :] = raw
+                        data[:height, :, :-1] = \
+                                      -numpy.rot90(raw, k=2)[:, :, :-1]
+                        data[:height, :, -1] = numpy.rot90(raw, k=2)[:, :, -1]
 
-                image = PIL.Image.fromarray(numpy.uint8(
-                          plt.get_cmap(colormap_name)(data[:, :, index])*255))
-                image.save(dst_filename)
+                color = plt.get_cmap(colormap_name)(
+                    matplotlib.colors.Normalize()(data[:, :, index]),
+                    bytes=True)
+                color[:, :, 3] = 255
+                PIL.Image.fromarray(color).save(dst_filename)

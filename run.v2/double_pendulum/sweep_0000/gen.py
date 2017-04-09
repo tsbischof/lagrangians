@@ -11,7 +11,7 @@ t = 0, 100, 0.005
 endpoint = lower_flip
 
 width = 2500
-height = 2500
+height = 1250
 
 [defaults]
 l1 = 1
@@ -26,9 +26,9 @@ dphi2 = 0
 phi1 = -6.28318530718, 6.28318530718
 
 [vertical]
-phi2 = -6.28318530718, 6.28318530718"""
+phi2 = 0, 6.28318530718"""
 
-for index, m in enumerate(numpy.arange(0.001, 10.00005, 0.001)):
+for index, m in enumerate(numpy.arange(0.5, 2.001, 0.005)):
     with open("{0:05d}.inp".format(index), "w") as stream_out:
         stream_out.write(input_file.format(m))
 
