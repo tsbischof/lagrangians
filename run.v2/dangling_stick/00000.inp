@@ -4,7 +4,7 @@ run_type = image
 
 endpoint = lower_flip
 
-t = 0, 300, 0.01
+t = 0, 400, 0.01
 
 height = 20000
 width = 20000

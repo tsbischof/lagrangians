@@ -1,0 +1,22 @@
+[config]
+system = trig
+run_type = video
+
+t =  0,100,0.01
+
+height = 30
+width = 30
+
+[defaults]
+k1 = 1
+k2 = 0
+k3 = 0
+k4 = 0
+k5 = 0
+k6 = 0
+
+[horizontal]
+x = -10,10
+
+[vertical]
+v = -1,1

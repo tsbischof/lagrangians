@@ -16,6 +16,7 @@ import matplotlib.cm as cm
 import matplotlib.colors
 import matplotlib.pyplot as plt
 import PIL.Image
+import wand.image
 
 system_variables = {
      "dangling_stick": ["r", "dr", "phi1", "dphi1", "phi2", "dphi2"],
@@ -85,7 +86,6 @@ def scale_data(trajectory_filename, scale, height, width, depth,
                               "gray:{}".format(dst_filename)]).wait()
             
         # rebuild trajectory
-        logging.info("concatenating images")
         data = numpy.zeros((dst_height, dst_width, depth))
         for index, filename in enumerate(sorted(dst_filenames)):
             raw = numpy.fromfile(filename, dtype=numpy.float64)
