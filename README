@@ -1,5 +1,0 @@
-# Lagrangians
-
-This package allows users to create images which represent the endpoint of a large number of simulations of differential equations. A typical input is a system of differential equations, definitions for the variety of initial conditions, a working range of time, and an endpoint. The software will then perform all of the specified simulations, writing the values of all variables at the endpoint to a multi-dimensional array. A colormapping tool then enables visualization of the output.
-
-The numerical simulation code is written in C++, and most analysis/visualization is written in Python.
