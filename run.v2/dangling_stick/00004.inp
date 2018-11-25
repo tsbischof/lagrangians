@@ -2,7 +2,11 @@
 system = dangling_stick
 run_type = video
 
+<<<<<<< HEAD
 t = 0, 1, 0.01
+=======
+t = 0, 200, 0.01
+>>>>>>> 8b839225347e7a02c1f8ebfb902ce5e8af138f0d
 
 height = 1080
 width = 1920

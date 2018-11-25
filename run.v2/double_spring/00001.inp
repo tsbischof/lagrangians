@@ -5,8 +5,8 @@ endpoint = lower_flip
 
 t = 0, 100, 0.001
 
-height = 200
-width = 200
+height = 2000
+width = 2000
 
 [defaults]
 dphi1 = 0
