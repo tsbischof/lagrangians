@@ -16,7 +16,6 @@ import matplotlib.cm as cm
 import matplotlib.colors
 import matplotlib.pyplot as plt
 import PIL.Image
-import wand.image
 
 system_variables = {
      "dangling_stick": ["r", "dr", "phi1", "dphi1", "phi2", "dphi2"],
