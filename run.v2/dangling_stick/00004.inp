@@ -1,0 +1,26 @@
+[config]
+system = dangling_stick
+run_type = video
+
+t = 0, 200, 0.01
+
+height = 1080
+width = 1920
+
+[defaults]
+dr = 1
+phi1 = 0
+dphi1 = -0.4827313431527589
+dphi2 = 2.749501355285993
+m1 = 1
+m2 = 1
+r_0 = 0
+k = 1
+l = 1
+g = 9.8
+
+[horizontal]
+r = 0.5, 2
+
+[vertical]
+phi2 = 0.5, 1.5
