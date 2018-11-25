@@ -1,5 +1,4 @@
-; from sweep_0000/0000.inp
-
+; sweep_0000/0045.inp
 [config]
 system = dangling_stick
 run_type = image
@@ -14,8 +13,8 @@ width = 4000
 [defaults]
 dr = 1
 phi1 = 0
-dphi1 = 0.5491379030552288
-dphi2 = -1.3302283674613933
+dphi1 = 0.011741068055444615
+dphi2 = -0.9579725977932605
 m1 = 1
 m2 = 1
 r_0 = 0
@@ -24,7 +23,7 @@ l = 1
 g = 9.8
 
 [horizontal]
-r = 0.5, 1.75
+r = 0.92, 1.42
 
 [vertical]
-phi2 = 0.25, 1.1
+phi2 = 0.85, 1.7
