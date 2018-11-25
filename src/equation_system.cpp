@@ -7,6 +7,7 @@
 #include "systems/double_pendulum.hpp"
 #include "systems/double_spring.hpp"
 #include "systems/double_well.hpp"
+#include "systems/lotka.hpp"
 #include "systems/springy_pendulum.hpp"
 #include "systems/trig.hpp"
 
@@ -75,6 +76,15 @@ EquationSystem::EquationSystem
 			// nothing, default is in place
 		} else if ( endpoint == "first_turnaround" ) {
 			this->endpoint = double_well::first_turnaround;
+		} else {
+			not_found(system, endpoint);
+		}
+	} else if ( system == "lotka" ) {
+		this->constants = lotka::constants;
+		this->variables = lotka::variables;
+		this->integrate = lotka::integrate;
+
+		if ( endpoint == "" ) {
 		} else {
 			not_found(system, endpoint);
 		}

@@ -15,7 +15,7 @@ for variable, colormap in itertools.product(variables, colormaps):
     if not os.path.exists("{}_{}_00000000.png".format(variable, colormap)):
         continue
 
-    dst_filename = "{}_{}.mp4".format(variable, colormap)
+    dst_filename = "{}_{}.ogg".format(variable, colormap)
 
     if not os.path.exists(dst_filename):
         subprocess.Popen(["ffmpeg", "-i", 

@@ -337,8 +337,6 @@ void Lagrangian::run_video
 			for ( auto i = 0; i < this->system->constants.size(); i++ ) {
 				this->video_constants[row][column][i] = parameters[i + this->system->variables.size()];
 			}
-
-			this->video_variables[row][column][this->video_variables[row][column].size() - 1] = this->t_start;
 		}
 	}
 
@@ -370,15 +368,18 @@ void Lagrangian::run_video
 
 				for ( auto i = 0; i < variables.size(); i++ ) {
 					variables[i] = this->video_variables[row][column][i];
+//					std::cerr << "var0 " << i << " == " << variables[i] << std::endl;
 				} 
 
 				for ( auto i = 0; i < constants.size(); i++ ) {
 					constants[i] = this->video_constants[row][column][i];
+//					std::cerr << "con0 " << i << " == " << constants[i] << std::endl;
 				}
 
 				this->system->integrate(variables, constants, this->t_step);
 
 				for ( auto i = 0; i < variables.size(); i++ ) {
+//					std::cerr << "var " << i << " == " << variables[i] << std::endl;
 					this->video_variables[row][column][i] = variables[i];
 				}
 			}

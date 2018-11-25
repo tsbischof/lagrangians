@@ -6,8 +6,8 @@ endpoint = first_turnaround
 
 t =  0,100,0.001
 
-height = 100
-width = 100
+height = 10000
+width = 10000
 
 [defaults]
 k1 = 1

@@ -23,6 +23,7 @@ system_variables = {
      "double_pendulum": ["phi1", "dphi1", "phi2", "dphi2"],
      "double_spring": ["phi1", "dphi1", "phi2", "dphi2", "r1", "dr1", "r2", "dr2"],
      "double_well": ["x", "v"],
+     "lotka": ["x", "y"],
      "springy_pendulum": ["r", "dr", "phi1", "dphi1", "phi2", "dphi2"],
      "trig": ["x", "v"]
                     }
