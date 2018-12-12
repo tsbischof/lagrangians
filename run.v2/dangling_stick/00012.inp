@@ -1,0 +1,29 @@
+; sweep_0000/0064.inp
+[config]
+system = dangling_stick
+run_type = image
+
+endpoint = lower_flip
+
+t = 0, 400, 0.01
+
+height = 20000
+width = 20000
+
+[defaults]
+dr = 1
+phi1 = 0
+dphi1 = 0.4842199440684767
+dphi2 = -2.587576268530479
+m1 = 1
+m2 = 1
+r_0 = 0
+k = 1
+l = 1
+g = 9.8
+
+[horizontal]
+r = 0.5, 0.8375
+
+[vertical]
+phi2 = 0.995, 1.25
