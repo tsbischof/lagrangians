@@ -1,0 +1,28 @@
+[config]
+system = springy_pendulum
+run_type = image
+
+endpoint = lower_flip
+
+t = 0, 400, 0.01
+
+height = 5000
+width = 5000
+
+[defaults]
+dr = 1
+phi1 = 0
+dphi1 = 0.43192050030467
+dphi2 = 0.09044928120354445
+m1 = 1
+m2 = 1
+r_0 = 0
+k = 1
+l = 1
+g = 9.8
+
+[horizontal]
+r = 0.5, 2
+
+[vertical]
+phi2 = 0.5, 1.25
