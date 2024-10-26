@@ -56,4 +56,4 @@ Input files are ini-style text files with the following sections:
 ![strokes](https://66.media.tumblr.com/445da890191dd152cb4d68a02c687ba0/tumblr_on2dx7qyB61w5gu6mo1_1280.png)
 
 ## Prints
-[Contact the author](https://github.com/tsbischof).
+[See my Etsy page](https://bischofart.etsy.com/) or [contact the author](https://github.com/tsbischof) for a custom request.
