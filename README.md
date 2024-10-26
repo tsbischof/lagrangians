@@ -4,7 +4,7 @@ This package implements a set of differential equation systems, the tools needed
 The short version of the mechanics is that we define a system of equations with some number of parameters. We then pick an interesting 2D slice through that phase space to form some set of initial conditions for the system, and rules for what we want to visualize as these initial conditions are advanced. Finally we advance the initial conditions through time to arrive at our interesting trajectories.
 
 ## Build
-The C++ code has been most extensively used on x86-64 Linux. I am happy to support anyone wanting to build it elsewhere, the code itselfshould be reasonbly portable.
+The C++ code has been most extensively used on x86-64 Linux. I am happy to support anyone wanting to build it elsewhere, the code itself should be reasonbly portable.
 ```
 ./bootstrap
 ./configure
